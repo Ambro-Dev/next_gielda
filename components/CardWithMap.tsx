@@ -25,6 +25,9 @@ import date_icon from "@/assets/icons/date.png";
 import user_icon from "@/assets/icons/user.png";
 import view_icon from "@/assets/icons/view.png";
 import vehicle_icon from "@/assets/icons/vehicle.png";
+import arrow_icon from "@/assets/icons/arrow.png";
+import pin_a from "@/assets/icons/pin-A.png";
+import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -37,7 +40,8 @@ type Props = {
   finish: LatLngLiteral;
 };
 
-const googleApi: string = process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
+const googleApi: string | undefined =
+  process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
 
 const CardWithMap = ({ start, finish }: Props) => {
   const mapRef = useRef<GoogleMap>();
@@ -101,7 +105,7 @@ const CardWithMap = ({ start, finish }: Props) => {
     <Card className="flex flex-col">
       <CardHeader className="h-80">
         <LoadScriptNext
-          googleMapsApiKey={googleApi}
+          googleMapsApiKey={googleApi as string}
           libraries={["places"]}
           onLoad={() => {
             setLoaded(true);
@@ -136,7 +140,7 @@ const CardWithMap = ({ start, finish }: Props) => {
       </CardHeader>
       <div className="grow">
         <CardContent>
-          <div className="flex pb-4 flex-row items-center justify-between w-full gap-2">
+          <div className="flex pb-6 flex-row items-center justify-between w-full gap-2">
             <div className="flex flex-row items-center gap-2">
               <Badge>Samochody</Badge>
               <Badge className="uppercase">Firmowe</Badge>
@@ -146,10 +150,14 @@ const CardWithMap = ({ start, finish }: Props) => {
               <span className="text-sm font-bold">{8}</span>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
               <span className="text-sm font-bold">admin</span>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <Image src={vehicle_icon} alt="date" width={24} height={24} />
+              <span className="text-sm font-bold">Bus</span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={date_icon} alt="date" width={24} height={24} />
@@ -157,10 +165,7 @@ const CardWithMap = ({ start, finish }: Props) => {
                 {new Date().toLocaleDateString()}
               </span>
             </div>
-            <div className="flex flex-row items-center gap-2">
-              <Image src={vehicle_icon} alt="date" width={24} height={24} />
-              <span className="text-sm font-bold">Bus</span>
-            </div>
+
             <div className="flex flex-row items-center gap-2">
               <Image
                 src={distance_icon}
@@ -179,16 +184,20 @@ const CardWithMap = ({ start, finish }: Props) => {
               </span>
             </div>
           </div>
-          <div className="flex flex-col justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-sm text-gray-500">Początek</span>
-              <span className="text-sm font-bold">
+          <div className="flex flex-row pt-6 items-start">
+            <div className="flex flex-col items-center justify-start h-full w-5/12">
+              <Image src={pin_a} width={48} height={48} alt="start" />
+              <span className="text-sm font-bold text-center">
                 {directionsLeg?.start_address}
               </span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm text-gray-500">Koniec</span>
-              <span className="text-sm font-bold">
+            <div className="flex items-center justify-center my-auto w-2/12">
+              <Image src={arrow_icon} alt="arrow" width={36} height={36} />
+            </div>
+
+            <div className="flex flex-col items-center justify-between w-5/12">
+              <Image src={pin_b} width={48} height={48} alt="start" />
+              <span className="text-sm font-bold text-center">
                 {directionsLeg?.end_address}
               </span>
             </div>
@@ -197,7 +206,7 @@ const CardWithMap = ({ start, finish }: Props) => {
       </div>
 
       <CardFooter>
-        <Button className="w-full">Zobacz ogłoszenia</Button>
+        <Button className="w-full">Zobacz ogłoszenie</Button>
       </CardFooter>
     </Card>
   );
