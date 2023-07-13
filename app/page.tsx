@@ -38,17 +38,17 @@ export default function Home() {
   const tags = [{ id: 1, name: "Samochody" }];
 
   return (
-    <div className="flex mx-auto flex-col max-w-6xl xl:px-0 px-10 pb-10">
+    <div className="flex mx-auto flex-col max-w-6xl xl:px-0 px-3 pb-10">
       <Button
         className="rounded-full bg-amber-500 w-full transition-all duration-500"
         size="lg"
       >
         Dodaj ogłoszenie
       </Button>
-      <div className="grid grid-cols-2 w-full gap-4 py-7 px-3">
+      <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-4 py-7 px-3">
         <div className="w-full flex flex-col gap-4">
-          <div className="w-full flex flex-row gap-4">
-            <div className="w-1/2">
+          <div className="w-full flex md:flex-row flex-col gap-4">
+            <div className="w-full">
               <Select>
                 <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Wybierz kategorię ogłoszenia" />
@@ -61,7 +61,7 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-1/2">
+            <div className="w-full">
               <Select>
                 <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Wybierz typ pojazdu transportowego" />
@@ -172,7 +172,7 @@ export default function Home() {
                 Kategorie ogłoszeń
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="max-w-fit" side="right" sideOffset={10}>
+            <PopoverContent>
               <ScrollArea className="h-auto w-full rounded-md border">
                 <div className="p-4">
                   {tags.map((tag) => (
@@ -213,6 +213,16 @@ export default function Home() {
             finish={{
               lat: 42.22977,
               lng: 19.01178,
+            }}
+          />
+          <CardWithMap
+            start={{
+              lat: 50.22977,
+              lng: 21.01178,
+            }}
+            finish={{
+              lat: 38.22977,
+              lng: 22.01178,
             }}
           />
         </div>

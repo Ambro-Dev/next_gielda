@@ -17,6 +17,16 @@ import React, {
 } from "react";
 
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
+import Image from "next/image";
+
+import distance_icon from "@/assets/icons/distance.png";
+import time_icon from "@/assets/icons/time.png";
+import date_icon from "@/assets/icons/date.png";
+import user_icon from "@/assets/icons/user.png";
+import view_icon from "@/assets/icons/view.png";
+import vehicle_icon from "@/assets/icons/vehicle.png";
+
+import { Badge } from "@/components/ui/badge";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -26,6 +36,8 @@ type Props = {
   start: LatLngLiteral;
   finish: LatLngLiteral;
 };
+
+const googleApi: string = process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
 
 const CardWithMap = ({ start, finish }: Props) => {
   const mapRef = useRef<GoogleMap>();
@@ -83,12 +95,13 @@ const CardWithMap = ({ start, finish }: Props) => {
   const containerStyle = {
     width: "100%",
     height: "300px",
+    borderRadius: "0.5rem",
   };
   return (
     <Card className="flex flex-col">
-      <CardHeader className="h-80 -p-2">
+      <CardHeader className="h-80">
         <LoadScriptNext
-          googleMapsApiKey="AIzaSyCyJ8vmWKxKxO6PCMnyijjuTger_SqNrgg"
+          googleMapsApiKey={googleApi}
           libraries={["places"]}
           onLoad={() => {
             setLoaded(true);
@@ -123,22 +136,50 @@ const CardWithMap = ({ start, finish }: Props) => {
       </CardHeader>
       <div className="grow">
         <CardContent>
-          <div className="flex justify-between">
-            <div className="flex flex-col">
-              <span className="text-sm text-gray-500">Odległość</span>
+          <div className="flex pb-4 flex-row items-center justify-between w-full gap-2">
+            <div className="flex flex-row items-center gap-2">
+              <Badge>Samochody</Badge>
+              <Badge className="uppercase">Firmowe</Badge>
+            </div>
+            <div className="flex flex-row items-center gap-2 w-1/5">
+              <Image src={view_icon} alt="distance" width={24} height={24} />
+              <span className="text-sm font-bold">{8}</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex flex-row items-center gap-2">
+              <Image src={user_icon} alt="user" width={24} height={24} />
+              <span className="text-sm font-bold">admin</span>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <Image src={date_icon} alt="date" width={24} height={24} />
+              <span className="text-sm font-bold">
+                {new Date().toLocaleDateString()}
+              </span>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <Image src={vehicle_icon} alt="date" width={24} height={24} />
+              <span className="text-sm font-bold">Bus</span>
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <Image
+                src={distance_icon}
+                alt="distance"
+                width={24}
+                height={24}
+              />
               <span className="text-sm font-bold">
                 {directionsLeg?.distance?.text}
               </span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm text-gray-500">Czas</span>
+            <div className="flex col-span-2 flex-row items-center gap-2">
+              <Image src={time_icon} alt="time" width={24} height={24} />
               <span className="text-sm font-bold">
                 {directionsLeg?.duration?.text}
               </span>
             </div>
           </div>
-
-          <div className="flex justify-between">
+          <div className="flex flex-col justify-between items-center">
             <div className="flex flex-col">
               <span className="text-sm text-gray-500">Początek</span>
               <span className="text-sm font-bold">
