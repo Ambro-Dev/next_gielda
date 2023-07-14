@@ -30,6 +30,7 @@ import pin_a from "@/assets/icons/pin-A.png";
 import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -206,7 +207,9 @@ const CardWithMap = ({ start, finish }: Props) => {
       </div>
 
       <CardFooter>
-        <Button className="w-full">Zobacz ogłoszenie</Button>
+        <Link href="/transport/1" className="w-full">
+          <Button className="w-full">Zobacz ogłoszenie</Button>
+        </Link>
       </CardFooter>
     </Card>
   );
