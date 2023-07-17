@@ -26,8 +26,6 @@ import { Button } from "@/components/ui/button";
 const TopBar = () => {
   const { data, status } = useSession();
 
-  console.log(data, status);
-
   const isAuth = status === "authenticated";
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { genSaltSync, hashSync, compareSync } from "bcrypt-ts";
+import { compare, hash, genSalt } from "bcrypt";
 
 interface UserDocument extends mongoose.Document {
   email: string;
@@ -15,7 +15,7 @@ interface Methods {
   comparePassword: (password: string) => Promise<boolean>;
 }
 
-const UserSchema = new mongoose.Schema<UserDocument, {}, Methods>(
+const userSchema = new mongoose.Schema<UserDocument, {}, Methods>(
   {
     username: {
       type: String,
@@ -53,23 +53,25 @@ const UserSchema = new mongoose.Schema<UserDocument, {}, Methods>(
   { timestamps: true }
 );
 
-UserSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
-    const salt = genSaltSync(10);
-    this.password = hashSync(this.password, salt);
+    const salt = await genSalt(10);
+    this.password = await hash(this.password, salt);
     next();
   } catch (error) {
     throw error;
   }
 });
 
-UserSchema.methods.comparePassword = async function (password) {
+userSchema.methods.comparePassword = async function (password) {
   try {
-    return compareSync(password, this.password);
+    console.log(password, this.password);
+    return await compare(password, this.password);
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
 
-export const User = mongoose.models.User || mongoose.model("User", UserSchema);
+export const User = mongoose.models.User || mongoose.model("User", userSchema);

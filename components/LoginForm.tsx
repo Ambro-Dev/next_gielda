@@ -41,11 +41,14 @@ export function LoginForm() {
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const { username, password } = values;
     const response = await signIn("credentials", {
-      username: values.username,
-      password: values.password,
+      username,
+      password,
       redirect: false,
     });
+
+    console.log(response);
 
     if (response?.error) {
       form.setError("username", {
@@ -57,7 +60,6 @@ export function LoginForm() {
         message: "Nazwa użytkownika lub hasło jest nieprawidłowe.",
       });
     }
-    router.replace("/");
   };
 
   return (
