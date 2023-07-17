@@ -20,8 +20,16 @@ import {
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
+import { signOut, useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 const TopBar = () => {
+  const { data, status } = useSession();
+
+  console.log(data, status);
+
+  const isAuth = status === "authenticated";
+
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
     <div className="fixed w-full px-10 bg-white shadow-md z-10">
@@ -82,15 +90,35 @@ const TopBar = () => {
                           </NavigationMenuLink>
                         </Link>
                       </NavigationMenuItem>
-                      <NavigationMenuItem>
-                        <Link href="/docs" legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={navigationMenuTriggerStyle()}
-                          >
-                            Zaloguj się
-                          </NavigationMenuLink>
-                        </Link>
-                      </NavigationMenuItem>
+                      {!isAuth ? (
+                        <NavigationMenuItem>
+                          <Link href="/signin" legacyBehavior passHref>
+                            <NavigationMenuLink
+                              className={navigationMenuTriggerStyle()}
+                            >
+                              Zaloguj się
+                            </NavigationMenuLink>
+                          </Link>
+                        </NavigationMenuItem>
+                      ) : (
+                        <>
+                          <NavigationMenuItem>
+                            <div>{data?.user?.username}</div>
+                          </NavigationMenuItem>
+                          <NavigationMenuItem>
+                            <NavigationMenuLink
+                              className={navigationMenuTriggerStyle()}
+                            >
+                              <Button
+                                className="bg-transparent hover:bg-transparent text-black bg:text-black"
+                                onClick={() => signOut()}
+                              >
+                                Wyloguj się
+                              </Button>
+                            </NavigationMenuLink>
+                          </NavigationMenuItem>
+                        </>
+                      )}
                     </NavigationMenuList>
                   </NavigationMenu>
                   <div className="flex flex-row justify-center items-center gap-4">
@@ -170,13 +198,31 @@ const TopBar = () => {
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/docs" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Zaloguj się
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+            {!isAuth ? (
+              <NavigationMenuItem>
+                <Link href="/signin" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Zaloguj się
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            ) : (
+              <>
+                <NavigationMenuItem>
+                  <div>{data?.user?.username}</div>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <Button
+                      className="bg-transparent hover:bg-transparent text-black bg:text-black"
+                      onClick={() => signOut()}
+                    >
+                      Wyloguj się
+                    </Button>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex flex-row justify-center items-center gap-4">

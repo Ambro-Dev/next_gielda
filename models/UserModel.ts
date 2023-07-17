@@ -1,43 +1,75 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+import { genSaltSync, hashSync, compareSync } from "bcrypt-ts";
 
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please add a name'],
-        trim: true,
-        maxlength: [50, 'Name cannot be more than 50 characters']
+interface UserDocument extends mongoose.Document {
+  email: string;
+  username: string;
+  role: "admin" | "school_admin" | "user";
+  password: string;
+  resetPasswordToken: string;
+  resetPasswordExpire: Date;
+  createdAt: Date;
+}
+
+interface Methods {
+  comparePassword: (password: string) => Promise<boolean>;
+}
+
+const UserSchema = new mongoose.Schema<UserDocument, {}, Methods>(
+  {
+    username: {
+      type: String,
+      required: [true, "Please add a username"],
+      trim: true,
+      maxlength: [50, "Username cannot be more than 50 characters"],
+      unique: true,
     },
     email: {
-        type: String,
-        required: [true, 'Please add an email'],
-        trim: true,
-        maxlength: [50, 'Email cannot be more than 50 characters'],
-        unique: true,
-        match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please add a valid email'
-        ]
+      type: String,
+      required: [true, "Please add an email"],
+      trim: true,
+      maxlength: [50, "Email cannot be more than 50 characters"],
+      unique: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please add a valid email",
+      ],
     },
     role: {
-        type: String,
-        enum: ['user', 'school_admin', 'admin'],
-        default: 'user'
+      type: String,
+      enum: ["user", "school_admin", "admin"],
+      default: "user",
     },
     password: {
-        type: String,
-        required: [true, 'Please add a password'],
-        trim: true,
-        minlength: [6, 'Password cannot be less than 6 characters'],
-        select: false
+      type: String,
+      required: [true, "Please add a password"],
+      trim: true,
+      minlength: [6, "Password cannot be less than 6 characters"],
+      select: false,
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-const User =  mongoose.models.User || mongoose.model('User', UserSchema);
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  try {
+    const salt = genSaltSync(10);
+    this.password = hashSync(this.password, salt);
+    next();
+  } catch (error) {
+    throw error;
+  }
+});
 
-export default User;
+UserSchema.methods.comparePassword = async function (password) {
+  try {
+    return compareSync(password, this.password);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const User = mongoose.models.User || mongoose.model("User", UserSchema);
