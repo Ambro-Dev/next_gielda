@@ -48,17 +48,18 @@ export function LoginForm() {
       redirect: false,
     });
 
-    console.log(response);
-
     if (response?.error) {
-      form.setError("username", {
-        type: "manual",
-        message: "Nazwa użytkownika lub hasło jest nieprawidłowe.",
-      });
-      form.setError("password", {
-        type: "manual",
-        message: "Nazwa użytkownika lub hasło jest nieprawidłowe.",
-      });
+      if (response.error === "User not found") {
+        form.setError("username", {
+          type: "manual",
+          message: "Nazwa użytkownika jest nieprawidłowa.",
+        });
+      } else if (response.error === "Invalid password") {
+        form.setError("password", {
+          type: "manual",
+          message: "Hasło jest nieprawidłowe.",
+        });
+      }
     }
   };
 
@@ -93,7 +94,11 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Zaloguj</Button>
+        <div className="w-full flex justify-end items-center">
+          <Button type="submit" className="w-full">
+            Zaloguj
+          </Button>
+        </div>
       </form>
     </Form>
   );

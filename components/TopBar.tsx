@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -27,18 +28,13 @@ const TopBar = () => {
   const { data, status } = useSession();
 
   const isAuth = status === "authenticated";
-
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
     <div className="fixed w-full px-10 bg-white shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
         <div className="flex justify-start flex-row items-center w-full h-16 py-1">
           <Sheet>
             <SheetTrigger asChild>
-              <button
-                className="w-10 h-10 mr-4 lg:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
+              <button className="w-10 h-10 mr-4 lg:hidden">
                 <svg
                   className=""
                   viewBox="0 0 24 24"
@@ -75,7 +71,9 @@ const TopBar = () => {
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-none duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/docs" legacyBehavior passHref>
                           <NavigationMenuLink>
-                            Dodaj ogłoszenie
+                            <SheetClose asChild>
+                              <p>Dodaj ogłoszenie</p>
+                            </SheetClose>
                           </NavigationMenuLink>
                         </Link>
                       </NavigationMenuItem>
@@ -84,7 +82,9 @@ const TopBar = () => {
                           <NavigationMenuLink
                             className={navigationMenuTriggerStyle()}
                           >
-                            Giełda transportowa
+                            <SheetClose asChild>
+                              <p>Giełda transportowa</p>
+                            </SheetClose>
                           </NavigationMenuLink>
                         </Link>
                       </NavigationMenuItem>
@@ -94,7 +94,9 @@ const TopBar = () => {
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
                             >
-                              Zaloguj się
+                              <SheetClose asChild>
+                                <p>Zaloguj się</p>
+                              </SheetClose>
                             </NavigationMenuLink>
                           </Link>
                         </NavigationMenuItem>
@@ -106,13 +108,11 @@ const TopBar = () => {
                           <NavigationMenuItem>
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
+                              onClick={() => signOut()}
                             >
-                              <Button
-                                className="bg-transparent hover:bg-transparent text-black bg:text-black"
-                                onClick={() => signOut()}
-                              >
-                                Wyloguj się
-                              </Button>
+                              <SheetClose asChild>
+                                <p>Wyloguj się</p>
+                              </SheetClose>
                             </NavigationMenuLink>
                           </NavigationMenuItem>
                         </>
@@ -210,13 +210,11 @@ const TopBar = () => {
                   <div>{data?.user?.username}</div>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    <Button
-                      className="bg-transparent hover:bg-transparent text-black bg:text-black"
-                      onClick={() => signOut()}
-                    >
-                      Wyloguj się
-                    </Button>
+                  <NavigationMenuLink
+                    className={navigationMenuTriggerStyle()}
+                    onClick={() => signOut()}
+                  >
+                    Wyloguj się
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </>

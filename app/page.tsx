@@ -38,7 +38,7 @@ export default function Home() {
   const tags = [{ id: 1, name: "Samochody" }];
 
   return (
-    <div className="flex mx-auto flex-col max-w-6xl xl:px-0 px-3 pb-10">
+    <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
       <Button
         className="rounded-full bg-amber-500 w-full transition-all duration-500"
         size="lg"

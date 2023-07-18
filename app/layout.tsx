@@ -21,9 +21,11 @@ export default function RootLayout({
     <NextAuthProvider>
       <html lang="en">
         <body className={inter.className}>
-          <main className="relative flex min-h-screen w-full flex-col flex-grow bg-gray-100">
+          <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <TopBar />
-            <div className="lg:pt-36 pt-20 flex-grow">{children}</div>
+            <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+              {children}
+            </div>
             <Footer />
           </main>
         </body>
