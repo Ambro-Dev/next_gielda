@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./provider";
+import MessengerChatBox from "@/components/MessengerChat";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
             <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
               {children}
             </div>
+            <MessengerChatBox />
             <Footer />
           </main>
         </body>

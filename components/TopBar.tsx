@@ -68,7 +68,7 @@ const TopBar = () => {
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
-                      <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-none duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
+                      <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/docs" legacyBehavior passHref>
                           <NavigationMenuLink>
                             <SheetClose asChild>
@@ -184,7 +184,14 @@ const TopBar = () => {
       <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-white">
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
-            <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-none duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
+            {data?.user?.role === "admin" && (
+              <NavigationMenuItem className="text-white hover:bg-neutral-900 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
+                <Link href="/docs" legacyBehavior passHref>
+                  <NavigationMenuLink>Zarządzaj apikacją</NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            )}
+            <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
               <Link href="/docs" legacyBehavior passHref>
                 <NavigationMenuLink>Dodaj ogłoszenie</NavigationMenuLink>
               </Link>
