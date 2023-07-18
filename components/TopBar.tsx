@@ -105,7 +105,7 @@ const TopBar = () => {
                           <NavigationMenuItem>
                             <div>{data?.user?.username}</div>
                           </NavigationMenuItem>
-                          <NavigationMenuItem>
+                          <NavigationMenuItem className="hover:cursor-pointer">
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
                               onClick={() => signOut()}
@@ -209,7 +209,7 @@ const TopBar = () => {
                 <NavigationMenuItem>
                   <div>{data?.user?.username}</div>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
+                <NavigationMenuItem className="hover:cursor-pointer">
                   <NavigationMenuLink
                     className={navigationMenuTriggerStyle()}
                     onClick={() => signOut()}

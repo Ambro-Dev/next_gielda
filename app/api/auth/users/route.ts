@@ -1,6 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
-import { User } from "@/models/UserModel";
+import User from "@/models/UserModel";
 
 interface NewUserRequest {
   username: string;

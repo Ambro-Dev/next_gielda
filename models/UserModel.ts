@@ -45,7 +45,6 @@ const userSchema = new mongoose.Schema<UserDocument, {}, Methods>(
       required: [true, "Please add a password"],
       trim: true,
       minlength: [6, "Password cannot be less than 6 characters"],
-      select: false,
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -66,7 +65,6 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.comparePassword = async function (password) {
   try {
-    console.log(password, this.password);
     return await compare(password, this.password);
   } catch (error) {
     console.log(error);
@@ -74,4 +72,6 @@ userSchema.methods.comparePassword = async function (password) {
   }
 };
 
-export const User = mongoose.models.User || mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+
+export default User as mongoose.Model<UserDocument, {}, Methods>;

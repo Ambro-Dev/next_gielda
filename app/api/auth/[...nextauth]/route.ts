@@ -1,15 +1,9 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/lib/dbConnect";
-import { User } from "@/models/UserModel";
+import User from "@/models/UserModel";
 
 export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
-  },
-
   providers: [
     CredentialsProvider({
       type: "credentials",
@@ -23,8 +17,6 @@ export const authOptions: NextAuthOptions = {
 
         const user = await User.findOne({ username });
         if (!user) throw Error("User not found");
-
-        console.log(user);
 
         const isValid = user.comparePassword(password);
         if (!isValid) throw Error("Invalid password");
