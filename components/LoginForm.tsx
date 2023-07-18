@@ -61,6 +61,8 @@ export function LoginForm() {
         });
       }
     }
+
+    router.replace("/");
   };
 
   return (
