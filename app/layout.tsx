@@ -9,8 +9,9 @@ import MessengerChatBox from "@/components/MessengerChat";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Giełda Fenilo",
-  description: "Giełda Fenilo",
+  title: "Giełda trtansportowa - fenilo.pl",
+  description:
+    "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
 export default function RootLayout({
