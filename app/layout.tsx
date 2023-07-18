@@ -28,6 +28,7 @@ export default function RootLayout({
               {children}
             </div>
             <MessengerChatBox />
+
             <Footer />
           </main>
         </body>
