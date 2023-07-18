@@ -42,31 +42,47 @@ const ObjectFormSchema = z.object({
   name: z.string().min(2, {
     message: "Nazwa przedmiotu musi mieć co najmniej 2 znaki.",
   }),
-  weight: z.number().min(1, {
-    message: "Podaj wagę przedmiotu.",
-  }),
-  width: z
-    .number({
-      required_error: "Podaj szerokość przedmiotu.",
+  weight: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Podaj wagę przedmiotu.",
     })
-    .min(0.1, {
-      message: "Szerokość przedmiotu musi być wieksza niż 0.1.",
-    }),
-  height: z.number().min(1, {
-    message: "Podaj wysokość przedmiotu.",
-  }),
-  length: z.number().min(1, {
-    message: "Podaj długość przedmiotu.",
-  }),
-  amount: z.number().min(1, {
-    message: "Podaj ilość przedmiotów.",
-  }),
+  ),
+  width: z.preprocess(
+    (val) => Number(val),
+    z
+      .number({
+        required_error: "Podaj szerokość przedmiotu.",
+      })
+      .min(0.1, {
+        message: "Szerokość przedmiotu musi być wieksza niż 0.1.",
+      })
+  ),
+  height: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Podaj wysokość przedmiotu.",
+    })
+  ),
+  length: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Podaj długość przedmiotu.",
+    })
+  ),
+  amount: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Podaj ilość przedmiotów.",
+    })
+  ),
 });
 
 const TransportObjectsCard = () => {
   type Object = z.infer<typeof ObjectFormSchema>;
 
   const [objects, setObjects] = React.useState<Object[]>([]);
+  const [open, setOpen] = React.useState(false);
 
   const objectForm = useForm<z.infer<typeof ObjectFormSchema>>({
     resolver: zodResolver(ObjectFormSchema),
@@ -90,6 +106,7 @@ const TransportObjectsCard = () => {
       amount: values.amount,
     };
     setObjects((prev) => [...prev, newObject]);
+    setOpen(false);
   };
 
   return (
@@ -101,9 +118,12 @@ const TransportObjectsCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Dialog>
+        <Dialog open={open}>
           <DialogTrigger asChild>
-            <Button className="flex w-full justify-center items-center my-3">
+            <Button
+              className="flex w-full justify-center items-center my-3"
+              onClick={() => setOpen(true)}
+            >
               Dodaj przedmiot
             </Button>
           </DialogTrigger>
