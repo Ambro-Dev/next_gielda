@@ -23,6 +23,24 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { User, Settings, LogOut } from "lucide-react";
 
 const TopBar = () => {
   const { data, status } = useSession();
@@ -185,8 +203,8 @@ const TopBar = () => {
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
             {data?.user?.role === "admin" && (
-              <NavigationMenuItem className="text-white hover:bg-neutral-900 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
-                <Link href="/docs" legacyBehavior passHref>
+              <NavigationMenuItem className="text-white hover:bg-neutral-800 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
+                <Link href="/admin" legacyBehavior passHref>
                   <NavigationMenuLink>Zarządzaj apikacją</NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -212,19 +230,37 @@ const TopBar = () => {
                 </Link>
               </NavigationMenuItem>
             ) : (
-              <>
-                <NavigationMenuItem>
-                  <div>{data?.user?.username}</div>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="hover:cursor-pointer">
-                  <NavigationMenuLink
-                    className={navigationMenuTriggerStyle()}
-                    onClick={() => signOut()}
-                  >
-                    Wyloguj się
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </>
+              <NavigationMenuItem className="hover:cursor-pointer">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar>
+                      <AvatarFallback>A</AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem className="hover:cursor-pointer hover:bg-amber-400">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="hover:cursor-pointer hover:bg-amber-400">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Ustawienia</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => signOut()}
+                      className="hover:cursor-pointer hover:bg-neutral-200"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Wyloguj</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </NavigationMenuItem>
             )}
           </NavigationMenuList>
         </NavigationMenu>

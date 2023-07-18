@@ -11,7 +11,7 @@ const Footer = (props: Props) => {
         <div className="flex flex-col gap-4 text-white w-full">
           <h3>O nas</h3>
           <Separator className="w-12 h-[2px] bg-amber-500" />
-          <p className="text-justify font-light font-sans">
+          <p className="font-light font-sans">
             Jesteśmy firmą, która powstała, żeby odpowiedzieć na potrzeby branży
             transportowej. Zajmujemy się szkoleniami, ubezpieczeniami,
             zapewniamy łatwy dostęp do akcesoriów niezbędnych w transporcie.

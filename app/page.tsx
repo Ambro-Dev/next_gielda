@@ -33,15 +33,19 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import CardWithMap from "@/components/CardWithMap";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const tags = [{ id: 1, name: "Samochody" }];
+
+  const router = useRouter();
 
   return (
     <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
       <Button
         className="rounded-full bg-amber-500 w-full transition-all duration-500"
         size="lg"
+        onClick={() => router.push("/transport/add")}
       >
         Dodaj ogłoszenie
       </Button>
