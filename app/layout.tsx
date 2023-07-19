@@ -3,7 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
-import { NextAuthProvider } from "./authProvider";
+import { NextAuthProvider } from "./context/authProvider";
 import MessengerChatBox from "@/components/MessengerChat";
 
 const inter = Inter({ subsets: ["latin"] });

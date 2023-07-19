@@ -1,6 +1,6 @@
-import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
-import User from "@/models/UserModel";
+import prisma from "@/lib/prismadb";
+import bcrypt from "bcrypt";
 
 interface NewUserRequest {
   username: string;
@@ -11,24 +11,36 @@ interface NewUserRequest {
 export const POST = async (req: NextRequest) => {
   const body = (await req.json()) as NewUserRequest;
 
-  await dbConnect();
+  const { username, email, password } = body;
 
-  const userExists = await User.findOne({ email: body.email });
-
-  if (userExists) {
-    return NextResponse.json({ error: "User already exists" }, { status: 422 });
+  if (!username || !email || !password) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 422 });
   }
 
-  const user = await User.create({ ...body });
+  const userExists = await prisma.user.findUnique({
+    where: { username, email },
+  });
+
+  if (userExists) {
+    return NextResponse.json(
+      { error: "User with this username or email already exists" },
+      { status: 422 }
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const user = await prisma.user.create({
+    data: {
+      username,
+      email,
+      hashedPassword,
+    },
+  });
 
   return NextResponse.json(
     {
-      user: {
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      user,
     },
     { status: 201 }
   );

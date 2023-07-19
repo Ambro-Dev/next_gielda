@@ -1,35 +1,44 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import dbConnect from "@/lib/dbConnect";
-import User from "@/models/UserModel";
+import prisma from "@/lib/prismadb";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
-      type: "credentials",
+      name: "credentials",
       credentials: {},
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const { username, password } = credentials as {
           username: string;
           password: string;
         };
-        await dbConnect();
 
-        const user = await User.findOne({ username });
-        if (!user) throw Error("User not found");
+        if (!username || !password) throw Error("Missing fields");
 
-        const isValid = user.comparePassword(password);
-        if (!isValid) throw Error("Invalid password");
+        const user = await prisma.user.findUnique({
+          where: { username },
+        });
 
-        return {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        };
+        if (!user || !user.hashedPassword) throw Error("User not found");
+
+        const passwordMatch = await bcrypt.compare(
+          password,
+          user.hashedPassword
+        );
+
+        if (!passwordMatch) throw Error("Incorrect password");
+
+        return { ...user };
       },
     }),
   ],
+  debug: process.env.NODE_ENV === "development",
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
     async jwt(params: any) {
       if (params.user?.role) {
