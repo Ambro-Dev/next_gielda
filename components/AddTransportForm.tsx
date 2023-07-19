@@ -84,7 +84,6 @@ type Destination = {
 export function AddTransportForm() {
   const router = useRouter();
   const { data, status } = useSession();
-  console.log(data, status);
 
   const [objects, setObjects] = React.useState<Objects[]>([]);
   const [startDestination, setStartDestination] =
@@ -122,7 +121,7 @@ export function AddTransportForm() {
     });
 
     if (response.ok) {
-      router.push("/");
+      router.replace("/");
     } else {
       console.log("Błąd");
     }

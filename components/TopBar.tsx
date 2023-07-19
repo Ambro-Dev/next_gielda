@@ -245,14 +245,14 @@ const TopBar = () => {
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         className="hover:cursor-pointer hover:bg-amber-400"
-                        onClick={() => router.push("/user/profile")}
+                        onClick={() => router.replace("/user/profile")}
                       >
                         <User className="mr-2 h-4 w-4" />
                         <span>Profil</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="hover:cursor-pointer hover:bg-amber-400"
-                        onClick={() => router.push("/user/settings")}
+                        onClick={() => router.replace("/user/settings")}
                       >
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Ustawienia</span>

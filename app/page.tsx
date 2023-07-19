@@ -52,7 +52,6 @@ export default function Home() {
         },
       })
       .then((res) => {
-        console.log(res.data);
         setData(res.data);
       });
   };
@@ -73,7 +72,7 @@ export default function Home() {
       <Button
         className="rounded-full bg-amber-500 w-full transition-all duration-500"
         size="lg"
-        onClick={() => router.push("/transport/add")}
+        onClick={() => router.replace("/transport/add")}
       >
         Dodaj ogłoszenie
       </Button>
