@@ -30,8 +30,6 @@ import { Separator } from "@/components/ui/separator";
 
 import React, { useEffect, useState } from "react";
 
-import { useLoadScript } from "@react-google-maps/api";
-
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import CardWithMap from "@/components/CardWithMap";
@@ -59,11 +57,6 @@ export default function Home() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string,
-    libraries: ["places"],
-  });
 
   const router = useRouter();
 
@@ -225,14 +218,12 @@ export default function Home() {
             </PopoverContent>
           </Popover>
         </div>
-        {isLoaded && (
-          <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
-            {data &&
-              data.map((item) => {
-                return <CardWithMap key={item.id} transport={item} />;
-              })}
-          </div>
-        )}
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
+          {data &&
+            data.map((item) => {
+              return <CardWithMap key={item.id} transport={item} />;
+            })}
+        </div>
       </div>
     </div>
   );

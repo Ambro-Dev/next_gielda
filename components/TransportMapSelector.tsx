@@ -23,8 +23,6 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from "use-places-autocomplete";
 
-import { useLoadScript } from "@react-google-maps/api";
-
 type Props = {
   setPlace: (position: google.maps.LatLngLiteral) => void;
 };

@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
 import MessengerChatBox from "@/components/MessengerChat";
+import { GoogleApiProvider } from "./context/googleApiProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,11 +26,11 @@ export default function RootLayout({
         <body className={inter.className}>
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <TopBar />
-
-            <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
-              {children}
-            </div>
-
+            <GoogleApiProvider>
+              <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+                {children}
+              </div>
+            </GoogleApiProvider>
             <MessengerChatBox />
 
             <Footer />
