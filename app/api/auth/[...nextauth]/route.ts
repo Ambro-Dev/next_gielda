@@ -40,21 +40,29 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt(params: any) {
-      if (params.user?.role) {
-        params.token.role = params.user.role;
-        params.token.id = params.user.id;
-        params.token.username = params.user.username;
+    async jwt({ token, user }) {
+      const dbUser = await prisma.user.findUnique({
+        where: { email: token.email },
+      });
+
+      if (!dbUser) {
+        token.id = user!.id;
+        return token;
       }
-      return params.token;
+
+      return {
+        id: dbUser.id,
+        role: dbUser.role,
+        username: dbUser.username,
+        email: dbUser.email,
+      };
     },
-    // If you want to use the role in client components
-    async session({ session, token }) {
-      if (session?.user) {
-        (session.user as { id: string }).id = token.id as string;
-        (session.user as { role: string }).role = token.role as string;
-        (session.user as { username: string }).username =
-          token.username as string;
+    async session({ token, session }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.username = token.username;
+        session.user.email = token.email;
       }
       return session;
     },
