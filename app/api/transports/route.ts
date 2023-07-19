@@ -2,37 +2,11 @@ import dbConnect from "@/lib/dbConnect";
 import Transport from "@/models/TransportModel";
 import { NextRequest, NextResponse } from "next/server";
 
-interface NewTransportRequest {
-  category: string;
-  transportVehicle: string;
-  type: string;
-  timeAvailable: number;
-  description: string;
-  objects: {
-    name: string;
-    description: string;
-    amount: number;
-    weight: number;
-    height: number;
-    width: number;
-    length: number;
-  }[];
-  directions: {
-    start: {
-      place: string;
-      lat: number;
-      lng: number;
-    };
-    finish: {
-      place: string;
-      lat: number;
-      lng: number;
-    };
-  };
-}
+import type { NextTransportRequest } from "@/app/interfaces/Transports";
+import User from "@/models/UserModel";
 
 export const POST = async (req: NextRequest) => {
-  const body = (await req.json()) as NewTransportRequest;
+  const body = (await req.json()) as NextTransportRequest;
 
   await dbConnect();
 
@@ -45,12 +19,42 @@ export const POST = async (req: NextRequest) => {
         category: transport.category,
         transportVehicle: transport.transportVehicle,
         type: transport.type,
+        sendDate: transport.sendDate,
+        recieveDate: transport.recieveDate,
         timeAvailable: transport.timeAvailable,
         description: transport.description,
         objects: transport.objects,
         directions: transport.directions,
+        creator: transport.creator,
       },
     },
     { status: 201 }
   );
+};
+
+export const GET = async (req: NextRequest) => {
+  await dbConnect();
+
+  const transports = await Transport.find({ isDeleted: false });
+
+  const transportsWithUsers = await Promise.all(
+    transports.map(async (transport) => {
+      const user = await User.findById(transport.creator);
+      return {
+        id: transport._id.toString(),
+        category: transport.category,
+        transportVehicle: transport.transportVehicle,
+        type: transport.type,
+        sendDate: transport.sendDate,
+        recieveDate: transport.recieveDate,
+        creator: user?.username,
+        timeAvailable: transport.timeAvailable,
+        description: transport.description,
+        objects: transport.objects,
+        directions: transport.directions,
+      };
+    })
+  );
+
+  return NextResponse.json(transportsWithUsers, { status: 200 });
 };

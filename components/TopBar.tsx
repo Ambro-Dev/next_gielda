@@ -41,8 +41,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { User, Settings, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const TopBar = () => {
+  const router = useRouter();
   const { data, status } = useSession();
 
   const isAuth = status === "authenticated";
@@ -87,7 +89,7 @@ const TopBar = () => {
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
-                        <Link href="/docs" legacyBehavior passHref>
+                        <Link href="/transport/add" legacyBehavior passHref>
                           <NavigationMenuLink>
                             <SheetClose asChild>
                               <p>Dodaj ogłoszenie</p>
@@ -210,7 +212,7 @@ const TopBar = () => {
               </NavigationMenuItem>
             )}
             <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
-              <Link href="/docs" legacyBehavior passHref>
+              <Link href="/transport/add" legacyBehavior passHref>
                 <NavigationMenuLink>Dodaj ogłoszenie</NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
@@ -241,11 +243,17 @@ const TopBar = () => {
                     <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem className="hover:cursor-pointer hover:bg-amber-400">
+                      <DropdownMenuItem
+                        className="hover:cursor-pointer hover:bg-amber-400"
+                        onClick={() => router.push("/user/profile")}
+                      >
                         <User className="mr-2 h-4 w-4" />
                         <span>Profil</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="hover:cursor-pointer hover:bg-amber-400">
+                      <DropdownMenuItem
+                        className="hover:cursor-pointer hover:bg-amber-400"
+                        onClick={() => router.push("/user/settings")}
+                      >
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Ustawienia</span>
                       </DropdownMenuItem>

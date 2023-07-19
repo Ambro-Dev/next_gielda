@@ -9,7 +9,7 @@ import {
 
 const AddTransportPage = () => {
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full pt-5 pb-10">
       <Card className="w-full h-full pt-5">
         <CardContent>
           <AddTransportForm />

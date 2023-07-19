@@ -31,23 +31,29 @@ import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { Transports } from "@/app/interfaces/Transports";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
 type MapOptions = google.maps.MapOptions;
 
 type Props = {
-  start: LatLngLiteral;
-  finish: LatLngLiteral;
+  transport: Transports;
 };
 
 const googleApi: string | undefined =
   process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
 
-const CardWithMap = ({ start, finish }: Props) => {
-  const mapRef = useRef<GoogleMap>();
+const CardWithMap = ({ transport }: Props) => {
+  const date = new Date(transport.sendDate);
+  const formatedDate = date.toLocaleDateString("pl-PL", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-  const [loaded, setLoaded] = useState(false);
+  const mapRef = useRef<GoogleMap>();
 
   const [directionsLeg, setDirectionsLeg] =
     useState<google.maps.DirectionsLeg>();
@@ -72,20 +78,19 @@ const CardWithMap = ({ start, finish }: Props) => {
   );
 
   useEffect(() => {
-    if (!start || !finish || !loaded) return;
-    fetchDirections(start);
-  }, [start, finish, loaded]);
+    if (!transport.directions.start || !transport.directions.finish) return;
+    fetchDirections(transport.directions.start);
+  }, [transport.directions.start, transport.directions.finish]);
 
   const fetchDirections = async (start: LatLngLiteral) => {
-    if (!finish || !start) return;
+    if (!transport.directions.finish || !start) return;
 
-    if (!loaded) return;
     const service = new google.maps.DirectionsService();
 
     service.route(
       {
         origin: start,
-        destination: finish,
+        destination: transport.directions.finish,
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
@@ -105,46 +110,37 @@ const CardWithMap = ({ start, finish }: Props) => {
   return (
     <Card className="flex flex-col">
       <CardHeader className="h-80">
-        <LoadScriptNext
-          googleMapsApiKey={googleApi as string}
-          libraries={["places"]}
-          onLoad={() => {
-            setLoaded(true);
-          }}
-          loadingElement={<div className="h-full" />}
+        <GoogleMap
+          zoom={11}
+          mapContainerClassName="map-container"
+          options={options}
+          onLoad={onLoad}
+          mapContainerStyle={containerStyle}
         >
-          <GoogleMap
-            zoom={11}
-            mapContainerClassName="map-container"
-            options={options}
-            onLoad={onLoad}
-            mapContainerStyle={containerStyle}
-          >
-            {directions && (
-              <DirectionsRenderer
-                directions={directions}
-                options={{
-                  polylineOptions: {
-                    strokeColor: "#1976D2",
-                    strokeWeight: 5,
-                    clickable: false,
-                  },
-                  markerOptions: {
-                    zIndex: 100,
-                    cursor: "default",
-                  },
-                }}
-              />
-            )}
-          </GoogleMap>
-        </LoadScriptNext>
+          {directions && (
+            <DirectionsRenderer
+              directions={directions}
+              options={{
+                polylineOptions: {
+                  strokeColor: "#1976D2",
+                  strokeWeight: 5,
+                  clickable: false,
+                },
+                markerOptions: {
+                  zIndex: 100,
+                  cursor: "default",
+                },
+              }}
+            />
+          )}
+        </GoogleMap>
       </CardHeader>
       <div className="grow">
         <CardContent>
           <div className="flex pb-6 flex-row items-center justify-between w-full gap-2">
             <div className="flex flex-row items-center gap-2">
-              <Badge>Samochody</Badge>
-              <Badge className="uppercase">Firmowe</Badge>
+              <Badge>{transport.category}</Badge>
+              <Badge className="uppercase">{transport.type}</Badge>
             </div>
             <div className="flex flex-row items-center gap-2 w-1/5">
               <Image src={view_icon} alt="distance" width={24} height={24} />
@@ -154,17 +150,17 @@ const CardWithMap = ({ start, finish }: Props) => {
           <div className="grid grid-cols-3 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
-              <span className="text-sm font-bold">admin</span>
+              <span className="text-sm font-bold">{transport.creator}</span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={vehicle_icon} alt="date" width={24} height={24} />
-              <span className="text-sm font-bold">Bus</span>
+              <span className="text-sm font-bold capitalize">
+                {transport.transportVehicle}
+              </span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={date_icon} alt="date" width={24} height={24} />
-              <span className="text-sm font-bold">
-                {new Date().toLocaleDateString()}
-              </span>
+              <span className="text-sm font-bold">{formatedDate}</span>
             </div>
 
             <div className="flex flex-row items-center gap-2">
@@ -187,7 +183,12 @@ const CardWithMap = ({ start, finish }: Props) => {
           </div>
           <div className="flex flex-row pt-6 items-start">
             <div className="flex flex-col items-center justify-start h-full w-5/12">
-              <Image src={pin_a} width={48} height={48} alt="start" />
+              <Image
+                src="https://img.icons8.com/stickers/100/marker-a.png"
+                width={48}
+                height={48}
+                alt="start"
+              />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.start_address}
               </span>
@@ -197,7 +198,12 @@ const CardWithMap = ({ start, finish }: Props) => {
             </div>
 
             <div className="flex flex-col items-center justify-between w-5/12">
-              <Image src={pin_b} width={48} height={48} alt="start" />
+              <Image
+                src="https://img.icons8.com/stickers/100/marker-b.png"
+                width={48}
+                height={48}
+                alt="start"
+              />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.end_address}
               </span>

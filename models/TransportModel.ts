@@ -8,10 +8,6 @@ interface DestinationDocument extends mongoose.Document {
 
 const StartDestinationSchema = new mongoose.Schema<DestinationDocument, {}>(
   {
-    place: {
-      type: String,
-      required: [true, "Dodaj miejsce"],
-    },
     lat: {
       type: Number,
       required: [true, "Dodaj szerokość geograficzną"],
@@ -26,10 +22,6 @@ const StartDestinationSchema = new mongoose.Schema<DestinationDocument, {}>(
 
 const EndDestinationSchema = new mongoose.Schema<DestinationDocument, {}>(
   {
-    place: {
-      type: String,
-      required: [true, "Dodaj miejsce"],
-    },
     lat: {
       type: Number,
       required: [true, "Dodaj szerokość geograficzną"],
@@ -97,6 +89,7 @@ interface TransportDocument extends mongoose.Document {
   sendDate: Date;
   recieveDate: Date;
   description: string;
+  creator: mongoose.Schema.Types.ObjectId;
   objects: ObjectDocument[];
   directions: {
     start: DestinationDocument;
@@ -124,6 +117,11 @@ const TransportSchema = new mongoose.Schema<TransportDocument, {}>(
     timeAvailable: {
       type: Number,
       required: [true, "Dodaj czas dostępności w dniach"],
+    },
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Dodaj użytkownika"],
     },
     isAvailable: {
       type: Boolean,

@@ -38,9 +38,9 @@ export function ObjectsTable({ data }: Props) {
           <TableRow key={item.name}>
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>{item.amount}</TableCell>
-            <TableCell>{item.weight}</TableCell>
+            <TableCell>{item.weight}kg</TableCell>
             <TableCell className="text-right">
-              {item.width}m x {item.length}m x {item.height}
+              {item.width}m x {item.length}m x {item.height}m
             </TableCell>
           </TableRow>
         ))}

@@ -26,17 +26,39 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-import "@geoapify/geocoder-autocomplete/styles/minimal.css";
+import React, { useEffect, useState } from "react";
 
-import React from "react";
+import { useLoadScript } from "@react-google-maps/api";
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import CardWithMap from "@/components/CardWithMap";
 import { useRouter } from "next/navigation";
 
+import type { Transports } from "@/app/interfaces/Transports";
+
 export default function Home() {
   const tags = [{ id: 1, name: "Samochody" }];
+
+  const [data, setData] = useState<Transports[]>([]);
+
+  const fetchData = async () => {
+    const res = await fetch("http://localhost:3000/api/transports", {
+      method: "GET",
+    });
+    const json = await res.json();
+    setData(json);
+    console.log(json);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string,
+    libraries: ["places"],
+  });
 
   const router = useRouter();
 
@@ -198,38 +220,14 @@ export default function Home() {
             </PopoverContent>
           </Popover>
         </div>
-        <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
-          <CardWithMap
-            start={{
-              lat: 52.22977,
-              lng: 21.01178,
-            }}
-            finish={{
-              lat: 48.22977,
-              lng: 20.01178,
-            }}
-          />
-          <CardWithMap
-            start={{
-              lat: 51.22977,
-              lng: 25.01178,
-            }}
-            finish={{
-              lat: 42.22977,
-              lng: 19.01178,
-            }}
-          />
-          <CardWithMap
-            start={{
-              lat: 50.22977,
-              lng: 21.01178,
-            }}
-            finish={{
-              lat: 38.22977,
-              lng: 22.01178,
-            }}
-          />
-        </div>
+        {isLoaded && (
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
+            {data &&
+              data.map((item) => {
+                return <CardWithMap key={item.id} transport={item} />;
+              })}
+          </div>
+        )}
       </div>
     </div>
   );

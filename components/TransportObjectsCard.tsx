@@ -33,10 +33,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { ObjectsTable } from "./ObjectsTable";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import { ObjectsTable } from "@/components/ObjectsTable";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const ObjectFormSchema = z.object({
   name: z.string().min(2, {
@@ -48,6 +48,9 @@ const ObjectFormSchema = z.object({
       message: "Podaj wagę przedmiotu.",
     })
   ),
+  description: z.string().min(2, {
+    message: "Opis przedmiotu musi mieć co najmniej 2 znaki.",
+  }),
   width: z.preprocess(
     (val) => Number(val),
     z
@@ -77,17 +80,21 @@ const ObjectFormSchema = z.object({
     })
   ),
 });
+type Object = z.infer<typeof ObjectFormSchema>;
 
-const TransportObjectsCard = () => {
-  type Object = z.infer<typeof ObjectFormSchema>;
+type Props = {
+  objects: Object[];
+  setObjects: React.Dispatch<React.SetStateAction<Object[]>>;
+};
 
-  const [objects, setObjects] = React.useState<Object[]>([]);
+const TransportObjectsCard = ({ objects, setObjects }: Props) => {
   const [open, setOpen] = React.useState(false);
 
   const objectForm = useForm<z.infer<typeof ObjectFormSchema>>({
     resolver: zodResolver(ObjectFormSchema),
     defaultValues: {
       name: "",
+      description: "",
       weight: 0,
       width: 0,
       height: 0,
@@ -99,6 +106,7 @@ const TransportObjectsCard = () => {
   const submitForm = async (values: z.infer<typeof ObjectFormSchema>) => {
     const newObject = {
       name: values.name,
+      description: values.description,
       weight: values.weight,
       width: values.width,
       height: values.height,
@@ -107,10 +115,12 @@ const TransportObjectsCard = () => {
     };
     setObjects((prev) => [...prev, newObject]);
     setOpen(false);
+
+    objectForm.reset();
   };
 
   return (
-    <Card>
+    <Card className="border-none">
       <CardHeader className="text-center">
         <CardTitle>Przedmioty do transportu</CardTitle>
         <CardDescription>
@@ -118,12 +128,9 @@ const TransportObjectsCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Dialog open={open}>
+        <Dialog>
           <DialogTrigger asChild>
-            <Button
-              className="flex w-full justify-center items-center my-3"
-              onClick={() => setOpen(true)}
-            >
+            <Button className="flex w-full justify-center items-center my-3">
               Dodaj przedmiot
             </Button>
           </DialogTrigger>
@@ -139,6 +146,7 @@ const TransportObjectsCard = () => {
                 <form
                   onSubmit={objectForm.handleSubmit(submitForm)}
                   className="space-y-8"
+                  id="objectForm"
                 >
                   <FormField
                     control={objectForm.control}
@@ -152,6 +160,20 @@ const TransportObjectsCard = () => {
                         <FormDescription>
                           Podaj nazwę przedmiotu
                         </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={objectForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Opis*</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormDescription>Podaj opis przedmiotu</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
