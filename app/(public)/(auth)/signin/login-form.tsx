@@ -60,9 +60,9 @@ export function LoginForm() {
           message: "Hasło jest nieprawidłowe.",
         });
       }
+    } else {
+      router.replace("/");
     }
-
-    router.replace("/");
   };
 
   return (

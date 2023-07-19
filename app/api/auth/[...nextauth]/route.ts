@@ -16,20 +16,20 @@ export const authOptions: NextAuthOptions = {
           password: string;
         };
 
-        if (!username || !password) throw Error("Missing fields");
+        if (!username || !password) throw new Error("Missing fields");
 
         const user = await prisma.user.findUnique({
           where: { username },
         });
 
-        if (!user || !user.hashedPassword) throw Error("User not found");
+        if (!user || !user.hashedPassword) throw new Error("User not found");
 
         const passwordMatch = await bcrypt.compare(
           password,
           user.hashedPassword
         );
 
-        if (!passwordMatch) throw Error("Incorrect password");
+        if (!passwordMatch) throw new Error("Invalid password");
 
         return { ...user };
       },
