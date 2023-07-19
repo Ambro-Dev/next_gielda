@@ -23,6 +23,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import axios from "axios";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
@@ -43,12 +45,16 @@ export default function Home() {
   const [data, setData] = useState<Transports[]>([]);
 
   const fetchData = async () => {
-    const res = await fetch("http://localhost:3000/api/transports", {
-      method: "GET",
-    });
-    const json = await res.json();
-    setData(json);
-    console.log(json);
+    await axios
+      .get<Transports[]>("api/transports", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        setData(res.data);
+      });
   };
 
   useEffect(() => {
