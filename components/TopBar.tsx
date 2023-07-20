@@ -88,6 +88,17 @@ const TopBar = () => {
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
+                      {data?.user?.role === "admin" && (
+                        <NavigationMenuItem className="text-white hover:bg-neutral-800 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
+                          <Link href="/admin" legacyBehavior passHref>
+                            <NavigationMenuLink>
+                              <SheetClose asChild>
+                                <p>Zarządzaj apikacją</p>
+                              </SheetClose>
+                            </NavigationMenuLink>
+                          </Link>
+                        </NavigationMenuItem>
+                      )}
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/transport/add" legacyBehavior passHref>
                           <NavigationMenuLink>
@@ -114,28 +125,58 @@ const TopBar = () => {
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
                             >
-                              <SheetClose asChild>
-                                <p>Zaloguj się</p>
-                              </SheetClose>
+                              Zaloguj się
                             </NavigationMenuLink>
                           </Link>
                         </NavigationMenuItem>
                       ) : (
-                        <>
-                          <NavigationMenuItem>
-                            <div>{data?.user?.username}</div>
-                          </NavigationMenuItem>
-                          <NavigationMenuItem className="hover:cursor-pointer">
-                            <NavigationMenuLink
-                              className={navigationMenuTriggerStyle()}
-                              onClick={() => signOut()}
-                            >
-                              <SheetClose asChild>
-                                <p>Wyloguj się</p>
-                              </SheetClose>
-                            </NavigationMenuLink>
-                          </NavigationMenuItem>
-                        </>
+                        <NavigationMenuItem className="hover:cursor-pointer">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Avatar>
+                                <AvatarFallback>A</AvatarFallback>
+                              </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="hover:cursor-pointer hover:bg-amber-400"
+                                  onClick={() =>
+                                    router.replace("/user/profile")
+                                  }
+                                >
+                                  <User className="mr-2 h-4 w-4" />
+                                  <SheetClose asChild>
+                                    <span>Profil</span>
+                                  </SheetClose>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="hover:cursor-pointer hover:bg-amber-400"
+                                  onClick={() =>
+                                    router.replace("/user/settings")
+                                  }
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  <SheetClose asChild>
+                                    <span>Ustawienia</span>
+                                  </SheetClose>
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => signOut()}
+                                className="hover:cursor-pointer hover:bg-neutral-200"
+                              >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <SheetClose asChild>
+                                  <span>Wyloguj</span>
+                                </SheetClose>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </NavigationMenuItem>
                       )}
                     </NavigationMenuList>
                   </NavigationMenu>
