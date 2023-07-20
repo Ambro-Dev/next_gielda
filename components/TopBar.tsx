@@ -49,9 +49,9 @@ const TopBar = () => {
 
   const isAuth = status === "authenticated";
   return (
-    <div className="fixed w-full px-10 bg-white shadow-md z-10">
+    <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
-        <div className="flex justify-start flex-row items-center w-full h-16 py-1">
+        <div className="flex justify-start flex-row items-center w-full h-16  py-1">
           <Sheet>
             <SheetTrigger asChild>
               <button className="w-10 h-10 mr-4 lg:hidden">
@@ -201,7 +201,7 @@ const TopBar = () => {
       </div>
       <Separator />
 
-      <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-white">
+      <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-transparent">
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
             {data?.user?.role === "admin" && (
