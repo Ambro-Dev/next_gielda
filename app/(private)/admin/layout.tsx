@@ -3,6 +3,9 @@ import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NavigationBar } from "./navigation-bar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,11 +15,14 @@ export const metadata: Metadata = {
     "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
-export default function UserLayout({
+export default async function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) redirect("/signin");
   return (
     <Card className="flex flex-col space-y-8 ">
       <NavigationBar />

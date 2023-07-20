@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       const dbUser = await prisma.user.findUnique({
         where: { email: token.email },
       });
@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
         email: dbUser.email,
       };
     },
-    async session({ token, session }) {
+    async session({ token, session, user }) {
       if (token) {
         session.user.id = token.id;
         session.user.role = token.role;

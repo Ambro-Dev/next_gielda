@@ -1,8 +1,11 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { SidebarNav } from "@/components/SidebarNav";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,11 +26,14 @@ const sidebarNavItems = [
   },
 ];
 
-export default function UserLayout({
+export default async function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) redirect("/signin");
   return (
     <Card className="mb-5">
       <div className="space-y-6 p-10 pb-16 md:block">

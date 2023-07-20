@@ -17,11 +17,13 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Missing fields" }, { status: 422 });
   }
 
-  const userExists = await prisma.user.findUnique({
-    where: { username, email },
+  const userExists = await prisma.user.findMany({
+    where: {
+      OR: [{ username }, { email }],
+    },
   });
 
-  if (userExists) {
+  if (userExists && userExists.length > 0 && Array.isArray(userExists)) {
     return NextResponse.json(
       { error: "User with this username or email already exists" },
       { status: 422 }

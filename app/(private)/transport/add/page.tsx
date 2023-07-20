@@ -1,3 +1,5 @@
+"use client";
+
 import { AddTransportForm } from "@/components/AddTransportForm";
 import {
   Card,
@@ -6,8 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 const AddTransportPage = () => {
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/signin");
+    },
+  });
+
+  if (!session?.user) return null;
+
   return (
     <div className="flex w-full h-full pt-5 pb-10">
       <Card className="w-full h-full pt-5">
