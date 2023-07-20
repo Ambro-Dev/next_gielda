@@ -134,7 +134,7 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
               Dodaj przedmiot
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[725px] max-w-sm overflow-auto max-h-screen">
             <DialogHeader>
               <DialogTitle>Nowy przedmiot</DialogTitle>
               <DialogDescription>

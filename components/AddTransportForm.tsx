@@ -188,7 +188,7 @@ export function AddTransportForm() {
           className="space-y-8"
           id="transport-form"
         >
-          <div className="w-full grid grid-cols-4 gap-8">
+          <div className="w-full grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-8">
             <FormField
               control={form.control}
               name="category"
@@ -275,7 +275,7 @@ export function AddTransportForm() {
               </FormItem>
             )}
           />
-          <div className="w-1/2 grid grid-cols-2 gap-8">
+          <div className="lg:w-1/2 w-full grid-cols-1 grid sm:grid-cols-2 gap-8">
             <FormField
               control={form.control}
               name="sendDate"

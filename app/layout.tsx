@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <NextAuthProvider>
-      <html lang="en">
+      <html lang="pl">
         <body className={inter.className}>
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <TopBar />

@@ -52,7 +52,7 @@ const NewTransportMapCard = ({
   }, [form.watch("finish")]);
 
   return (
-    <div className="grid grid-cols-2 w-full gap-8 py-10">
+    <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-8 py-10">
       <div className="flex items-center justify-center">
         <Form {...form}>
           <form className="space-y-8 w-full">
