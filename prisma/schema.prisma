@@ -55,8 +55,10 @@ model User {
 
   role Role @default(user)
 
-  accounts Account[]
-  sessions Session[]
+  accounts   Account[]
+  sessions   Session[]
+  school     School?
+  transports Transport[]
 }
 
 model VerificationToken {
@@ -66,4 +68,99 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+type LatLng {
+  lat Float
+  lng Float
+}
+
+type Directions {
+  start LatLng
+  end   LatLng
+}
+
+model School {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  administratorId String      @unique @db.ObjectId
+  administrator   User        @relation(fields: [administratorId], references: [id], onDelete: Cascade)
+  students        Student[]
+  transports      Transport[]
+  objects         Object[]
+}
+
+model Student {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  schoolId  String   @db.ObjectId
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+}
+
+model Transport {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  schoolId    String     @db.ObjectId
+  categoryId  String     @db.ObjectId
+  category    Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  vehicleId   String     @db.ObjectId
+  vehicle     Vehicle    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  isAvailable Boolean
+  sendDate    DateTime
+  receiveDate DateTime
+  directions  Directions
+  description String
+  creatorId   String     @db.ObjectId
+  creator     User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  typeId      String     @db.ObjectId
+  type        Type       @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  objects     Object[]
+}
+
+model Object {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  createdAt   DateTime  @default(now())
+  description String?
+  amount      Int
+  width       Int
+  height      Int
+  length      Int
+  weight      Int
+  updatedAt   DateTime  @updatedAt
+  schoolId    String    @db.ObjectId
+  tansportId  String    @db.ObjectId
+  school      School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  transport   Transport @relation(fields: [tansportId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  transports Transport[]
+}
+
+model Vehicle {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  transports Transport[]
+}
+
+model Type {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  transports Transport[]
 }
