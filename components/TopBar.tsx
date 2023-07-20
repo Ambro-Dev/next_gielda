@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import logo from "../public/gielda-fenilo.webp";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import {
+  NavigationMenuContent,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -42,6 +46,27 @@ import {
 
 import { User, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const menu: { title: string; href: string; description: string }[] = [
+  {
+    title: "Zarządzaj szkołami",
+    href: "/admin/schools",
+    description:
+      "Zarządzaj szkołami, które są dostępne dla użytkowników aplikacji.",
+  },
+  {
+    title: "Dostęp dla pracowników",
+    href: "/admin/users",
+    description:
+      "Zarządzaj użytkownikami, którzy mają dostęp do panelu administratora.",
+  },
+  {
+    title: "Ustawienia transportów",
+    href: "/admin/transports",
+    description: "Zarządzaj ustawieniami transportów.",
+  },
+];
 
 const TopBar = () => {
   const router = useRouter();
@@ -89,14 +114,21 @@ const TopBar = () => {
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
                       {data?.user?.role === "admin" && (
-                        <NavigationMenuItem className="text-white hover:bg-neutral-800 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
-                          <Link href="/admin" legacyBehavior passHref>
-                            <NavigationMenuLink>
-                              <SheetClose asChild>
-                                <p>Zarządzaj apikacją</p>
-                              </SheetClose>
-                            </NavigationMenuLink>
-                          </Link>
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger>
+                            Panel administracyjny
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                              {menu.map((item) => (
+                                <SheetClose asChild key={item.title}>
+                                  <ListItem title={item.title} href={item.href}>
+                                    {item.description}
+                                  </ListItem>
+                                </SheetClose>
+                              ))}
+                            </ul>
+                          </NavigationMenuContent>
                         </NavigationMenuItem>
                       )}
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
@@ -246,10 +278,23 @@ const TopBar = () => {
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
             {data?.user?.role === "admin" && (
-              <NavigationMenuItem className="text-white hover:bg-neutral-800 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
-                <Link href="/admin" legacyBehavior passHref>
-                  <NavigationMenuLink>Zarządzaj apikacją</NavigationMenuLink>
-                </Link>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>
+                  Panel administracyjny
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[200px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                    {menu.map((item) => (
+                      <ListItem
+                        key={item.title}
+                        title={item.title}
+                        href={item.href}
+                      >
+                        {item.description}
+                      </ListItem>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             )}
             <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
@@ -364,5 +409,31 @@ const TopBar = () => {
     </div>
   );
 };
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default TopBar;

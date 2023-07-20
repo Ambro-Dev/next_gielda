@@ -1,8 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { NavigationBar } from "./navigation-bar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
@@ -25,7 +23,6 @@ export default async function UserLayout({
   if (!session) redirect("/signin");
   return (
     <Card className="flex flex-col space-y-8 ">
-      <NavigationBar />
       <div>{children}</div>
     </Card>
   );
