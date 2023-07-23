@@ -20,10 +20,10 @@ import { useRouter } from "next/navigation";
 import { ComboBox } from "@/components/ComboBox";
 import SelectBox from "@/components/SelectBox";
 import { Textarea } from "@/components/ui/textarea";
-import { DatePicker } from "./DatePicker";
-import TransportObjectsCard from "./TransportObjectsCard";
-import TransportMapSelector from "./TransportMapSelector";
-import NewTransportMapCard from "./NewTransportMapCard";
+import { DatePicker } from "../../../../components/DatePicker";
+import TransportObjectsCard from "../../../../components/TransportObjectsCard";
+import TransportMapSelector from "../../../../components/TransportMapSelector";
+import NewTransportMapCard from "../../../../components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
@@ -59,7 +59,7 @@ const formSchema = z.object({
     .min(new Date(), {
       message: "Nieprawidłowa data wysyłki.",
     }),
-  recieveDate: z
+  receiveDate: z
     .date({ required_error: "Podaj datę dostawy." })
     .min(new Date(), {
       message: "Nieprawidłowa data dostawy.",
@@ -111,6 +111,8 @@ export function AddTransportForm() {
       },
       creator: data?.user?.id,
     };
+
+    console.log(JSON.stringify(newTransport));
 
     const response = await fetch("/api/transports", {
       method: "POST",
@@ -294,7 +296,7 @@ export function AddTransportForm() {
             />
             <FormField
               control={form.control}
-              name="recieveDate"
+              name="receiveDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data dostawy*</FormLabel>

@@ -1,60 +1,59 @@
 import dbConnect from "@/lib/dbConnect";
-import Transport from "@/models/TransportModel";
 import { NextRequest, NextResponse } from "next/server";
 
 import type { NextTransportRequest } from "@/app/interfaces/Transports";
-import User from "@/models/UserModel";
+
+import prisma from "@/lib/prismadb";
 
 export const POST = async (req: NextRequest) => {
-  const body = (await req.json()) as NextTransportRequest;
+  const body = await req.json();
+  const {
+    sendDate,
+    vehicle,
+    category,
+    type,
+    school,
+    receiveDate,
+    timeAvailable,
+    description,
+    objects,
+    creator,
+    directions,
+  } = body;
 
-  await dbConnect();
+  const transport = await prisma.transport.create({
+    data: {
+      description,
+      objects: {
+        create: objects,
+      },
+      receiveDate,
+      sendDate,
+      timeAvailable,
+      isAvailable: true,
+      vehicleId: vehicle,
+      categoryId: category,
+      creatorId: creator,
+      typeId: type,
+      schoolId: school,
+      directions: {
+        create: directions,
+      },
+    },
+  });
 
-  const transport = await Transport.create({ ...body });
+  console.log(transport);
+
+  if (!transport) {
+    throw new Error("Error creating transport");
+  }
 
   return NextResponse.json(
     {
-      transport: {
-        id: transport._id.toString(),
-        category: transport.category,
-        transportVehicle: transport.transportVehicle,
-        type: transport.type,
-        sendDate: transport.sendDate,
-        recieveDate: transport.recieveDate,
-        timeAvailable: transport.timeAvailable,
-        description: transport.description,
-        objects: transport.objects,
-        directions: transport.directions,
-        creator: transport.creator,
-      },
+      message: "Transport created",
     },
     { status: 201 }
   );
 };
 
-export const GET = async (req: NextRequest) => {
-  await dbConnect();
-
-  const transports = await Transport.find({ isDeleted: false });
-
-  const transportsWithUsers = await Promise.all(
-    transports.map(async (transport) => {
-      const user = await User.findById(transport.creator);
-      return {
-        id: transport._id.toString(),
-        category: transport.category,
-        transportVehicle: transport.transportVehicle,
-        type: transport.type,
-        sendDate: transport.sendDate,
-        recieveDate: transport.recieveDate,
-        creator: user?.username,
-        timeAvailable: transport.timeAvailable,
-        description: transport.description,
-        objects: transport.objects,
-        directions: transport.directions,
-      };
-    })
-  );
-
-  return NextResponse.json(transportsWithUsers, { status: 200 });
-};
+export const GET = async (req: NextRequest) => {};

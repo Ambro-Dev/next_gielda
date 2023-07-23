@@ -1,6 +1,6 @@
 "use client";
 
-import { AddTransportForm } from "@/components/AddTransportForm";
+import { AddTransportForm } from "@/app/(private)/transport/add/AddTransportForm";
 import {
   Card,
   CardContent,

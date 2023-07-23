@@ -3,7 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 
-import { Card } from "@/components/ui/card";
+import { MainNav } from "@/components/dashboard/main-nav";
+import { Search } from "@/components/dashboard/search";
+import TeamSwitcher from "@/components/dashboard/team-switcher";
+import axios from "@/lib/axios";
 
 export const metadata: Metadata = {
   title: "Profil administratora",
@@ -11,7 +14,7 @@ export const metadata: Metadata = {
     "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
-export default async function UserLayout({
+export default async function SchoolLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -19,5 +22,5 @@ export default async function UserLayout({
   const session = await getServerSession(authOptions);
 
   if (!session) redirect("/signin");
-  return <Card className="flex flex-col space-y-8">{children}</Card>;
+  return <>{children}</>;
 }

@@ -5,7 +5,7 @@ export interface NextTransportRequest {
   timeAvailable: number;
   description: string;
   sendDate: Date;
-  recieveDate: Date;
+  receiveDate: Date;
   objects?: {
     name: string;
     description: string;
@@ -35,7 +35,7 @@ export interface Transports {
   type: string;
   timeAvailable: number;
   sendDate: Date;
-  recieveDate: Date;
+  receiveDate: Date;
   description: string;
   objects?: {
     name: string;

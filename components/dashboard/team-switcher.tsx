@@ -42,98 +42,95 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { redirect, usePathname, useRouter } from "next/navigation";
+import axios from "@/lib/axios";
 
-const groups = [
-  {
-    label: "Personal Account",
-    teams: [
-      {
-        label: "Alicia Koch",
-        value: "personal",
-      },
-    ],
-  },
-  {
-    label: "Teams",
-    teams: [
-      {
-        label: "Acme Inc.",
-        value: "acme-inc",
-      },
-      {
-        label: "Monsters Inc.",
-        value: "monsters",
-      },
-    ],
-  },
-];
+type Schools = {
+  id: string;
+  name: string;
+};
 
-type Team = (typeof groups)[number]["teams"][number];
+export default function SchoolSwitcher({
+  schoolId,
+}: {
+  schoolId: string | undefined;
+}) {
+  const [schools, setSchools] = React.useState<Schools[]>([]);
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<
-  typeof PopoverTrigger
->;
+  const router = useRouter();
 
-interface TeamSwitcherProps extends PopoverTriggerProps {}
+  async function fetchSchools() {
+    await axios
+      .get<Schools[]>("/schools")
+      .then((res) => {
+        setSchools(res.data);
+      })
+      .catch((error) => console.log(error));
+  }
 
-export default function TeamSwitcher({ className }: TeamSwitcherProps) {
+  React.useEffect(() => {
+    if (schools?.length > 0) return;
+    fetchSchools();
+  }, [schoolId, schools]);
+
   const [open, setOpen] = React.useState(false);
-  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
-  const [selectedTeam, setSelectedTeam] = React.useState<Team>(
-    groups[0].teams[0]
-  );
+  const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);
+  const [selectedSchool, setSelectedSchool] = React.useState(schoolId);
 
   return (
-    <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
+    <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label="Select a team"
-            className={cn("w-[200px] justify-between", className)}
+            aria-label="Wybierz szkołę"
+            className={cn("w-[200px] justify-between")}
           >
-            <Avatar className="mr-2 h-5 w-5">
-              <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedTeam.value}.png`}
-                alt={selectedTeam.label}
-              />
-              <AvatarFallback>SC</AvatarFallback>
-            </Avatar>
-            {selectedTeam.label}
+            {selectedSchool ? (
+              <>
+                <Avatar className="mr-2 h-5 w-5">
+                  <AvatarFallback>
+                    {schools
+                      .find((school) => school.id === selectedSchool)
+                      ?.name.substring(0, 1)}
+                  </AvatarFallback>
+                </Avatar>
+                {schools.find((school) => school.id === selectedSchool)?.name}
+              </>
+            ) : (
+              "Wybierz szkołę..."
+            )}
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandList>
-              <CommandInput placeholder="Search team..." />
-              <CommandEmpty>No team found.</CommandEmpty>
-              {groups.map((group) => (
-                <CommandGroup key={group.label} heading={group.label}>
-                  {group.teams.map((team) => (
+              <CommandInput placeholder="Szukaj szkoły..." />
+              <CommandEmpty>Brak szkoły.</CommandEmpty>
+              {schools.length > 0 && (
+                <CommandGroup key="schools" heading="Wszystkie szkoły">
+                  {schools.map((school) => (
                     <CommandItem
-                      key={team.value}
+                      key={school.id}
                       onSelect={() => {
-                        setSelectedTeam(team);
                         setOpen(false);
+                        router.push(`/admin/schools/${school.id}`);
                       }}
                       className="text-sm"
                     >
                       <Avatar className="mr-2 h-5 w-5">
-                        <AvatarImage
-                          src={`https://avatar.vercel.sh/${team.value}.png`}
-                          alt={team.label}
-                          className="grayscale"
-                        />
-                        <AvatarFallback>SC</AvatarFallback>
+                        <AvatarFallback>
+                          {school.name.substring(0, 1)}
+                        </AvatarFallback>
                       </Avatar>
-                      {team.label}
+                      {school.name}
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selectedTeam.value === team.value
+                          selectedSchool === school.id
                             ? "opacity-100"
                             : "opacity-0"
                         )}
@@ -141,7 +138,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                     </CommandItem>
                   ))}
                 </CommandGroup>
-              ))}
+              )}
             </CommandList>
             <CommandSeparator />
             <CommandList>
@@ -150,11 +147,11 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                   <CommandItem
                     onSelect={() => {
                       setOpen(false);
-                      setShowNewTeamDialog(true);
+                      setShowNewSchoolDialog(true);
                     }}
                   >
                     <PlusCircledIcon className="mr-2 h-5 w-5" />
-                    Create Team
+                    Dodaj szkołę
                   </CommandItem>
                 </DialogTrigger>
               </CommandGroup>
@@ -164,19 +161,19 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
       </Popover>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create team</DialogTitle>
+          <DialogTitle>Dodaj szkołę</DialogTitle>
           <DialogDescription>
-            Add a new team to manage products and customers.
+            Dodaj szkołę, aby móc zarządzać jej kontem.
           </DialogDescription>
         </DialogHeader>
         <div>
           <div className="space-y-4 py-2 pb-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Team name</Label>
+              <Label htmlFor="name">Nazwa szkoły</Label>
               <Input id="name" placeholder="Acme Inc." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="plan">Subscription plan</Label>
+              <Label htmlFor="plan">Typ szkoły</Label>
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a plan" />
@@ -184,15 +181,11 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                 <SelectContent>
                   <SelectItem value="free">
                     <span className="font-medium">Free</span> -{" "}
-                    <span className="text-muted-foreground">
-                      Trial for two weeks
-                    </span>
+                    <span className="text-muted-foreground">Liceum</span>
                   </SelectItem>
                   <SelectItem value="pro">
                     <span className="font-medium">Pro</span> -{" "}
-                    <span className="text-muted-foreground">
-                      $9/month per user
-                    </span>
+                    <span className="text-muted-foreground">Technikum</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -200,10 +193,13 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
-            Cancel
+          <Button
+            variant="outline"
+            onClick={() => setShowNewSchoolDialog(false)}
+          >
+            Anuluj
           </Button>
-          <Button type="submit">Continue</Button>
+          <Button type="submit">Dalej</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

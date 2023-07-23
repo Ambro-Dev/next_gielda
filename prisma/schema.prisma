@@ -29,7 +29,7 @@ model Account {
   id_token          String? @db.String
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
 }
@@ -39,7 +39,7 @@ model Session {
   sessionToken String   @unique
   userId       String   @db.ObjectId
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model User {
@@ -59,6 +59,7 @@ model User {
   sessions   Session[]
   school     School?
   transports Transport[]
+  Student    Student?
 }
 
 model VerificationToken {
@@ -75,21 +76,15 @@ type LatLng {
   lng Float
 }
 
-type Directions {
-  start LatLng
-  end   LatLng
-}
-
 model School {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   administratorId String      @unique @db.ObjectId
-  administrator   User        @relation(fields: [administratorId], references: [id], onDelete: Cascade)
+  administrator   User        @relation(fields: [administratorId], references: [id])
   students        Student[]
   transports      Transport[]
-  objects         Object[]
 }
 
 model Student {
@@ -98,30 +93,42 @@ model Student {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   schoolId  String   @db.ObjectId
-  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  userId    String   @unique @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  school    School   @relation(fields: [schoolId], references: [id])
 }
 
 model Transport {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  schoolId    String     @db.ObjectId
-  categoryId  String     @db.ObjectId
-  category    Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  vehicleId   String     @db.ObjectId
-  vehicle     Vehicle    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  isAvailable Boolean
-  sendDate    DateTime
-  receiveDate DateTime
-  directions  Directions
-  description String
-  creatorId   String     @db.ObjectId
-  creator     User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  typeId      String     @db.ObjectId
-  type        Type       @relation(fields: [typeId], references: [id], onDelete: Cascade)
-  school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  objects     Object[]
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  categoryId    String      @db.ObjectId
+  category      Category    @relation(fields: [categoryId], references: [id])
+  vehicleId     String      @db.ObjectId
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  isAvailable   Boolean
+  sendDate      DateTime
+  timeAvailable Int
+  receiveDate   DateTime
+  directions    Directions?
+  description   String
+  creatorId     String      @db.ObjectId
+  creator       User        @relation(fields: [creatorId], references: [id])
+  typeId        String      @db.ObjectId
+  type          Type        @relation(fields: [typeId], references: [id])
+  objects       Object[]
+  schoolId      String      @db.ObjectId
+  school        School      @relation(fields: [schoolId], references: [id])
+}
+
+model Directions {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  start       LatLng
+  finish      LatLng
+  transportId String    @unique @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  transport   Transport @relation(fields: [transportId], references: [id])
 }
 
 model Object {
@@ -135,15 +142,13 @@ model Object {
   length      Int
   weight      Int
   updatedAt   DateTime  @updatedAt
-  schoolId    String    @db.ObjectId
   tansportId  String    @db.ObjectId
-  school      School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  transport   Transport @relation(fields: [tansportId], references: [id], onDelete: Cascade)
+  transport   Transport @relation(fields: [tansportId], references: [id])
 }
 
 model Category {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
+  name       String      @unique
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   transports Transport[]
@@ -151,7 +156,7 @@ model Category {
 
 model Vehicle {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
+  name       String      @unique
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   transports Transport[]
@@ -159,7 +164,7 @@ model Vehicle {
 
 model Type {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
+  name       String      @unique
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   transports Transport[]
