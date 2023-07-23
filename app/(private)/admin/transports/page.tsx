@@ -1,9 +1,7 @@
 import axios from "@/lib/axios";
 import { Metadata } from "next";
 import React from "react";
-import { CategoryCard } from "./category-card";
-import { TypeCard } from "./type-card";
-import { VehicleCard } from "./vehicle-card";
+import { OptionCard } from "./option-card";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -15,21 +13,116 @@ type Settings = {
   name: string;
 };
 
-async function getCategories(fetchType: string) {
-  const { data } = await axios.get<Settings[]>(`/settings/${fetchType}`);
-  return data;
-}
+const getVehicles = async () => {
+  const data = await fetch("http://localhost:3000/api/settings/vehicles", {
+    method: "GET",
+    cache: "no-store",
+    next: {
+      tags: ["data"],
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const vehicles = await data.json();
+  return vehicles;
+};
+
+const getCategories = async () => {
+  const data = await fetch("http://localhost:3000/api/settings/categories", {
+    method: "GET",
+    cache: "no-store",
+    next: {
+      tags: ["data"],
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const categories = await data.json();
+  return categories;
+};
+
+const getTypes = async () => {
+  const data = await fetch("http://localhost:3000/api/settings/types", {
+    method: "GET",
+    cache: "no-store",
+    next: {
+      tags: ["data"],
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const types = await data.json();
+  return types;
+};
 
 export default async function DashboardPage() {
-  const categories = await getCategories("category");
-  const vehicles = await getCategories("vehicle");
+  const vehiclesData = getVehicles();
+  const categoriesData = getCategories();
+  const typesData = getTypes();
+
+  const [vehicles, categories, types] = await Promise.all([
+    vehiclesData,
+    categoriesData,
+    typesData,
+  ]);
+
+  const data = [
+    {
+      options: vehicles,
+      route: "vehicles",
+      title: "Pojazdy",
+      description: "Dodaj, edytuj lub usuń pojazdy.",
+      noData: "Brak pojazdów.",
+      dialog: {
+        title: "Dodaj pojazd",
+        description: "Dodaj nowy pojazd.",
+        button: "Dodaj",
+        formName: "Nazwa pojazdu",
+        formDescription: "Nazwa nowego pojazdu.",
+      },
+    },
+    {
+      options: categories,
+      route: "categories",
+      title: "Kategorie",
+      description: "Dodaj, edytuj lub usuń kategorie.",
+      noData: "Brak kategorii.",
+      dialog: {
+        title: "Dodaj kategorię",
+        description: "Dodaj nową kategorię.",
+        button: "Dodaj",
+        formName: "Nazwa kategorii",
+        formDescription: "Nazwa nowej kategorii.",
+      },
+    },
+    {
+      options: types,
+      route: "types",
+      title: "Typy",
+      description: "Dodaj, edytuj lub usuń typy.",
+      noData: "Brak typów.",
+      dialog: {
+        title: "Dodaj typ",
+        description: "Dodaj nowy typ.",
+        button: "Dodaj",
+        formName: "Nazwa typu",
+        formDescription: "Nazwa nowego typu.",
+      },
+    },
+  ];
+
   return (
     <>
       <h3 className="font-bold pt-5 pl-10 text-2xl">Opcje transportów</h3>
       <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-8 p-5">
-        <CategoryCard categories={categories} />
-        <TypeCard />
-        <VehicleCard vehicles={vehicles} />
+        {data.map((item) => (
+          <React.Fragment key={item.title}>
+            <OptionCard {...item} />
+          </React.Fragment>
+        ))}
       </div>
     </>
   );

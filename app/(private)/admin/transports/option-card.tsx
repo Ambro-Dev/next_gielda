@@ -46,41 +46,40 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import axios from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 
-interface Settings {
-  id: string;
-  name: string;
-}
+type OptionParams = {
+  options: {
+    id: string;
+    name: string;
+  }[];
+  route: string;
+  title: string;
+  description: string;
+  noData: string;
+  dialog: {
+    title: string;
+    description: string;
+    button: string;
+    formName: string;
+    formDescription: string;
+  };
+};
 
 const formSchema = z.object({
   name: z.string().min(1, {
-    message: "Podaj nazwę typu.",
+    message: "Podaj nazwę.",
   }),
 });
 
-export const TypeCard = () => {
-  const [types, setTypes] = React.useState<Settings[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
+const revalidate = async () => {
+  await fetch(
+    `/api/revalidate?tag=data&secret=${process.env.NEXT_PUBLIC_REVALIDATE_SECRET}`
+  );
+};
 
-  async function fetchTypes() {
-    setLoading(true);
-    await axios
-      .get<Settings[]>("/settings/type")
-      .then((res) => {
-        setTypes(res.data);
-      })
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-  }
-
-  React.useEffect(() => {
-    fetchTypes();
-  }, [loading]);
-
+export const OptionCard = (params: OptionParams) => {
+  const { options, title, route, description, noData, dialog } = params;
   const { toast } = useToast();
 
   const [open, setOpen] = React.useState(false);
@@ -94,54 +93,51 @@ export const TypeCard = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await axios
-      .post("/settings/type", {
-        name: values.name,
-      })
-      .then((res) => {
+    await fetch(`http://localhost:3000/api/settings/${route}`, {
+      method: "POST",
+      body: JSON.stringify(values),
+    }).then(async (res) => {
+      const data = await res.json();
+      form.reset();
+      setShowNewSchoolDialog(false);
+      setOpen(false);
+      console.log(data);
+      revalidate();
+      () =>
         toast({
           title: "Sukces",
-          description: res.data.message,
+          description: data.message,
         });
-        setShowNewSchoolDialog(false);
-        form.reset();
-        console.log(res.data);
-      })
-      .catch((error) => console.log(error));
+    });
   };
 
   const handleDelete = async (id: string) => {
-    await axios
-      .delete(`/settings/type`, {
-        data: {
-          id: id,
-        },
-      })
-      .then((res) => {
-        toast({
-          title: "Sukces",
-          description: res.data.message,
-        });
-        console.log(res.data);
-      })
-      .catch((error) => console.log(error));
+    const data = await fetch(`http://localhost:3000/api/settings/${route}`, {
+      method: "DELETE",
+      body: JSON.stringify({ id }),
+    });
+    const res = await data.json();
+    console.log(res);
+    revalidate();
+    toast({
+      title: "Sukces",
+      description: res.message,
+    });
   };
   return (
-    <Card>
+    <Card className="flex flex-col">
       <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
         <CardHeader className="p-5">
-          <CardTitle>Typy transportu</CardTitle>
-          <CardDescription>
-            Dodaj, usuń lub edytuj typy transportu
-          </CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent className="pt-5">
-          {types?.length > 0 ? (
+        <CardContent className="pt-5 flex-grow">
+          {options?.length > 0 ? (
             <div className="flex flex-col space-y-4">
-              {types.map((type) => (
-                <React.Fragment key={type.id}>
+              {options.map((item) => (
+                <React.Fragment key={item.id}>
                   <div className="text-sm flex justify-between items-center">
-                    {type.name}
+                    {item.name}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -158,7 +154,7 @@ export const TypeCard = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className=" text-red-500 font-bold gap-4"
-                          onClick={() => handleDelete(type.id)}
+                          onClick={() => handleDelete(item.id)}
                         >
                           <DeleteIcon className="w-4 h-4" />
                           <span>Usuń</span>
@@ -172,7 +168,7 @@ export const TypeCard = () => {
             </div>
           ) : (
             <div className="flex flex-col space-y-4">
-              <div className="text-sm">Brak typów transportu</div>
+              <div className="text-sm">{noData}</div>
               <Separator className="my-2" />
             </div>
           )}
@@ -183,10 +179,8 @@ export const TypeCard = () => {
                 className="space-y-4"
               >
                 <DialogHeader>
-                  <DialogTitle>Dodaj typ</DialogTitle>
-                  <DialogDescription>
-                    Dodaj nowy typ transportu
-                  </DialogDescription>
+                  <DialogTitle>{dialog.title}</DialogTitle>
+                  <DialogDescription>{dialog.description}</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-2 pb-4">
                   <FormField
@@ -194,11 +188,13 @@ export const TypeCard = () => {
                     name="name"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Nazwa</FormLabel>
+                        <FormLabel>{dialog.formName}</FormLabel>
                         <FormControl>
                           <Input {...field} type="text" />
                         </FormControl>
-                        <FormDescription>Podaj nazwę kategorii</FormDescription>
+                        <FormDescription>
+                          {dialog.formDescription}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -226,7 +222,7 @@ export const TypeCard = () => {
                 setShowNewSchoolDialog(true);
               }}
             >
-              Dodaj typ
+              {dialog.button}
             </Button>
           </DialogTrigger>
         </CardFooter>

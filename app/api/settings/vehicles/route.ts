@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
-  const types = await prisma.type.findMany();
+  const vehicles = await prisma.vehicle.findMany();
 
-  if (!types) {
+  if (!vehicles) {
     return NextResponse.json({
-      error: "Nie znaleziono typów transportu",
+      error: "Nie znaleziono pojazdów",
       status: 422,
     });
   }
 
-  return NextResponse.json(types, { status: 200 });
+  return NextResponse.json(vehicles, { status: 200 });
 };
 
 export const POST = async (req: NextRequest) => {
@@ -21,40 +21,37 @@ export const POST = async (req: NextRequest) => {
 
   if (!name)
     return NextResponse.json({
-      error: "Brak nazwy dla typu",
+      error: "Brak nazwy dla pojazdu",
       status: 500,
     });
 
   const lowerCaseName = name.toLowerCase();
 
-  const existingType = await prisma.type.findFirst({
+  const existingVehicle = await prisma.vehicle.findFirst({
     where: {
       name: lowerCaseName,
     },
   });
 
-  if (existingType) {
+  if (existingVehicle) {
     return NextResponse.json({
-      error: "Typ o tej nazwie już istnieje",
+      error: "Pojazd o tej nazwie już istnieje",
       status: 500,
     });
   }
 
-  const type = await prisma.type.create({
+  const vehicle = await prisma.vehicle.create({
     data: {
       name: lowerCaseName,
     },
   });
 
-  if (!type) {
-    return NextResponse.json({ error: "Błąd dodawania typu", status: 422 });
+  if (!vehicle) {
+    return NextResponse.json({ error: "Błąd dodawania pojazdu", status: 422 });
   }
 
-  const types = await prisma.type.findMany();
-
   return NextResponse.json({
-    types,
-    message: "Typ transportu dodany prawidłowo",
+    message: "Pojazd transportu dodany prawidłowo",
     status: 200,
   });
 };
@@ -66,32 +63,32 @@ export const PUT = async (req: NextRequest) => {
 
   if (!id)
     return NextResponse.json({
-      error: "Brak id dla typu",
+      error: "Brak id dla pojazdu",
       status: 500,
     });
 
   if (!name)
     return NextResponse.json({
-      error: "Brak nazwy dla typu",
+      error: "Brak nazwy dla pojazdu",
       status: 500,
     });
 
   const lowerCaseName = name.toLowerCase();
 
-  const existingType = await prisma.type.findFirst({
+  const existingVehicle = await prisma.vehicle.findFirst({
     where: {
       name: lowerCaseName,
     },
   });
 
-  if (existingType) {
+  if (existingVehicle) {
     return NextResponse.json({
-      error: "Typ o podanej nazwie już istnieje",
+      error: "Pojazd o podanej nazwie już istnieje",
       status: 500,
     });
   }
 
-  const type = await prisma.type.update({
+  const vehicle = await prisma.vehicle.update({
     where: {
       id,
     },
@@ -100,13 +97,16 @@ export const PUT = async (req: NextRequest) => {
     },
   });
 
-  if (!type) {
+  if (!vehicle) {
     return NextResponse.json({ error: "Błąd w zmianie nazwy", status: 422 });
   }
 
-  const types = await prisma.type.findMany();
+  const vehicles = await prisma.vehicle.findMany();
 
-  return NextResponse.json(types, { status: 200 });
+  return NextResponse.json({
+    message: "Zmiana nazwy pojazdu zakończona sukcesem",
+    status: 200,
+  });
 };
 
 export const DELETE = async (req: NextRequest) => {
@@ -116,38 +116,35 @@ export const DELETE = async (req: NextRequest) => {
 
   if (!id)
     return NextResponse.json({
-      error: "Brak id dla typu",
+      error: "Brak id dla pojazdu",
       status: 500,
     });
 
-  const typeHasTransports = await prisma.transport.findMany({
+  const vehicleHasTransports = await prisma.transport.findMany({
     where: {
-      typeId: id,
+      vehicleId: id,
     },
   });
 
-  if (typeHasTransports.length > 0) {
+  if (vehicleHasTransports.length > 0) {
     return NextResponse.json({
-      error: "Nie można usunąć typu, który jest przypisany do transportu",
+      error: "Nie można usunąć pojazdu, który jest przypisany do transportu",
       status: 500,
     });
   }
 
-  const type = await prisma.type.delete({
+  const vehicle = await prisma.vehicle.delete({
     where: {
       id,
     },
   });
 
-  if (!type) {
-    return NextResponse.json({ error: "Błąd w usuwaniu typu", status: 422 });
+  if (!vehicle) {
+    return NextResponse.json({ error: "Błąd w usuwaniu pojazdu", status: 422 });
   }
 
-  const types = await prisma.type.findMany();
-
   return NextResponse.json({
-    types,
-    message: "Typ transportu usunięty prawidłowo",
+    message: "Pojazd usunięty prawidłowo",
     status: 200,
   });
 };
