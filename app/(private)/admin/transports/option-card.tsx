@@ -47,6 +47,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 type OptionParams = {
   options: {
@@ -72,13 +73,8 @@ const formSchema = z.object({
   }),
 });
 
-const revalidate = async () => {
-  await fetch(
-    `/api/revalidate?tag=data&secret=${process.env.NEXT_PUBLIC_REVALIDATE_SECRET}`
-  );
-};
-
 export const OptionCard = (params: OptionParams) => {
+  const router = useRouter();
   const { options, title, route, description, noData, dialog } = params;
   const { toast } = useToast();
 
@@ -93,36 +89,48 @@ export const OptionCard = (params: OptionParams) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await fetch(`http://localhost:3000/api/settings/${route}`, {
+    const res = await fetch(`http://localhost:3000/api/settings/${route}`, {
       method: "POST",
       body: JSON.stringify(values),
-    }).then(async (res) => {
-      const data = await res.json();
+    });
+    const data = await res.json();
+    if (data.message) {
       form.reset();
       setShowNewSchoolDialog(false);
       setOpen(false);
-      console.log(data);
-      revalidate();
-      () =>
-        toast({
-          title: "Sukces",
-          description: data.message,
-        });
-    });
+      router.refresh();
+      toast({
+        title: "Sukces",
+        description: data.message,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Błąd",
+        description: data.error,
+      });
+    }
   };
 
   const handleDelete = async (id: string) => {
-    const data = await fetch(`http://localhost:3000/api/settings/${route}`, {
+    const res = await fetch(`http://localhost:3000/api/settings/${route}`, {
       method: "DELETE",
       body: JSON.stringify({ id }),
     });
-    const res = await data.json();
-    console.log(res);
-    revalidate();
-    toast({
-      title: "Sukces",
-      description: res.message,
-    });
+    const data = await res.json();
+    if (data.message) {
+      toast({
+        title: "Sukces",
+        description: data.message,
+      });
+      router.refresh();
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Błąd",
+        description: data.error,
+      });
+    }
   };
   return (
     <Card className="flex flex-col">

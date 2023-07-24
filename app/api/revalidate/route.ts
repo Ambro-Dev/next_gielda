@@ -6,8 +6,10 @@ export async function GET(request: NextRequest) {
   if (secret !== process.env.NEXT_PUBLIC_REVALIDATE_SECRET) {
     return NextResponse.json({ error: "Invalid secret", status: 422 });
   }
-
-  const tag = request.nextUrl.searchParams.get("tag") || "default";
+  const tag = request.nextUrl.searchParams.get("tag");
+  if (!tag) {
+    return NextResponse.json({ error: "No tag provided", status: 422 });
+  }
   revalidateTag(tag);
   return NextResponse.json({ revalidated: true, now: Date.now() });
 }

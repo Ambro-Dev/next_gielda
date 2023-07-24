@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
 import MessengerChatBox from "@/components/MessengerChat";
 import { GoogleApiProvider } from "./context/googleApiProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       <html lang="pl">
         <body className={inter.className}>
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
+            <Toaster />
             <TopBar />
             <GoogleApiProvider>
               <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
