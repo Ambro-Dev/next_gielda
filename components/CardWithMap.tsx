@@ -31,20 +31,13 @@ import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Transports } from "@/app/interfaces/Transports";
+import { Transport } from "@/app/transports-map";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
 type MapOptions = google.maps.MapOptions;
 
-type Props = {
-  transport: Transports;
-};
-
-const googleApi: string | undefined =
-  process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
-
-const CardWithMap = ({ transport }: Props) => {
+const CardWithMap = ({ transport }: { transport: Transport }) => {
   const date = new Date(transport.sendDate);
   const formatedDate = date.toLocaleDateString("pl-PL", {
     weekday: "long",
@@ -139,8 +132,8 @@ const CardWithMap = ({ transport }: Props) => {
         <CardContent>
           <div className="flex pb-6 flex-row items-center justify-between w-full gap-2">
             <div className="flex flex-row items-center gap-2">
-              <Badge>{transport.category}</Badge>
-              <Badge className="uppercase">{transport.type}</Badge>
+              <Badge>{transport.category.name}</Badge>
+              <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
             <div className="flex flex-row items-center gap-2 w-1/5">
               <Image src={view_icon} alt="distance" width={24} height={24} />
@@ -150,12 +143,14 @@ const CardWithMap = ({ transport }: Props) => {
           <div className="grid grid-cols-3 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
-              <span className="text-sm font-bold">{transport.creator}</span>
+              <span className="text-sm font-bold">
+                {transport.creator.username}
+              </span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={vehicle_icon} alt="date" width={24} height={24} />
               <span className="text-sm font-bold capitalize">
-                {transport.transportVehicle}
+                {transport.vehicle.name}
               </span>
             </div>
             <div className="flex flex-row items-center gap-2">
@@ -213,7 +208,7 @@ const CardWithMap = ({ transport }: Props) => {
       </div>
 
       <CardFooter>
-        <Link href="/transport/1" className="w-full">
+        <Link href={`/transport/${transport.id}`} className="w-full">
           <Button className="w-full">Zobacz ogłoszenie</Button>
         </Link>
       </CardFooter>

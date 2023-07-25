@@ -40,6 +40,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import dimensions from "@/assets/images/dimensions.png";
 import Image from "next/image";
+import { useToast } from "./ui/use-toast";
 
 const ObjectFormSchema = z.object({
   name: z.string().min(2, {
@@ -91,6 +92,7 @@ type Props = {
 };
 
 const TransportObjectsCard = ({ objects, setObjects }: Props) => {
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
   const objectForm = useForm<z.infer<typeof ObjectFormSchema>>({
@@ -118,6 +120,10 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
     };
     setObjects((prev) => [...prev, newObject]);
     setOpen(false);
+    toast({
+      title: "Przedmiot dodany",
+      description: "Przedmiot został dodany do listy.",
+    });
 
     objectForm.reset();
   };
@@ -271,7 +277,12 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                   />
 
                   <DialogFooter>
-                    <Button type="submit">Zapisz przedmiot</Button>
+                    <div className="flex w-full sm:flex-row flex-col justify-between gap-8 items-center">
+                      <span>Dodanych przedmiotów: {objects.length}</span>
+                      <Button className="sm:w-auto w-full" type="submit">
+                        Zapisz przedmiot
+                      </Button>
+                    </div>
                   </DialogFooter>
                 </form>
               </Form>

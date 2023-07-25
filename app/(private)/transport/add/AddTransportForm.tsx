@@ -27,18 +27,27 @@ import NewTransportMapCard from "../../../../components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
-  category: z.enum(["samochody", "meble", "elektronika", "inne"], {
-    required_error: "Wybierz kategorię.",
-  }),
-  transportVehicle: z.enum(
-    ["bus", "osobowy", "ciężarowy", "motocykl", "inne"],
-    {
+  category: z
+    .string({
+      required_error: "Wybierz kategorię.",
+    })
+    .min(1, {
+      message: "Wybierz kategorię.",
+    }),
+  vehicle: z
+    .string({
       required_error: "Wybierz typ pojazdu.",
-    }
-  ),
-  type: z.enum(["prywatne", "firmowe"], {
-    required_error: "Wybierz typ pojazdu.",
-  }),
+    })
+    .min(1, {
+      message: "Wybierz typ pojazdu.",
+    }),
+  type: z
+    .string({
+      required_error: "Wybierz typ pojazdu.",
+    })
+    .min(1, {
+      message: "Wybierz typ pojazdu.",
+    }),
   timeAvailable: z.preprocess(
     (val) => Number(val),
     z.number().min(1, {
@@ -81,7 +90,29 @@ type Destination = {
   lng: number;
 };
 
-export function AddTransportForm() {
+type School = {
+  id: string;
+  administrator: {
+    id: string;
+  };
+};
+
+type Settings = {
+  id: string;
+  name: string;
+};
+
+export function AddTransportForm({
+  school,
+  categories,
+  types,
+  vehicles,
+}: {
+  school: School;
+  categories: Settings[];
+  types: Settings[];
+  vehicles: Settings[];
+}) {
   const router = useRouter();
   const { data, status } = useSession();
 
@@ -110,9 +141,8 @@ export function AddTransportForm() {
         finish: endDestination,
       },
       creator: data?.user?.id,
+      school: school.id,
     };
-
-    console.log(JSON.stringify(newTransport));
 
     const response = await fetch("/api/transports", {
       method: "POST",
@@ -128,59 +158,6 @@ export function AddTransportForm() {
       console.log("Błąd");
     }
   };
-
-  const categories = [
-    {
-      value: "meble",
-      label: "Meble",
-    },
-    {
-      value: "samochody",
-      label: "Samochody",
-    },
-    {
-      value: "elektronika",
-      label: "Elektronika",
-    },
-    {
-      value: "inne",
-      label: "Inne",
-    },
-  ];
-
-  const transportVehicles = [
-    {
-      value: "bus",
-      label: "Bus",
-    },
-    {
-      value: "osobowy",
-      label: "Osobowy",
-    },
-    {
-      value: "ciężarowy",
-      label: "Ciężarowy",
-    },
-    {
-      value: "motocykl",
-      label: "Motocykl",
-    },
-    {
-      value: "inne",
-      label: "Inne",
-    },
-  ];
-
-  const types = [
-    {
-      value: "prywatne",
-      label: "Prywatne",
-    },
-    {
-      value: "firmowe",
-      label: "Firmowe",
-    },
-  ];
 
   return (
     <div className="space-y-8">
@@ -209,15 +186,12 @@ export function AddTransportForm() {
             />
             <FormField
               control={form.control}
-              name="transportVehicle"
+              name="vehicle"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Typ pojazdu transportwoego*</FormLabel>
                   <FormControl>
-                    <ComboBox
-                      data={transportVehicles}
-                      onChange={field.onChange}
-                    />
+                    <ComboBox data={vehicles} onChange={field.onChange} />
                   </FormControl>
                   <FormDescription>
                     Wybierz typ pojazdu transportowego

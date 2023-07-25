@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  data: { label: string; value: string }[];
-  onChange: (value: string) => void;
+  data: { id: string; name: string }[];
+  onChange: (id: string) => void;
   title: string;
 };
 
@@ -25,8 +25,8 @@ const SelectBox = (props: Props) => {
         <SelectGroup>
           <SelectLabel>{title}</SelectLabel>
           {data.map((item) => (
-            <SelectItem key={item.value} value={item.value}>
-              {item.label}
+            <SelectItem key={item.id} value={item.id}>
+              {item.name}
             </SelectItem>
           ))}
         </SelectGroup>

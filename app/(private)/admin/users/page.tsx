@@ -1,14 +1,5 @@
 import React from "react";
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { AddUserForm } from "./add-user-form";
 import { DataTable } from "./all-users-table";

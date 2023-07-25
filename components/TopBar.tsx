@@ -166,7 +166,9 @@ const TopBar = () => {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Avatar>
-                                <AvatarFallback>A</AvatarFallback>
+                                <AvatarFallback className="capitalize">
+                                  {data?.user.username.substring(0, 1)}
+                                </AvatarFallback>
                               </Avatar>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56">
@@ -322,7 +324,9 @@ const TopBar = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Avatar>
-                      <AvatarFallback>A</AvatarFallback>
+                      <AvatarFallback className="capitalize">
+                        {data?.user.username.substring(0, 1)}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">

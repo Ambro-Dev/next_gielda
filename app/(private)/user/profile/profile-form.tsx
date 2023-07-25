@@ -53,13 +53,29 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+type Profile = {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  school?: {
+    id: string;
+    name: string;
+  };
+  student?: {
+    id: string;
+    name: string;
+    surname: string;
+  };
+};
+
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
   bio: "Posiadam komputer",
   urls: [{ value: "https://ambro.dev" }, { value: "http://fenilo.pl" }],
 };
 
-export function ProfileForm() {
+export function ProfileForm({ profile }: { profile: Profile }) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -92,7 +108,7 @@ export function ProfileForm() {
             <FormItem>
               <FormLabel>Nazwa użytkownika</FormLabel>
               <FormControl>
-                <Input placeholder="admin" {...field} />
+                <Input placeholder={profile.username} {...field} />
               </FormControl>
               <FormDescription>
                 Twoja nazwa użytkownika jest wyświetlana na Twoim profilu.
@@ -107,7 +123,7 @@ export function ProfileForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
-              <Input type="email" {...field} />
+              <Input type="email" placeholder={profile.email} {...field} />
               <FormDescription>
                 Twój adres email jest prywatny i nie jest widoczny dla innych
               </FormDescription>

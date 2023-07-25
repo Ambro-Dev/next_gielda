@@ -24,15 +24,15 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-interface DataTableProps<TData, TValue> {
+interface StudentsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function StudentsTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: StudentsTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -57,10 +57,12 @@ export function DataTable<TData, TValue>({
     <div className="p-5">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtruj email..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filtruj użytkowników..."
+          value={
+            (table.getColumn("username")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("username")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

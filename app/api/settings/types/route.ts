@@ -2,7 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
-  const types = await prisma.type.findMany();
+  const types = await prisma.type.findMany({
+    orderBy: {
+      name: "asc",
+    },
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          transports: true,
+        },
+      },
+    },
+  });
 
   if (!types) {
     return NextResponse.json({
@@ -11,7 +24,7 @@ export const GET = async (req: NextRequest) => {
     });
   }
 
-  return NextResponse.json(types, { status: 200 });
+  return NextResponse.json({ types }, { status: 200 });
 };
 
 export const POST = async (req: NextRequest) => {

@@ -1,20 +1,8 @@
 import { Metadata } from "next";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Search } from "@/components/dashboard/search";
 import { MainNav } from "@/components/dashboard/main-nav";
 import TeamSwitcher from "@/components/dashboard/team-switcher";
-import axios from "@/lib/axios";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -27,7 +15,7 @@ export default async function SchoolManagement() {
       <div className="border-b">
         <div className="flex h-16 items-center px-4">
           <TeamSwitcher schoolId="" />
-          <MainNav className="mx-6" />
+          <MainNav schoolId="" />
           <div className="ml-auto flex items-center space-x-4">
             <Search />
           </div>

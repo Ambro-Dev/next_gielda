@@ -1,8 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
-import type { NextTransportRequest } from "@/app/interfaces/Transports";
-
 import prisma from "@/lib/prismadb";
 
 export const POST = async (req: NextRequest) => {
@@ -56,4 +54,63 @@ export const POST = async (req: NextRequest) => {
   );
 };
 
-export const GET = async (req: NextRequest) => {};
+export const GET = async (req: NextRequest) => {
+  const transports = await prisma.transport.findMany({
+    select: {
+      id: true,
+      sendDate: true,
+      receiveDate: true,
+      vehicle: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      type: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      directions: {
+        select: {
+          finish: {
+            select: {
+              lat: true,
+              lng: true,
+            },
+          },
+          start: {
+            select: {
+              lat: true,
+              lng: true,
+            },
+          },
+        },
+      },
+      creator: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+    },
+  });
+
+  if (!transports) {
+    return NextResponse.json(
+      {
+        error: "Nie znaleziono transportów",
+      },
+      { status: 422 }
+    );
+  }
+
+  return NextResponse.json({ transports }, { status: 200 });
+};
