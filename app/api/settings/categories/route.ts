@@ -24,7 +24,7 @@ export const GET = async (req: NextRequest) => {
     });
   }
 
-  return NextResponse.json({ categories }, { status: 200 });
+  return NextResponse.json({ categories, status: 200 });
 };
 
 export const POST = async (req: NextRequest) => {
