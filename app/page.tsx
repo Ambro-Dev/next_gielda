@@ -125,15 +125,16 @@ export default async function Home() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Kategoria:</SelectLabel>
-                    {categories.map((category) => (
-                      <SelectItem
-                        className="capitalize"
-                        key={category.id}
-                        value={category.id}
-                      >
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    {categories &&
+                      categories.map((category) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={category.id}
+                          value={category.id}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -146,15 +147,16 @@ export default async function Home() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Pojazd:</SelectLabel>
-                    {vehicles.map((vehicle) => (
-                      <SelectItem
-                        className="capitalize"
-                        key={vehicle.id}
-                        value={vehicle.id}
-                      >
-                        {vehicle.name}
-                      </SelectItem>
-                    ))}
+                    {vehicles &&
+                      vehicles.map((vehicle) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={vehicle.id}
+                          value={vehicle.id}
+                        >
+                          {vehicle.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -210,20 +212,21 @@ export default async function Home() {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Kategorie ogłoszeń
               </h4>
-              {categories.map((category) => (
-                <React.Fragment key={category.id}>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" />
-                    <label
-                      htmlFor="terms"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                    >
-                      {category.name} {`(${category._count.transports})`}
-                    </label>
-                  </div>
-                  <Separator className="my-2" />
-                </React.Fragment>
-              ))}
+              {categories &&
+                categories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="terms" />
+                      <label
+                        htmlFor="terms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                      >
+                        {category.name} {`(${category._count.transports})`}
+                      </label>
+                    </div>
+                    <Separator className="my-2" />
+                  </React.Fragment>
+                ))}
             </div>
           </ScrollArea>
         </div>
@@ -259,20 +262,21 @@ export default async function Home() {
             <PopoverContent>
               <ScrollArea className="h-auto w-full rounded-md border">
                 <div className="p-4">
-                  {categories.map((category) => (
-                    <React.Fragment key={category.id}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="terms" />
-                        <label
-                          htmlFor="terms"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                        >
-                          {category.name} {`(${category._count.transports})`}
-                        </label>
-                      </div>
-                      <Separator className="my-2" />
-                    </React.Fragment>
-                  ))}
+                  {categories &&
+                    categories.map((category) => (
+                      <React.Fragment key={category.id}>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="terms" />
+                          <label
+                            htmlFor="terms"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                          >
+                            {category.name} {`(${category._count.transports})`}
+                          </label>
+                        </div>
+                        <Separator className="my-2" />
+                      </React.Fragment>
+                    ))}
                 </div>
               </ScrollArea>
             </PopoverContent>
