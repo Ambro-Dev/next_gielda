@@ -40,8 +40,6 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
-  console.log(transport);
-
   if (!transport) {
     throw new Error("Error creating transport");
   }

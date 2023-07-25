@@ -18,7 +18,6 @@ type Tag = {
 };
 
 const CategoryArea = ({ tags }: { tags: Tag[] }) => {
-  console.log(tags);
   return (
     <div className="lg:collapse visible lg:w-0 w-full">
       <Popover>

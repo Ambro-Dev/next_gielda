@@ -17,7 +17,6 @@ export default async function SettingsProfilePage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/signin");
   const profile = await getProfile(session.user.id);
-  console.log(profile);
   return (
     <div className="space-y-6">
       <div>

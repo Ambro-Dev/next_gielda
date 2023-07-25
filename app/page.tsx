@@ -51,7 +51,7 @@ const getCategories = async () => {
   );
   const data = await res.json();
 
-  return data.categories;
+  return data?.categories;
 };
 
 const getVehicles = async () => {
@@ -66,7 +66,7 @@ const getVehicles = async () => {
   );
   const data = await res.json();
 
-  return data.vehicles;
+  return data?.vehicles;
 };
 
 const getTransports = async () => {
@@ -81,14 +81,13 @@ const getTransports = async () => {
   );
   const data = await res.json();
 
-  return data.transports;
+  return data?.transports;
 };
 
 export default async function Home() {
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
   const transports = await getTransports();
-  console.log(transports);
 
   const [vehicles, categories] = await Promise.all<Tags[]>([
     vehiclesData,

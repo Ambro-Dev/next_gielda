@@ -42,7 +42,6 @@ const getSchool = async (schoolId: string) => {
 
 export default async function SchoolPage({ params }: PageProps) {
   const data = await getSchool(params.schoolId);
-  console.log(data);
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">

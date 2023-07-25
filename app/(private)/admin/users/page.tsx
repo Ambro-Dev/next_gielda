@@ -17,7 +17,6 @@ async function getUsers(): Promise<User[]> {
 
 async function UsersPage({}: Props) {
   const data = await getUsers();
-  console.log(data);
   return (
     <div className="flex flex-col">
       <div className="flex p-5">
