@@ -13,7 +13,7 @@ type Settings = {
 };
 
 const getVehicles = async () => {
-  const data = await fetch(
+  const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
     {
       method: "GET",
@@ -26,12 +26,12 @@ const getVehicles = async () => {
       },
     }
   );
-  const vehicles = await data.json();
-  return vehicles;
+  const data = await res.json();
+  return data.vehicles;
 };
 
 const getCategories = async () => {
-  const data = await fetch(
+  const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
     {
       method: "GET",
@@ -44,12 +44,12 @@ const getCategories = async () => {
       },
     }
   );
-  const categories = await data.json();
-  return categories;
+  const data = await res.json();
+  return data.categories;
 };
 
 const getTypes = async () => {
-  const data = await fetch(
+  const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/types`,
     {
       method: "GET",
@@ -62,8 +62,8 @@ const getTypes = async () => {
       },
     }
   );
-  const types = await data.json();
-  return types;
+  const data = await res.json();
+  return data.types;
 };
 
 export default async function DashboardPage() {

@@ -16,7 +16,7 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ error: "No schools found", status: 422 });
   }
 
-  return NextResponse.json(schools, { status: 200 });
+  return NextResponse.json({ schools, status: 200 });
 };
 
 export const POST = async (req: NextRequest) => {
