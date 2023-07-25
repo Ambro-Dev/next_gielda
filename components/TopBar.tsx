@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import logo from "../public/gielda-fenilo.webp";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import {
+  NavigationMenuContent,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -42,6 +46,27 @@ import {
 
 import { User, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const menu: { title: string; href: string; description: string }[] = [
+  {
+    title: "Zarządzaj szkołami",
+    href: "/admin/schools",
+    description:
+      "Zarządzaj szkołami, które są dostępne dla użytkowników aplikacji.",
+  },
+  {
+    title: "Dostęp dla pracowników",
+    href: "/admin/users",
+    description:
+      "Zarządzaj użytkownikami, którzy mają dostęp do panelu administratora.",
+  },
+  {
+    title: "Ustawienia transportów",
+    href: "/admin/transports",
+    description: "Zarządzaj ustawieniami transportów.",
+  },
+];
 
 const TopBar = () => {
   const router = useRouter();
@@ -49,9 +74,9 @@ const TopBar = () => {
 
   const isAuth = status === "authenticated";
   return (
-    <div className="fixed w-full px-10 bg-white shadow-md z-10">
+    <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
-        <div className="flex justify-start flex-row items-center w-full h-16 py-1">
+        <div className="flex justify-start flex-row items-center w-full h-16  py-1">
           <Sheet>
             <SheetTrigger asChild>
               <button className="w-10 h-10 mr-4 lg:hidden">
@@ -88,6 +113,24 @@ const TopBar = () => {
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
+                      {data?.user?.role === "admin" && (
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger>
+                            Panel administracyjny
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                              {menu.map((item) => (
+                                <SheetClose asChild key={item.title}>
+                                  <ListItem title={item.title} href={item.href}>
+                                    {item.description}
+                                  </ListItem>
+                                </SheetClose>
+                              ))}
+                            </ul>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
+                      )}
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/transport/add" legacyBehavior passHref>
                           <NavigationMenuLink>
@@ -114,28 +157,60 @@ const TopBar = () => {
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
                             >
-                              <SheetClose asChild>
-                                <p>Zaloguj się</p>
-                              </SheetClose>
+                              Zaloguj się
                             </NavigationMenuLink>
                           </Link>
                         </NavigationMenuItem>
                       ) : (
-                        <>
-                          <NavigationMenuItem>
-                            <div>{data?.user?.username}</div>
-                          </NavigationMenuItem>
-                          <NavigationMenuItem className="hover:cursor-pointer">
-                            <NavigationMenuLink
-                              className={navigationMenuTriggerStyle()}
-                              onClick={() => signOut()}
-                            >
-                              <SheetClose asChild>
-                                <p>Wyloguj się</p>
-                              </SheetClose>
-                            </NavigationMenuLink>
-                          </NavigationMenuItem>
-                        </>
+                        <NavigationMenuItem className="hover:cursor-pointer">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Avatar>
+                                <AvatarFallback className="capitalize">
+                                  {data?.user.username.substring(0, 1)}
+                                </AvatarFallback>
+                              </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="hover:cursor-pointer hover:bg-amber-400"
+                                  onClick={() =>
+                                    router.replace("/user/profile")
+                                  }
+                                >
+                                  <User className="mr-2 h-4 w-4" />
+                                  <SheetClose asChild>
+                                    <span>Profil</span>
+                                  </SheetClose>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="hover:cursor-pointer hover:bg-amber-400"
+                                  onClick={() =>
+                                    router.replace("/user/settings")
+                                  }
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  <SheetClose asChild>
+                                    <span>Ustawienia</span>
+                                  </SheetClose>
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => signOut()}
+                                className="hover:cursor-pointer hover:bg-neutral-200"
+                              >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <SheetClose asChild>
+                                  <span>Wyloguj</span>
+                                </SheetClose>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </NavigationMenuItem>
                       )}
                     </NavigationMenuList>
                   </NavigationMenu>
@@ -201,14 +276,27 @@ const TopBar = () => {
       </div>
       <Separator />
 
-      <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-white">
+      <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-transparent">
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
             {data?.user?.role === "admin" && (
-              <NavigationMenuItem className="text-white hover:bg-neutral-800 py-2 px-3 transition-all duration-500 rounded-md hover:text-white text-sm font-semibold bg-black">
-                <Link href="/admin" legacyBehavior passHref>
-                  <NavigationMenuLink>Zarządzaj apikacją</NavigationMenuLink>
-                </Link>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>
+                  Panel administracyjny
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[200px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                    {menu.map((item) => (
+                      <ListItem
+                        key={item.title}
+                        title={item.title}
+                        href={item.href}
+                      >
+                        {item.description}
+                      </ListItem>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             )}
             <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
@@ -236,7 +324,9 @@ const TopBar = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Avatar>
-                      <AvatarFallback>A</AvatarFallback>
+                      <AvatarFallback className="capitalize">
+                        {data?.user.username.substring(0, 1)}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">
@@ -323,5 +413,31 @@ const TopBar = () => {
     </div>
   );
 };
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default TopBar;

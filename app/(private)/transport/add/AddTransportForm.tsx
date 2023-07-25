@@ -20,25 +20,34 @@ import { useRouter } from "next/navigation";
 import { ComboBox } from "@/components/ComboBox";
 import SelectBox from "@/components/SelectBox";
 import { Textarea } from "@/components/ui/textarea";
-import { DatePicker } from "./DatePicker";
-import TransportObjectsCard from "./TransportObjectsCard";
-import TransportMapSelector from "./TransportMapSelector";
-import NewTransportMapCard from "./NewTransportMapCard";
+import { DatePicker } from "../../../../components/DatePicker";
+import TransportObjectsCard from "../../../../components/TransportObjectsCard";
+import TransportMapSelector from "../../../../components/TransportMapSelector";
+import NewTransportMapCard from "../../../../components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
-  category: z.enum(["samochody", "meble", "elektronika", "inne"], {
-    required_error: "Wybierz kategorię.",
-  }),
-  transportVehicle: z.enum(
-    ["bus", "osobowy", "ciężarowy", "motocykl", "inne"],
-    {
+  category: z
+    .string({
+      required_error: "Wybierz kategorię.",
+    })
+    .min(1, {
+      message: "Wybierz kategorię.",
+    }),
+  vehicle: z
+    .string({
       required_error: "Wybierz typ pojazdu.",
-    }
-  ),
-  type: z.enum(["prywatne", "firmowe"], {
-    required_error: "Wybierz typ pojazdu.",
-  }),
+    })
+    .min(1, {
+      message: "Wybierz typ pojazdu.",
+    }),
+  type: z
+    .string({
+      required_error: "Wybierz typ pojazdu.",
+    })
+    .min(1, {
+      message: "Wybierz typ pojazdu.",
+    }),
   timeAvailable: z.preprocess(
     (val) => Number(val),
     z.number().min(1, {
@@ -59,7 +68,7 @@ const formSchema = z.object({
     .min(new Date(), {
       message: "Nieprawidłowa data wysyłki.",
     }),
-  recieveDate: z
+  receiveDate: z
     .date({ required_error: "Podaj datę dostawy." })
     .min(new Date(), {
       message: "Nieprawidłowa data dostawy.",
@@ -81,7 +90,29 @@ type Destination = {
   lng: number;
 };
 
-export function AddTransportForm() {
+type School = {
+  id: string;
+  administrator: {
+    id: string;
+  };
+};
+
+type Settings = {
+  id: string;
+  name: string;
+};
+
+export function AddTransportForm({
+  school,
+  categories,
+  types,
+  vehicles,
+}: {
+  school: School;
+  categories: Settings[];
+  types: Settings[];
+  vehicles: Settings[];
+}) {
   const router = useRouter();
   const { data, status } = useSession();
 
@@ -110,6 +141,7 @@ export function AddTransportForm() {
         finish: endDestination,
       },
       creator: data?.user?.id,
+      school: school.id,
     };
 
     const response = await fetch("/api/transports", {
@@ -127,59 +159,6 @@ export function AddTransportForm() {
     }
   };
 
-  const categories = [
-    {
-      value: "meble",
-      label: "Meble",
-    },
-    {
-      value: "samochody",
-      label: "Samochody",
-    },
-    {
-      value: "elektronika",
-      label: "Elektronika",
-    },
-    {
-      value: "inne",
-      label: "Inne",
-    },
-  ];
-
-  const transportVehicles = [
-    {
-      value: "bus",
-      label: "Bus",
-    },
-    {
-      value: "osobowy",
-      label: "Osobowy",
-    },
-    {
-      value: "ciężarowy",
-      label: "Ciężarowy",
-    },
-    {
-      value: "motocykl",
-      label: "Motocykl",
-    },
-    {
-      value: "inne",
-      label: "Inne",
-    },
-  ];
-
-  const types = [
-    {
-      value: "prywatne",
-      label: "Prywatne",
-    },
-    {
-      value: "firmowe",
-      label: "Firmowe",
-    },
-  ];
-
   return (
     <div className="space-y-8">
       <Form {...form}>
@@ -188,7 +167,7 @@ export function AddTransportForm() {
           className="space-y-8"
           id="transport-form"
         >
-          <div className="w-full grid grid-cols-4 gap-8">
+          <div className="w-full grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-8">
             <FormField
               control={form.control}
               name="category"
@@ -207,15 +186,12 @@ export function AddTransportForm() {
             />
             <FormField
               control={form.control}
-              name="transportVehicle"
+              name="vehicle"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Typ pojazdu transportwoego*</FormLabel>
                   <FormControl>
-                    <ComboBox
-                      data={transportVehicles}
-                      onChange={field.onChange}
-                    />
+                    <ComboBox data={vehicles} onChange={field.onChange} />
                   </FormControl>
                   <FormDescription>
                     Wybierz typ pojazdu transportowego
@@ -275,7 +251,7 @@ export function AddTransportForm() {
               </FormItem>
             )}
           />
-          <div className="w-1/2 grid grid-cols-2 gap-8">
+          <div className="lg:w-1/2 w-full grid-cols-1 grid sm:grid-cols-2 gap-8">
             <FormField
               control={form.control}
               name="sendDate"
@@ -294,7 +270,7 @@ export function AddTransportForm() {
             />
             <FormField
               control={form.control}
-              name="recieveDate"
+              name="receiveDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data dostawy*</FormLabel>

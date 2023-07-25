@@ -3,8 +3,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
-import { NextAuthProvider } from "./authProvider";
+import { NextAuthProvider } from "./context/authProvider";
 import MessengerChatBox from "@/components/MessengerChat";
+import { Analytics } from "@vercel/analytics/react";
+import { GoogleApiProvider } from "./context/googleApiProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,19 +24,21 @@ export default function RootLayout({
 }) {
   return (
     <NextAuthProvider>
-      <html lang="en">
+      <html lang="pl">
         <body className={inter.className}>
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
+            <Toaster />
             <TopBar />
-
-            <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
-              {children}
-            </div>
-
+            <GoogleApiProvider>
+              <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+                {children}
+              </div>
+            </GoogleApiProvider>
             <MessengerChatBox />
 
             <Footer />
           </main>
+          <Analytics />
         </body>
       </html>
     </NextAuthProvider>

@@ -1,9 +1,10 @@
-const Admin = () => {
-  return (
-    <div>
-      <h1>Admin</h1>
-    </div>
-  );
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Example dashboard app using the components.",
 };
 
-export default Admin;
+export default function DashboardPage() {
+  return <>School management</>;
+}

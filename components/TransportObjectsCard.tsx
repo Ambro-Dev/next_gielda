@@ -38,6 +38,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+import dimensions from "@/assets/images/dimensions.png";
+import Image from "next/image";
+import { useToast } from "./ui/use-toast";
+
 const ObjectFormSchema = z.object({
   name: z.string().min(2, {
     message: "Nazwa przedmiotu musi mieć co najmniej 2 znaki.",
@@ -88,6 +92,7 @@ type Props = {
 };
 
 const TransportObjectsCard = ({ objects, setObjects }: Props) => {
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
   const objectForm = useForm<z.infer<typeof ObjectFormSchema>>({
@@ -115,6 +120,10 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
     };
     setObjects((prev) => [...prev, newObject]);
     setOpen(false);
+    toast({
+      title: "Przedmiot dodany",
+      description: "Przedmiot został dodany do listy.",
+    });
 
     objectForm.reset();
   };
@@ -134,7 +143,7 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
               Dodaj przedmiot
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[725px] max-w-sm overflow-auto max-h-screen">
             <DialogHeader>
               <DialogTitle>Nowy przedmiot</DialogTitle>
               <DialogDescription>
@@ -178,6 +187,62 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                       </FormItem>
                     )}
                   />
+
+                  <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                    <div className="w-full p-5">
+                      <Image src={dimensions} alt="dimensions" />
+                    </div>
+                    <div className="space-y-8">
+                      <FormField
+                        control={objectForm.control}
+                        name="width"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Szerokość*</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormDescription>
+                              Podaj szerokość przedmiotu w cm
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={objectForm.control}
+                        name="height"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Wysokość*</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormDescription>
+                              Podaj wysokość przedmiotu w cm
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={objectForm.control}
+                        name="length"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Długość*</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormDescription>
+                              Podaj długość przedmiotu w cm
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                   <FormField
                     control={objectForm.control}
                     name="weight"
@@ -189,54 +254,6 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                         </FormControl>
                         <FormDescription>
                           Podaj wagę przedmiotu w kg
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={objectForm.control}
-                    name="width"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Szerokość*</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" />
-                        </FormControl>
-                        <FormDescription>
-                          Podaj szerokość przedmiotu w cm
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={objectForm.control}
-                    name="height"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Wysokość*</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" />
-                        </FormControl>
-                        <FormDescription>
-                          Podaj wysokość przedmiotu w cm
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={objectForm.control}
-                    name="length"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Długość*</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" />
-                        </FormControl>
-                        <FormDescription>
-                          Podaj długość przedmiotu w cm
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -258,8 +275,14 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                       </FormItem>
                     )}
                   />
+
                   <DialogFooter>
-                    <Button type="submit">Zapisz przedmiot</Button>
+                    <div className="flex w-full sm:flex-row flex-col justify-between gap-8 items-center">
+                      <span>Dodanych przedmiotów: {objects.length}</span>
+                      <Button className="sm:w-auto w-full" type="submit">
+                        Zapisz przedmiot
+                      </Button>
+                    </div>
                   </DialogFooter>
                 </form>
               </Form>

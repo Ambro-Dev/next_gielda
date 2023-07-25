@@ -1,5 +1,4 @@
-"use client";
-
+import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,59 +22,98 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import axios from "axios";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-
-import React, { useEffect, useState } from "react";
-
-import { useLoadScript } from "@react-google-maps/api";
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import CardWithMap from "@/components/CardWithMap";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import TransportsMap from "./transports-map";
 
-import type { Transports } from "@/app/interfaces/Transports";
-
-export default function Home() {
-  const tags = [{ id: 1, name: "Samochody" }];
-
-  const [data, setData] = useState<Transports[]>([]);
-
-  const fetchData = async () => {
-    await axios
-      .get<Transports[]>("api/transports", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        setData(res.data);
-      });
+type Tags = {
+  id: string;
+  name: string;
+  _count: {
+    transports: number;
   };
+};
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+const getCategories = async () => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string,
-    libraries: ["places"],
-  });
+  try {
+    const data = await res.json();
+    return data?.categories;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-  const router = useRouter();
+const getVehicles = async () => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
+  try {
+    const data = await res.json();
+    return data?.vehicles;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getTransports = async () => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
+  try {
+    const data = await res.json();
+    return data?.transports;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export default async function Home() {
+  const categoriesData = getCategories();
+  const vehiclesData = getVehicles();
+  const transports = await getTransports();
+
+  const [vehicles, categories] = await Promise.all<Tags[]>([
+    vehiclesData,
+    categoriesData,
+  ]);
 
   return (
     <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
-      <Button
-        className="rounded-full bg-amber-500 w-full transition-all duration-500"
-        size="lg"
-        onClick={() => router.replace("/transport/add")}
-      >
-        Dodaj ogłoszenie
-      </Button>
+      <Link href="/transport/add">
+        <Button
+          className="rounded-full bg-amber-500 w-full transition-all duration-500"
+          size="lg"
+        >
+          Dodaj ogłoszenie
+        </Button>
+      </Link>
       <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-4 py-7 px-3">
         <div className="w-full flex flex-col gap-4">
           <div className="w-full flex md:flex-row flex-col gap-4">
@@ -87,7 +125,16 @@ export default function Home() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Kategoria:</SelectLabel>
-                    <SelectItem value="cars">Samochody</SelectItem>
+                    {categories &&
+                      categories.map((category) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={category.id}
+                          value={category.id}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -100,8 +147,16 @@ export default function Home() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Pojazd:</SelectLabel>
-                    <SelectItem value="bus">Bus</SelectItem>
-                    <SelectItem value="automobile">Osobowy</SelectItem>
+                    {vehicles &&
+                      vehicles.map((vehicle) => (
+                        <SelectItem
+                          className="capitalize"
+                          key={vehicle.id}
+                          value={vehicle.id}
+                        >
+                          {vehicle.name}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -157,20 +212,21 @@ export default function Home() {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Kategorie ogłoszeń
               </h4>
-              {tags.map((tag) => (
-                <React.Fragment key={tag.id}>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" />
-                    <label
-                      htmlFor="terms"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Samochody
-                    </label>
-                  </div>
-                  <Separator className="my-2" />
-                </React.Fragment>
-              ))}
+              {categories &&
+                categories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="terms" />
+                      <label
+                        htmlFor="terms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                      >
+                        {category.name} {`(${category._count.transports})`}
+                      </label>
+                    </div>
+                    <Separator className="my-2" />
+                  </React.Fragment>
+                ))}
             </div>
           </ScrollArea>
         </div>
@@ -206,33 +262,27 @@ export default function Home() {
             <PopoverContent>
               <ScrollArea className="h-auto w-full rounded-md border">
                 <div className="p-4">
-                  {tags.map((tag) => (
-                    <React.Fragment key={tag.id}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="terms" />
-                        <label
-                          htmlFor="terms"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Samochody
-                        </label>
-                      </div>
-                      <Separator className="my-2" />
-                    </React.Fragment>
-                  ))}
+                  {categories &&
+                    categories.map((category) => (
+                      <React.Fragment key={category.id}>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="terms" />
+                          <label
+                            htmlFor="terms"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                          >
+                            {category.name} {`(${category._count.transports})`}
+                          </label>
+                        </div>
+                        <Separator className="my-2" />
+                      </React.Fragment>
+                    ))}
                 </div>
               </ScrollArea>
             </PopoverContent>
           </Popover>
         </div>
-        {isLoaded && (
-          <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
-            {data &&
-              data.map((item) => {
-                return <CardWithMap key={item.id} transport={item} />;
-              })}
-          </div>
-        )}
+        <TransportsMap transports={transports} />
       </div>
     </div>
   );

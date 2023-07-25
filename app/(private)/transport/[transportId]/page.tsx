@@ -47,32 +47,6 @@ const TransportInfo = () => {
     []
   );
 
-  useEffect(() => {
-    if (!start || !finish || !loaded) return;
-    fetchDirections(start);
-  }, [start, finish, loaded]);
-
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!finish || !start) return;
-
-    if (!loaded) return;
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: finish,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-          setDirectionsLeg(result.routes[0].legs[0]);
-        }
-      }
-    );
-  };
-
   const containerStyle = {
     width: "100%",
     height: "300px",

@@ -1,35 +1,80 @@
-import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
-import User from "@/models/UserModel";
+import prisma from "@/lib/prismadb";
+import bcrypt from "bcrypt";
+import { Role } from "@prisma/client";
 
 interface NewUserRequest {
   username: string;
   email: string;
-  password: string;
+  role: Role;
 }
 
 export const POST = async (req: NextRequest) => {
   const body = (await req.json()) as NewUserRequest;
 
-  await dbConnect();
+  const { username, email, role } = body;
 
-  const userExists = await User.findOne({ email: body.email });
-
-  if (userExists) {
-    return NextResponse.json({ error: "User already exists" }, { status: 422 });
+  if (!username || !email || !role) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 422 });
   }
 
-  const user = await User.create({ ...body });
-
-  return NextResponse.json(
-    {
-      user: {
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+  const userExists = await prisma.user.findMany({
+    where: {
+      OR: [{ username }, { email }],
     },
-    { status: 201 }
-  );
+  });
+
+  if (userExists && userExists.length > 0 && Array.isArray(userExists)) {
+    return NextResponse.json(
+      { error: "User with this username or email already exists" },
+      { status: 422 }
+    );
+  }
+
+  const password = Math.random().toString(36).slice(-8);
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const user = await prisma.user.create({
+    data: {
+      username,
+      email,
+      role,
+      hashedPassword,
+    },
+  });
+
+  return NextResponse.json({
+    user: {
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      password,
+    },
+    message: "Użytkownik dodany prawidłowo",
+    status: 201,
+  });
+};
+
+export const GET = async (req: NextRequest) => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      school: true,
+    },
+  });
+
+  const usersWithoutAdmin = users.filter((user) => user.username !== "admin");
+
+  if (!usersWithoutAdmin) {
+    return NextResponse.json({
+      error: "Brak użytkowników aplikacji",
+      status: 422,
+    });
+  }
+
+  return NextResponse.json(usersWithoutAdmin, { status: 200 });
 };

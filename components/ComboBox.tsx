@@ -23,8 +23,8 @@ export function ComboBox({
   data,
   onChange,
 }: {
-  data: { label: string; value: string }[];
-  onChange: (value: string) => void;
+  data: { id: string; name: string }[];
+  onChange: (id: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -39,7 +39,7 @@ export function ComboBox({
           className="w-full justify-between"
         >
           {value
-            ? data.find((item) => item.value === value)?.label
+            ? data.find((item) => item.name === value)?.name
             : "Wybierz..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -51,20 +51,20 @@ export function ComboBox({
           <CommandGroup>
             {data.map((item) => (
               <CommandItem
-                key={item.value}
+                key={item.id}
                 onSelect={(currentValue) => {
                   setValue(currentValue === value ? "" : currentValue);
-                  onChange(currentValue === value ? "" : currentValue);
+                  onChange(currentValue === value ? "" : item.id);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === item.value ? "opacity-100" : "opacity-0"
+                    value === item.id ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {item.label}
+                {item.name}
               </CommandItem>
             ))}
           </CommandGroup>
