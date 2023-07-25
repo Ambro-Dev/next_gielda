@@ -89,10 +89,13 @@ export const OptionCard = (params: OptionParams) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch(`http://localhost:3000/api/settings/${route}`, {
-      method: "POST",
-      body: JSON.stringify(values),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/${route}`,
+      {
+        method: "POST",
+        body: JSON.stringify(values),
+      }
+    );
     const data = await res.json();
     if (data.message) {
       form.reset();
@@ -113,10 +116,13 @@ export const OptionCard = (params: OptionParams) => {
   };
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`http://localhost:3000/api/settings/${route}`, {
-      method: "DELETE",
-      body: JSON.stringify({ id }),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/${route}`,
+      {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      }
+    );
     const data = await res.json();
     if (data.message) {
       toast({

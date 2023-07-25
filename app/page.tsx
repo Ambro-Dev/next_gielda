@@ -40,36 +40,45 @@ type Tags = {
 };
 
 const getCategories = async () => {
-  const res = await fetch(`http://localhost:3000/api/settings/categories`, {
-    method: "GET",
-    next: {
-      revalidate: 60,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
   const data = await res.json();
 
   return data.categories;
 };
 
 const getVehicles = async () => {
-  const res = await fetch(`http://localhost:3000/api/settings/vehicles`, {
-    method: "GET",
-    next: {
-      revalidate: 60,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
   const data = await res.json();
 
   return data.vehicles;
 };
 
 const getTransports = async () => {
-  const res = await fetch(`http://localhost:3000/api/transports`, {
-    method: "GET",
-    next: {
-      revalidate: 60,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
+    {
+      method: "GET",
+      next: {
+        revalidate: 60,
+      },
+    }
+  );
   const data = await res.json();
 
   return data.transports;

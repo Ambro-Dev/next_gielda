@@ -1,4 +1,3 @@
-import axios from "@/lib/axios";
 import { Metadata } from "next";
 import React from "react";
 import { OptionCard } from "./option-card";
@@ -14,46 +13,55 @@ type Settings = {
 };
 
 const getVehicles = async () => {
-  const data = await fetch("http://localhost:3000/api/settings/vehicles", {
-    method: "GET",
-    cache: "no-store",
-    next: {
-      tags: ["data"],
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
+    {
+      method: "GET",
+      cache: "no-store",
+      next: {
+        tags: ["data"],
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   const vehicles = await data.json();
   return vehicles;
 };
 
 const getCategories = async () => {
-  const data = await fetch("http://localhost:3000/api/settings/categories", {
-    method: "GET",
-    cache: "no-store",
-    next: {
-      tags: ["data"],
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
+    {
+      method: "GET",
+      cache: "no-store",
+      next: {
+        tags: ["data"],
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   const categories = await data.json();
   return categories;
 };
 
 const getTypes = async () => {
-  const data = await fetch("http://localhost:3000/api/settings/types", {
-    method: "GET",
-    cache: "no-store",
-    next: {
-      tags: ["data"],
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/types`,
+    {
+      method: "GET",
+      cache: "no-store",
+      next: {
+        tags: ["data"],
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   const types = await data.json();
   return types;
 };

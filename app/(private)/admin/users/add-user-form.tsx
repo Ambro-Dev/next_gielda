@@ -72,10 +72,13 @@ export const AddUserForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch(`http://localhost:3000/api/auth/users`, {
-      method: "POST",
-      body: JSON.stringify(values),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`,
+      {
+        method: "POST",
+        body: JSON.stringify(values),
+      }
+    );
     const data = await res.json();
     if (data.message) {
       setCreatedUser(data.user);

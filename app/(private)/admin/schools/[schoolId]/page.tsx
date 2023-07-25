@@ -27,7 +27,7 @@ interface PageProps {
 
 const getSchool = async (schoolId: string) => {
   const res = await fetch(
-    `http://localhost:3000/api/schools/manage?schoolId=${schoolId}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools/manage?schoolId=${schoolId}`,
     {
       method: "GET",
       headers: {

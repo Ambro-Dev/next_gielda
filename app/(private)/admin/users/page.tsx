@@ -8,7 +8,9 @@ import { User, columns } from "./columns";
 type Props = {};
 
 async function getUsers(): Promise<User[]> {
-  const res = await fetch(`http://localhost:3000/api/auth/users`);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`
+  );
   const json = await res.json();
   return json;
 }

@@ -10,7 +10,7 @@ interface PageProps {
 
 async function getStudents(schoolId: string) {
   const res = await fetch(
-    `http://localhost:3000/api/schools/students?schoolId=${schoolId}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools/students?schoolId=${schoolId}`,
     {
       method: "GET",
       cache: "no-cache",

@@ -20,30 +20,39 @@ type School = {
 };
 
 const getCategories = async () => {
-  const res = await fetch(`http://localhost:3000/api/settings/categories`, {
-    method: "GET",
-    cache: "no-cache",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
+    {
+      method: "GET",
+      cache: "no-cache",
+    }
+  );
   const data = await res.json();
 
   return data.categories;
 };
 
 const getVehicles = async () => {
-  const res = await fetch(`http://localhost:3000/api/settings/vehicles`, {
-    method: "GET",
-    cache: "no-cache",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
+    {
+      method: "GET",
+      cache: "no-cache",
+    }
+  );
   const data = await res.json();
 
   return data.vehicles;
 };
 
 const getTypes = async () => {
-  const res = await fetch(`http://localhost:3000/api/settings/types`, {
-    method: "GET",
-    cache: "no-cache",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/types`,
+    {
+      method: "GET",
+      cache: "no-cache",
+    }
+  );
   const data = await res.json();
 
   return data.types;
@@ -51,7 +60,7 @@ const getTypes = async () => {
 
 const getSchool = async (userId: String) => {
   const res = await fetch(
-    `http://localhost:3000/api/schools/school?userId=${userId}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools/school?userId=${userId}`,
     {
       method: "GET",
       cache: "no-cache",

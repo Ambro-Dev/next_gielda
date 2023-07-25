@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 const getProfile = async (userId: String) => {
   const res = await fetch(
-    `http://localhost:3000/api/auth/users/profile?userId=${userId}`
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users/profile?userId=${userId}`
   );
   const data = await res.json();
 
