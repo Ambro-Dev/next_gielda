@@ -42,8 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { redirect, usePathname, useRouter } from "next/navigation";
-import axios from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 type Schools = {
   id: string;
@@ -60,12 +59,16 @@ export default function SchoolSwitcher({
   const router = useRouter();
 
   async function fetchSchools() {
-    await axios
-      .get<Schools[]>("/schools")
-      .then((res) => {
-        setSchools(res.data);
-      })
-      .catch((error) => console.log(error));
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
+
+    const data = await res.json();
+    setSchools(data.schools);
   }
 
   React.useEffect(() => {
