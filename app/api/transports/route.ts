@@ -102,12 +102,10 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!transports) {
-    return NextResponse.json(
-      {
-        error: "Nie znaleziono transportów",
-      },
-      { status: 422 }
-    );
+    return NextResponse.json({
+      error: "Nie znaleziono transportów",
+      status: 422,
+    });
   }
 
   return NextResponse.json({ transports, status: 200 });

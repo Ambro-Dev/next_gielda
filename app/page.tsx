@@ -49,9 +49,13 @@ const getCategories = async () => {
       },
     }
   );
-  const data = await res.json();
 
-  return data?.categories;
+  try {
+    const data = await res.json();
+    return data?.categories;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const getVehicles = async () => {
@@ -64,9 +68,12 @@ const getVehicles = async () => {
       },
     }
   );
-  const data = await res.json();
-
-  return data?.vehicles;
+  try {
+    const data = await res.json();
+    return data?.vehicles;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const getTransports = async () => {
@@ -79,9 +86,12 @@ const getTransports = async () => {
       },
     }
   );
-  const data = await res.json();
-
-  return data?.transports;
+  try {
+    const data = await res.json();
+    return data?.transports;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export default async function Home() {
