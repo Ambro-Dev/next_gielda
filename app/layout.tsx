@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
 import MessengerChatBox from "@/components/MessengerChat";
+import { Analytics } from "@vercel/analytics/react";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
 
             <Footer />
           </main>
+          <Analytics />
         </body>
       </html>
     </NextAuthProvider>
