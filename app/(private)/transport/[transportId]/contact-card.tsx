@@ -5,7 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
 import MessageForm from "./message-form";
@@ -33,7 +40,14 @@ const TransportContactCard = (props: Props) => {
                     Napisz wiadomość
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+
+                <DialogContent className="space-y-4">
+                  <DialogHeader>
+                    <DialogTitle>Wiadomość</DialogTitle>
+                    <DialogDescription>
+                      Wpisz wiadomość, którą chcesz wysłać
+                    </DialogDescription>
+                  </DialogHeader>
                   <MessageForm />
                 </DialogContent>
               </Dialog>
@@ -47,7 +61,13 @@ const TransportContactCard = (props: Props) => {
                     Złóż ofertę
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="space-y-4">
+                  <DialogHeader>
+                    <DialogTitle>Nowa oferta</DialogTitle>
+                    <DialogDescription>
+                      Złóż ofertę na przewóz
+                    </DialogDescription>
+                  </DialogHeader>
                   <OfferForm />
                 </DialogContent>
               </Dialog>
