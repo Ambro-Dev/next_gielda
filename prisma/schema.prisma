@@ -151,18 +151,32 @@ model Message {
   transportId    String        @db.ObjectId
   transport      Transport     @relation(fields: [transportId], references: [id])
   offerId        String        @db.ObjectId
-  offer          Offer         @relation(fields: [offerId], references: [id])
+  offer          Offer?        @relation(fields: [offerId], references: [id])
+}
+
+enum Currency {
+  PLN
+  EUR
+  USD
 }
 
 model Offer {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  transportId String    @db.ObjectId
-  transport   Transport @relation(fields: [transportId], references: [id])
-  creatorId   String    @db.ObjectId
-  creator     User      @relation(fields: [creatorId], references: [id])
-  Message     Message[]
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime  @default(now())
+  currency      Currency
+  vat           Int
+  netto         Int
+  brutto        Int
+  loadDate      DateTime
+  unloadDate    DateTime
+  unloadTime    Int
+  contactNumber String
+  updatedAt     DateTime  @updatedAt
+  transportId   String    @db.ObjectId
+  transport     Transport @relation(fields: [transportId], references: [id])
+  creatorId     String    @db.ObjectId
+  creator       User      @relation(fields: [creatorId], references: [id])
+  message       Message[]
 }
 
 model Directions {

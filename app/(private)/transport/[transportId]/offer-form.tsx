@@ -38,18 +38,30 @@ const formSchema = z.object({
   vat: z.string({
     required_error: "Nieprawidłowa stawka VAT",
   }),
-  netto: z.preprocess((val) => {
-    String(val);
-  }, z.string()),
+  netto: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Kwota netto musi być większa od 0",
+    })
+  ),
+  brutto: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Podaj kwotę netto",
+    })
+  ),
   loadDate: z.string().nonempty({
     message: "Data załadunku nie może być pusta",
   }),
   unloadDate: z.string().nonempty({
     message: "Data rozładunku nie może być pusta",
   }),
-  daysToUnload: z.preprocess((val) => {
-    String(val);
-  }, z.string()),
+  daysToUnload: z.preprocess(
+    (val) => Number(val),
+    z.number().min(1, {
+      message: "Czas rozładunku musi być większy od 0",
+    })
+  ),
   number: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/),
 });
 
@@ -65,17 +77,17 @@ const vatOptions = [
 ];
 
 const OfferForm = (props: Props) => {
-  const [brutto, setBrutto] = React.useState<Number>(0);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       message: "",
       currency: "PLN",
       vat: "23",
-      netto: "",
+      netto: 0,
+      brutto: 0,
       loadDate: "",
       unloadDate: "",
-      daysToUnload: "",
+      daysToUnload: 0,
       number: "",
     },
   });
@@ -84,10 +96,24 @@ const OfferForm = (props: Props) => {
     console.log(values);
   };
 
+  const setBrutto = () => {
+    const netto = form.getValues("netto");
+    const vat = form.getValues("vat");
+
+    if (netto && vat) {
+      const brutto = Number(netto) + (Number(netto) * Number(vat)) / 100;
+      form.setValue("brutto", brutto);
+    }
+  };
+
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+          onMouseDown={() => setBrutto()}
+        >
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -136,9 +162,27 @@ const OfferForm = (props: Props) => {
               <FormItem className="flex flex-col">
                 <FormLabel>Kwota netto</FormLabel>
                 <FormControl>
-                  <Input {...field} type="number" />
+                  <Input
+                    {...field}
+                    type="number"
+                    onMouseOut={() => setBrutto()}
+                  />
                 </FormControl>
                 <FormDescription>Wpisz kwotę netto</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="brutto"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Kwota brutto</FormLabel>
+                <FormControl>
+                  <Input {...field} type="number" disabled />
+                </FormControl>
+                <FormDescription>Kwota brutto</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -209,7 +253,7 @@ const OfferForm = (props: Props) => {
             name="message"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Widamość</FormLabel>
+                <FormLabel>Wiadamość</FormLabel>
                 <FormControl>
                   <Textarea {...field} />
                 </FormControl>
