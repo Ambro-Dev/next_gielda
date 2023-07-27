@@ -18,9 +18,8 @@ import React from "react";
 import MessageForm from "./message-form";
 import OfferForm from "./offer-form";
 
-type Props = {};
 
-const TransportContactCard = (props: Props) => {
+const TransportContactCard = ({transport}: {transport: string}) => {
   return (
     <Card className="p-3">
       <CardHeader className="space-y-4">
@@ -68,7 +67,7 @@ const TransportContactCard = (props: Props) => {
                       Złóż ofertę na przewóz
                     </DialogDescription>
                   </DialogHeader>
-                  <OfferForm />
+                  <OfferForm transport={transport} />
                 </DialogContent>
               </Dialog>
             </div>

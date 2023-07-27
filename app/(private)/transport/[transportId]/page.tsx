@@ -61,7 +61,7 @@ const TransportInfo = async ({ params }: PageParams) => {
         finish={transport.directions.finish}
       />
       <TransportDetails transport={transport} />
-      <TransportContactCard />
+      <TransportContactCard transport={transport.id} />
     </div>
   );
 };

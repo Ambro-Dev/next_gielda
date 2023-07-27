@@ -25,13 +25,11 @@ import { Button } from "@/components/ui/button";
 import SelectBox from "./select-box";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/DatePicker";
-
-type Props = {};
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
-  message: z.string().nonempty({
-    message: "Wiadomość nie może być pusta",
-  }),
+  message: z.string(),
   currency: z.string({
     required_error: "Nieprawidłowa waluta",
   }),
@@ -50,19 +48,27 @@ const formSchema = z.object({
       message: "Podaj kwotę netto",
     })
   ),
-  loadDate: z.string().nonempty({
-    message: "Data załadunku nie może być pusta",
-  }),
-  unloadDate: z.string().nonempty({
-    message: "Data rozładunku nie może być pusta",
-  }),
+  loadDate: z
+    .date({
+      required_error: "Data załadunku nie może być pusta",
+    })
+    .min(new Date(), {
+      message: "Nieprawidłowa data wysyłki.",
+    }),
+  unloadDate: z
+    .date({
+      required_error: "Data rozładunku nie może być pusta",
+    })
+    .min(new Date(), {
+      message: "Nieprawidłowa data rozładunku.",
+    }),
   daysToUnload: z.preprocess(
     (val) => Number(val),
     z.number().min(1, {
       message: "Czas rozładunku musi być większy od 0",
     })
   ),
-  number: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/),
+  number: z.string().regex(/^(\+?48)?[\s-]?[\d]{3}[\s-]?[\d]{3}[\s-]?[\d]{3}$/),
 });
 
 const currencyOptions = [
@@ -76,7 +82,9 @@ const vatOptions = [
   { name: "23", label: "23%" },
 ];
 
-const OfferForm = (props: Props) => {
+const OfferForm = ({ transport }: { transport: string }) => {
+  const { toast } = useToast();
+  const { data, status } = useSession();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,15 +93,66 @@ const OfferForm = (props: Props) => {
       vat: "23",
       netto: 0,
       brutto: 0,
-      loadDate: "",
-      unloadDate: "",
       daysToUnload: 0,
       number: "",
+      loadDate: new Date(),
+      unloadDate: new Date(),
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    const {
+      message,
+      currency,
+      vat,
+      netto,
+      brutto,
+      loadDate,
+      unloadDate,
+      daysToUnload,
+      number,
+    } = values;
+
+    const offer = {
+      message: message ? message : undefined,
+      currency,
+      vat: Number(vat),
+      netto,
+      brutto,
+      loadDate,
+      unloadDate,
+      unloadTime: daysToUnload,
+      contactNumber: number,
+      creatorId: data?.user?.id,
+      transportId: transport,
+    };
+
+    console.log(JSON.stringify(offer));
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/offer`,
+      {
+        method: "POST",
+        body: JSON.stringify(offer),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.ok) {
+      form.reset();
+      toast({
+        title: "Oferta została dodana",
+        description: "Oferta została dodana",
+      });
+    } else {
+      toast({
+        title: "Błąd",
+        description: "Coś poszło nie tak",
+        variant: "destructive",
+      });
+    }
   };
 
   const setBrutto = () => {
