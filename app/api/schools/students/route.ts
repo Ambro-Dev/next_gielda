@@ -29,7 +29,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No students found" }, { status: 404 });
   }
 
-  return NextResponse.json(students);
+  const studentsReturn = students.map((student) => {
+    return {
+      id: student.user.id,
+      username: student.user.username,
+      name: student.name,
+      surname: student.surname,
+    };
+  });
+
+  return NextResponse.json(studentsReturn);
 }
 
 export async function POST(req: NextRequest) {

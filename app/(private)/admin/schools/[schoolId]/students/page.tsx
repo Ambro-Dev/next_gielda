@@ -25,6 +25,7 @@ async function getStudents(schoolId: string) {
 
 const Students = async (props: PageProps) => {
   const data = await getStudents(props.params.schoolId);
+  console.log(data);
   return (
     <div>
       <StudentsTable columns={columns} data={data} />
