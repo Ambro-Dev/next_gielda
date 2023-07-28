@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -17,9 +18,40 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import MessageForm from "./message-form";
 import OfferForm from "./offer-form";
+import { Offer } from "@prisma/client";
+import { OffersTable } from "./offers-table";
+import { Transport } from "./page";
 
+const getTransportOffers = async (transportId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/transport/offers?transportId=${transportId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-cache",
+      }
+    );
+    if (response.status === 404) return [];
+    const offers = await response.json();
+    return offers;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-const TransportContactCard = ({transport}: {transport: string}) => {
+export type OfferWithCreator = Offer & {
+  creator: { id: string; username: string };
+};
+
+const TransportContactCard = async ({
+  transport,
+}: {
+  transport: Transport;
+}) => {
+  const offers: OfferWithCreator[] = await getTransportOffers(transport.id);
   return (
     <Card className="p-3">
       <CardHeader className="space-y-4">
@@ -47,7 +79,10 @@ const TransportContactCard = ({transport}: {transport: string}) => {
                       Wpisz wiadomość, którą chcesz wysłać
                     </DialogDescription>
                   </DialogHeader>
-                  <MessageForm />
+                  <MessageForm
+                    transportId={transport.id}
+                    transportOwnerId={transport.creator.id}
+                  />
                 </DialogContent>
               </Dialog>
 
@@ -67,7 +102,7 @@ const TransportContactCard = ({transport}: {transport: string}) => {
                       Złóż ofertę na przewóz
                     </DialogDescription>
                   </DialogHeader>
-                  <OfferForm transport={transport} />
+                  <OfferForm transport={transport.id} />
                 </DialogContent>
               </Dialog>
             </div>
@@ -79,6 +114,9 @@ const TransportContactCard = ({transport}: {transport: string}) => {
         </CardDescription>
         <Separator />
       </CardHeader>
+      <CardContent>
+        <OffersTable data={offers} />
+      </CardContent>
     </Card>
   );
 };

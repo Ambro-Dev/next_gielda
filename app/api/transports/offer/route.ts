@@ -16,24 +16,41 @@ export const POST = async (req: NextRequest) => {
     contactNumber,
     creatorId,
     transportId,
+    message,
   }: Offer = body;
 
   if (
     !(
-      currency &&
-      vat &&
-      netto &&
-      brutto &&
-      loadDate &&
-      unloadDate &&
-      unloadTime &&
-      contactNumber &&
-      creatorId &&
+      currency ||
+      vat ||
+      netto ||
+      brutto ||
+      loadDate ||
+      unloadDate ||
+      unloadTime ||
+      contactNumber ||
+      creatorId ||
       transportId
     )
   ) {
     return NextResponse.json(
       { error: "Missing required fields" },
+      { status: 400 }
+    );
+  }
+
+  const existingOffer = await prisma.offer.findFirst({
+    where: {
+      creatorId: creatorId,
+      transportId: transportId,
+    },
+  });
+
+  if (existingOffer) {
+    return NextResponse.json(
+      {
+        error: "Wysłałeś/aś już ofertę dla tego transportu, edytuj istniejącą",
+      },
       { status: 400 }
     );
   }
@@ -48,6 +65,7 @@ export const POST = async (req: NextRequest) => {
       unloadDate,
       unloadTime,
       contactNumber,
+      message: message ? message : undefined,
       creator: {
         connect: {
           id: creatorId,

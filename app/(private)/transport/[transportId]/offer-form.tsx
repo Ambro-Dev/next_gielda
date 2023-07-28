@@ -27,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/DatePicker";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { set } from "mongoose";
 
 const formSchema = z.object({
   message: z.string(),
@@ -84,6 +86,7 @@ const vatOptions = [
 
 const OfferForm = ({ transport }: { transport: string }) => {
   const { toast } = useToast();
+  const router = useRouter();
   const { data, status } = useSession();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -127,8 +130,6 @@ const OfferForm = ({ transport }: { transport: string }) => {
       transportId: transport,
     };
 
-    console.log(JSON.stringify(offer));
-
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/offer`,
       {
@@ -146,6 +147,7 @@ const OfferForm = ({ transport }: { transport: string }) => {
         title: "Oferta została dodana",
         description: "Oferta została dodana",
       });
+      router.refresh();
     } else {
       toast({
         title: "Błąd",
@@ -164,6 +166,16 @@ const OfferForm = ({ transport }: { transport: string }) => {
       form.setValue("brutto", brutto);
     }
   };
+
+  React.useEffect(() => {
+    const netto = form.getValues("netto");
+    const vat = form.getValues("vat");
+
+    if (netto && vat) {
+      const brutto = Number(netto) + (Number(netto) * Number(vat)) / 100;
+      form.setValue("brutto", brutto);
+    }
+  }, [form.getValues("netto"), form.getValues("vat")]);
 
   return (
     <div>
@@ -221,11 +233,7 @@ const OfferForm = ({ transport }: { transport: string }) => {
               <FormItem className="flex flex-col">
                 <FormLabel>Kwota netto</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onMouseOut={() => setBrutto()}
-                  />
+                  <Input {...field} type="number" />
                 </FormControl>
                 <FormDescription>Wpisz kwotę netto</FormDescription>
                 <FormMessage />

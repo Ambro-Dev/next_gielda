@@ -1,12 +1,6 @@
 "use client";
 
 import {
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -22,8 +16,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
 
-type Props = {};
+type Props = {
+  transportId: string;
+  transportOwnerId: string;
+};
 
 const formSchema = z.object({
   message: z.string().nonempty({
@@ -32,6 +31,8 @@ const formSchema = z.object({
 });
 
 const MessageForm = (props: Props) => {
+  const { toast } = useToast();
+  const { data, status } = useSession();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,7 +40,37 @@ const MessageForm = (props: Props) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {};
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const newMessage = {
+      message: values.message,
+      senderId: data?.user?.id,
+      receiverId: props.transportOwnerId,
+      transportId: props.transportId,
+    };
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/message`,
+      {
+        method: "POST",
+        body: JSON.stringify(newMessage),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.ok) {
+      form.reset();
+      toast({
+        title: "Wiadomość została wysłana",
+        description: "Twoja wiadomość została wysłana",
+      });
+    } else {
+      toast({
+        title: "Wystąpił błąd",
+        description: "Nie udało się wysłać wiadomości",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div>

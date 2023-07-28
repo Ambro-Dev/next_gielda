@@ -10,19 +10,27 @@ import { redirect } from "next/navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Konto użytkownika",
+  title: "Moja giełda",
   description:
-    "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
+    "Moja giełda transportowa - zarządzaj swoimi zleceniami transportowymi.",
 };
 
 const sidebarNavItems = [
   {
-    title: "Profil",
-    href: "/user/profile",
+    title: "Aktywne zlecenia",
+    href: "/user/market",
   },
   {
-    title: "Ustawienia",
-    href: "/user/settings",
+    title: "Zakończone zlecenia",
+    href: "/user/market/history",
+  },
+  {
+    title: "Wiadomości",
+    href: "/user/market/messages",
+  },
+  {
+    title: "Oferty",
+    href: "/user/market/offers",
   },
 ];
 
@@ -38,12 +46,10 @@ export default async function UserLayout({
     <Card className="mb-5">
       <div className="space-y-6 p-10 pb-16 md:block">
         <div className="space-y-0.5">
-          <h2 className="text-2xl font-bold tracking-tight">
-            Konto użytkownika
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight">Moja giełda</h2>
           <p className="text-muted-foreground">
-            Zaktualizuj ustawienia konta. Zmień adres mailowy lub zresetuj
-            hasło.
+            Zarządzaj swoimi zleceniami transportowymi, wiadomościami i
+            ofertami.
           </p>
         </div>
         <Separator className="my-6" />
@@ -51,7 +57,7 @@ export default async function UserLayout({
           <aside className="-mx-4 lg:w-1/5">
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className="flex-1 lg:max-w-2xl">{children}</div>
+          <div className="w-full">{children}</div>
         </div>
       </div>
     </Card>

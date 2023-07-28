@@ -113,24 +113,6 @@ const TopBar = () => {
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
-                      {data?.user?.role === "admin" && (
-                        <NavigationMenuItem>
-                          <NavigationMenuTrigger>
-                            Panel administracyjny
-                          </NavigationMenuTrigger>
-                          <NavigationMenuContent>
-                            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                              {menu.map((item) => (
-                                <SheetClose asChild key={item.title}>
-                                  <ListItem title={item.title} href={item.href}>
-                                    {item.description}
-                                  </ListItem>
-                                </SheetClose>
-                              ))}
-                            </ul>
-                          </NavigationMenuContent>
-                        </NavigationMenuItem>
-                      )}
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/transport/add" legacyBehavior passHref>
                           <NavigationMenuLink>
@@ -162,54 +144,85 @@ const TopBar = () => {
                           </Link>
                         </NavigationMenuItem>
                       ) : (
-                        <NavigationMenuItem className="hover:cursor-pointer">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Avatar>
-                                <AvatarFallback className="capitalize">
-                                  {data?.user.username.substring(0, 1)}
-                                </AvatarFallback>
-                              </Avatar>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56">
-                              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuGroup>
-                                <DropdownMenuItem
-                                  className="hover:cursor-pointer hover:bg-amber-400"
-                                  onClick={() =>
-                                    router.replace("/user/profile")
-                                  }
-                                >
-                                  <User className="mr-2 h-4 w-4" />
-                                  <SheetClose asChild>
-                                    <span>Profil</span>
-                                  </SheetClose>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="hover:cursor-pointer hover:bg-amber-400"
-                                  onClick={() =>
-                                    router.replace("/user/settings")
-                                  }
-                                >
-                                  <Settings className="mr-2 h-4 w-4" />
-                                  <SheetClose asChild>
-                                    <span>Ustawienia</span>
-                                  </SheetClose>
-                                </DropdownMenuItem>
-                              </DropdownMenuGroup>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => signOut()}
-                                className="hover:cursor-pointer hover:bg-neutral-200"
+                        <>
+                          <NavigationMenuItem>
+                            <Link href="/user/market" legacyBehavior passHref>
+                              <NavigationMenuLink
+                                className={navigationMenuTriggerStyle()}
                               >
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <SheetClose asChild>
-                                  <span>Wyloguj</span>
+                                Moja giełda
+                              </NavigationMenuLink>
+                            </Link>
+                          </NavigationMenuItem>
+                          <NavigationMenuItem className="hover:cursor-pointer">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Avatar>
+                                  <AvatarFallback className="capitalize">
+                                    {data?.user.username.substring(0, 1)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>
+                                  Moje konto
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                  <DropdownMenuItem
+                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    onClick={() =>
+                                      router.replace("/user/profile/account")
+                                    }
+                                  >
+                                    <User className="mr-2 h-4 w-4" />
+                                    <SheetClose asChild>
+                                      <span>Profil</span>
+                                    </SheetClose>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    onClick={() =>
+                                      router.replace("/user/settings/settings")
+                                    }
+                                  >
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <SheetClose asChild>
+                                      <span>Ustawienia</span>
+                                    </SheetClose>
+                                  </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => signOut()}
+                                  className="hover:cursor-pointer hover:bg-neutral-200"
+                                >
+                                  <LogOut className="mr-2 h-4 w-4" />
+                                  <SheetClose asChild>
+                                    <span>Wyloguj</span>
+                                  </SheetClose>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </NavigationMenuItem>
+                        </>
+                      )}
+                      {data?.user?.role === "admin" && (
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger>
+                            Panel administracyjny
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent className="w-80">
+                            <ul className="flex flex-col md:grid w-full gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                              {menu.map((item) => (
+                                <SheetClose asChild key={item.title}>
+                                  <ListItem title={item.title} href={item.href}>
+                                    {item.description}
+                                  </ListItem>
                                 </SheetClose>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                              ))}
+                            </ul>
+                          </NavigationMenuContent>
                         </NavigationMenuItem>
                       )}
                     </NavigationMenuList>
@@ -320,45 +333,76 @@ const TopBar = () => {
                 </Link>
               </NavigationMenuItem>
             ) : (
-              <NavigationMenuItem className="hover:cursor-pointer">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar>
-                      <AvatarFallback className="capitalize">
-                        {data?.user.username.substring(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        className="hover:cursor-pointer hover:bg-amber-400"
-                        onClick={() => router.replace("/user/profile")}
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profil</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="hover:cursor-pointer hover:bg-amber-400"
-                        onClick={() => router.replace("/user/settings")}
-                      >
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Ustawienia</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => signOut()}
-                      className="hover:cursor-pointer hover:bg-neutral-200"
+              <>
+                <NavigationMenuItem>
+                  <Link href="/user/market" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Wyloguj</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </NavigationMenuItem>
+                      Moja giełda
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem className="hover:cursor-pointer">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Avatar>
+                        <AvatarFallback className="capitalize">
+                          {data?.user.username.substring(0, 1)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          className="hover:cursor-pointer hover:bg-amber-400"
+                          onClick={() =>
+                            router.replace("/user/profile/account")
+                          }
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profil</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:cursor-pointer hover:bg-amber-400"
+                          onClick={() =>
+                            router.replace("/user/settings/settings")
+                          }
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Wiadomości</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:cursor-pointer hover:bg-amber-400"
+                          onClick={() =>
+                            router.replace("/user/market/messages")
+                          }
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Oferty</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:cursor-pointer hover:bg-amber-400"
+                          onClick={() => router.replace("/user/market/offers")}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Ustawienia</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => signOut()}
+                        className="hover:cursor-pointer hover:bg-neutral-200"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Wyloguj</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </NavigationMenuItem>
+              </>
             )}
           </NavigationMenuList>
         </NavigationMenu>

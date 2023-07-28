@@ -8,6 +8,7 @@ import MessengerChatBox from "@/components/MessengerChat";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { getServerSession } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;

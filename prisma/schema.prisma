@@ -106,37 +106,40 @@ model Student {
 }
 
 model Transport {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  categoryId    String      @db.ObjectId
-  category      Category    @relation(fields: [categoryId], references: [id])
-  vehicleId     String      @db.ObjectId
-  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  categoryId    String         @db.ObjectId
+  category      Category       @relation(fields: [categoryId], references: [id])
+  vehicleId     String         @db.ObjectId
+  vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
   isAvailable   Boolean
   sendDate      DateTime
   timeAvailable Int
   receiveDate   DateTime
   directions    Directions?
   description   String
-  creatorId     String      @db.ObjectId
-  creator       User        @relation(fields: [creatorId], references: [id])
-  typeId        String      @db.ObjectId
-  type          Type        @relation(fields: [typeId], references: [id])
+  creatorId     String         @db.ObjectId
+  creator       User           @relation(fields: [creatorId], references: [id])
+  typeId        String         @db.ObjectId
+  type          Type           @relation(fields: [typeId], references: [id])
   objects       Object[]
-  schoolId      String      @db.ObjectId
-  school        School      @relation(fields: [schoolId], references: [id])
+  schoolId      String?        @db.ObjectId
+  school        School?        @relation(fields: [schoolId], references: [id])
   offers        Offer[]
   messages      Message[]
+  conversations Conversation[]
 }
 
 model Conversation {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  messages  Message[]
-  userIDs   String[]  @db.ObjectId
-  users     User[]    @relation(fields: [userIDs], references: [id])
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  messages    Message[]
+  userIDs     String[]   @db.ObjectId
+  users       User[]     @relation(fields: [userIDs], references: [id])
+  transportId String?    @db.ObjectId
+  transport   Transport? @relation(fields: [transportId], references: [id])
 }
 
 model Message {
@@ -150,8 +153,6 @@ model Message {
   sender         User          @relation(fields: [senderId], references: [id])
   transportId    String        @db.ObjectId
   transport      Transport     @relation(fields: [transportId], references: [id])
-  offerId        String        @db.ObjectId
-  offer          Offer?        @relation(fields: [offerId], references: [id])
 }
 
 enum Currency {
@@ -176,7 +177,7 @@ model Offer {
   transport     Transport @relation(fields: [transportId], references: [id])
   creatorId     String    @db.ObjectId
   creator       User      @relation(fields: [creatorId], references: [id])
-  message       Message[]
+  message       String?   @db.String
 }
 
 model Directions {

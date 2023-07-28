@@ -141,7 +141,7 @@ export function AddTransportForm({
         finish: endDestination,
       },
       creator: data?.user?.id,
-      school: school.id,
+      school: school ? school.id : undefined,
     };
 
     const response = await fetch("/api/transports", {

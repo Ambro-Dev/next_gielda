@@ -1,4 +1,3 @@
-import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/lib/prismadb";
@@ -33,7 +32,7 @@ export const POST = async (req: NextRequest) => {
       categoryId: category,
       creatorId: creator,
       typeId: type,
-      schoolId: school,
+      schoolId: school ? school : undefined,
       directions: {
         create: directions,
       },

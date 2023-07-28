@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { getToken } from "next-auth/jwt";
 
 export const GET = async (req: NextRequest) => {
   const schools = await prisma.school.findMany({
