@@ -9,18 +9,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Map from "@/components/Map";
-import { ExtendedConversation } from "./page";
 import Directions from "@/components/Directions";
 import { Card } from "@/components/ui/card";
+import { ExtendedOffer } from "./page";
 
-export function MessagesTable({ data }: { data: ExtendedConversation[] }) {
+export function OffersTable({ data }: { data: ExtendedOffer[] }) {
   return (
     <Table>
-      <TableCaption>Lista wiadomości</TableCaption>
+      <TableCaption>Lista ofert</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[150px]">Mapa</TableHead>
-          <TableHead>Wiadomości</TableHead>
+          <TableHead>Oferty</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -36,14 +36,13 @@ export function MessagesTable({ data }: { data: ExtendedConversation[] }) {
                   <div className="w-full flex flex-row gap-8 justify-between items-center">
                     <div className="flex flex-col gap-2">
                       <span className="text-sm font-semibold">
-                        Ostatnia wiadomość:{" "}
-                        <span>({item.messages[0].sender.username})</span>
+                        Oferta od: <span>{item.creator.username}</span>
                       </span>
                       <span className="font-light text-ellipsis overflow-hidden line-clamp-1">
-                        {item.messages[item.messages.length - 1].text}
+                        Kwota brutto: {item.brutto} {item.currency}
                       </span>
                     </div>
-                    <Button>Odpowiedz</Button>
+                    <Button>Zobacz</Button>
                   </div>
                 </Card>
               </div>
