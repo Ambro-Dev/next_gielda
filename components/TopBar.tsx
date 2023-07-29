@@ -44,7 +44,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { User, Settings, LogOut } from "lucide-react";
+import {
+  User,
+  Settings,
+  LogOut,
+  MessageSquare,
+  StickyNote,
+  PenBox,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -113,6 +120,37 @@ const TopBar = () => {
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
                   <NavigationMenu>
                     <NavigationMenuList className="gap-4 flex-col">
+                      {data?.user?.role === "admin" && (
+                        <NavigationMenuItem>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button>Panel administracyjny</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                              <DropdownMenuGroup>
+                                {menu.map((item) => (
+                                  <div key={item.title}>
+                                    <SheetClose asChild>
+                                      <DropdownMenuItem
+                                        className="flex flex-col w-full justify-center items-start gap-2"
+                                        onClick={() =>
+                                          router.replace(item.href)
+                                        }
+                                      >
+                                        <span className="font-bold">
+                                          {item.title}
+                                        </span>
+                                        <span>{item.description}</span>
+                                      </DropdownMenuItem>
+                                    </SheetClose>
+                                    <DropdownMenuSeparator />
+                                  </div>
+                                ))}
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </NavigationMenuItem>
+                      )}
                       <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
                         <Link href="/transport/add" legacyBehavior passHref>
                           <NavigationMenuLink>
@@ -207,24 +245,6 @@ const TopBar = () => {
                           </NavigationMenuItem>
                         </>
                       )}
-                      {data?.user?.role === "admin" && (
-                        <NavigationMenuItem>
-                          <NavigationMenuTrigger>
-                            Panel administracyjny
-                          </NavigationMenuTrigger>
-                          <NavigationMenuContent className="w-80">
-                            <ul className="flex flex-col md:grid w-full gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                              {menu.map((item) => (
-                                <SheetClose asChild key={item.title}>
-                                  <ListItem title={item.title} href={item.href}>
-                                    {item.description}
-                                  </ListItem>
-                                </SheetClose>
-                              ))}
-                            </ul>
-                          </NavigationMenuContent>
-                        </NavigationMenuItem>
-                      )}
                     </NavigationMenuList>
                   </NavigationMenu>
                   <div className="flex flex-row justify-center items-center gap-4">
@@ -294,22 +314,27 @@ const TopBar = () => {
           <NavigationMenuList className="gap-4">
             {data?.user?.role === "admin" && (
               <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  Panel administracyjny
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[200px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                    {menu.map((item) => (
-                      <ListItem
-                        key={item.title}
-                        title={item.title}
-                        href={item.href}
-                      >
-                        {item.description}
-                      </ListItem>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>Panel administracyjny</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuGroup>
+                      {menu.map((item) => (
+                        <div key={item.title}>
+                          <DropdownMenuItem
+                            className="flex flex-col w-full justify-center items-start gap-2"
+                            onClick={() => router.replace(item.href)}
+                          >
+                            <span className="font-bold">{item.title}</span>
+                            <span>{item.description}</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </div>
+                      ))}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </NavigationMenuItem>
             )}
             <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
@@ -371,7 +396,7 @@ const TopBar = () => {
                             router.replace("/user/settings/settings")
                           }
                         >
-                          <Settings className="mr-2 h-4 w-4" />
+                          <MessageSquare className="mr-2 h-4 w-4" />
                           <span>Wiadomości</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -380,7 +405,7 @@ const TopBar = () => {
                             router.replace("/user/market/messages")
                           }
                         >
-                          <Settings className="mr-2 h-4 w-4" />
+                          <PenBox className="mr-2 h-4 w-4" />
                           <span>Oferty</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
