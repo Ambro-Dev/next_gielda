@@ -188,7 +188,9 @@ const TopBar = () => {
                               <NavigationMenuLink
                                 className={navigationMenuTriggerStyle()}
                               >
-                                Moja giełda
+                                <SheetClose asChild>
+                                  <span>Moja giełda</span>
+                                </SheetClose>
                               </NavigationMenuLink>
                             </Link>
                           </NavigationMenuItem>
@@ -227,6 +229,28 @@ const TopBar = () => {
                                     <Settings className="mr-2 h-4 w-4" />
                                     <SheetClose asChild>
                                       <span>Ustawienia</span>
+                                    </SheetClose>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    onClick={() =>
+                                      router.replace("/user/settings/settings")
+                                    }
+                                  >
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    <SheetClose asChild>
+                                      <span>Wiadomości</span>
+                                    </SheetClose>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    onClick={() =>
+                                      router.replace("/user/market/messages")
+                                    }
+                                  >
+                                    <PenBox className="mr-2 h-4 w-4" />
+                                    <SheetClose asChild>
+                                      <span>Oferty</span>
                                     </SheetClose>
                                   </DropdownMenuItem>
                                 </DropdownMenuGroup>

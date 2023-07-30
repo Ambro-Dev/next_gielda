@@ -9,12 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
 import { RecentTransports } from "../[schoolId]/recent-transports";
-import { Search } from "@/components/dashboard/search";
-import { MainNav } from "@/components/dashboard/main-nav";
-import TeamSwitcher from "@/components/dashboard/team-switcher";
-import { School } from "@prisma/client";
 
 import admin from "@/assets/icons/administrator.png";
 import Image from "next/image";
@@ -57,9 +52,6 @@ export default async function SchoolPage({ params }: PageProps) {
           </TabsTrigger>
           <TabsTrigger value="reports" disabled>
             Raporty
-          </TabsTrigger>
-          <TabsTrigger value="notifications" disabled>
-            Powiadomienia
           </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">

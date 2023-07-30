@@ -17,34 +17,33 @@ export function OffersTable({ data }: { data: ExtendedOffer[] }) {
   return (
     <Table>
       <TableCaption>Lista ofert</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[150px]">Mapa</TableHead>
-          <TableHead>Oferty</TableHead>
-        </TableRow>
-      </TableHeader>
       <TableBody>
         {data?.map((item) => (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">
-              <Map height="150px" width="150px" transport={item.transport} />
-            </TableCell>
             <TableCell>
-              <div className="w-full flex flex-col items-center justify-center gap-4">
-                <Directions transport={item.transport} />
-                <Card className="w-full p-3">
-                  <div className="w-full flex flex-row gap-8 justify-between items-center">
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm font-semibold">
-                        Oferta od: <span>{item.creator.username}</span>
-                      </span>
-                      <span className="font-light text-ellipsis overflow-hidden line-clamp-1">
-                        Kwota brutto: {item.brutto} {item.currency}
-                      </span>
+              <div className="flex md:flex-row flex-col md:justify-between items-center gap-4 md:px-0 px-5">
+                <div>
+                  <Map
+                    transport={item.transport}
+                    className="flex md:w-[200px] w-[300px] h-[200px]"
+                  />
+                </div>
+                <div className="w-full flex flex-col items-center justify-center gap-4">
+                  <Directions transport={item.transport} />
+                  <Card className="w-full p-3">
+                    <div className="w-full flex flex-row gap-8 justify-between items-center">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-sm font-semibold">
+                          Oferta od: <span>{item.creator.username}</span>
+                        </span>
+                        <span className="font-light text-ellipsis overflow-hidden line-clamp-1">
+                          Kwota brutto: {item.brutto} {item.currency}
+                        </span>
+                      </div>
+                      <Button>Zobacz</Button>
                     </div>
-                    <Button>Zobacz</Button>
-                  </div>
-                </Card>
+                  </Card>
+                </div>
               </div>
             </TableCell>
           </TableRow>

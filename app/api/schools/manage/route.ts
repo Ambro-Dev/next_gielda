@@ -3,7 +3,7 @@ import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
   const schoolId = req.nextUrl.searchParams.get("schoolId");
-  if (!schoolId) {
+  if (!schoolId || schoolId === "" || schoolId === "undefined") {
     return NextResponse.json({ error: "Missing schoolId" }, { status: 400 });
   }
   const school = await prisma.school.findUnique({

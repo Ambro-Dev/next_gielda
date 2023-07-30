@@ -44,17 +44,17 @@ export default async function UserLayout({
   if (!session) redirect("/signin");
   return (
     <Card className="mb-5">
-      <div className="space-y-6 p-10 pb-16 md:block">
-        <div className="space-y-0.5">
+      <div className="space-y-6 md:px-10 py-10 pb-16 md:block">
+        <div className="space-y-0.5 px-5 md:px-0">
           <h2 className="text-2xl font-bold tracking-tight">Moja giełda</h2>
           <p className="text-muted-foreground">
             Zarządzaj swoimi zleceniami transportowymi, wiadomościami i
             ofertami.
           </p>
         </div>
-        <Separator className="my-6" />
+        <Separator className="my-6 px-5" />
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-          <aside className="-mx-4 lg:w-1/5">
+          <aside className=" lg:w-1/5 px-5 md:px-0">
             <SidebarNav items={sidebarNavItems} />
           </aside>
           <div className="w-full">{children}</div>

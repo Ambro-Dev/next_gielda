@@ -17,12 +17,10 @@ type MapOptions = google.maps.MapOptions;
 
 const Map = ({
   transport,
-  width,
-  height,
+  className,
 }: {
   transport: ExtendedTransport;
-  width: string;
-  height: string;
+  className: string;
 }) => {
   const mapRef = useRef<GoogleMap>();
 
@@ -70,35 +68,37 @@ const Map = ({
   };
 
   const containerStyle = {
-    width: `${width}`,
-    height: `${height}`,
+    width: "100%",
+    height: "100%",
     borderRadius: "0.5rem",
   };
   return (
-    <GoogleMap
-      zoom={11}
-      mapContainerClassName="map-container"
-      options={options}
-      onLoad={onLoad}
-      mapContainerStyle={containerStyle}
-    >
-      {directions && (
-        <DirectionsRenderer
-          directions={directions}
-          options={{
-            polylineOptions: {
-              strokeColor: "#1976D2",
-              strokeWeight: 5,
-              clickable: false,
-            },
-            markerOptions: {
-              zIndex: 100,
-              cursor: "default",
-            },
-          }}
-        />
-      )}
-    </GoogleMap>
+    <div className={className}>
+      <GoogleMap
+        zoom={11}
+        mapContainerClassName="map-container"
+        options={options}
+        onLoad={onLoad}
+        mapContainerStyle={containerStyle}
+      >
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              polylineOptions: {
+                strokeColor: "#1976D2",
+                strokeWeight: 5,
+                clickable: false,
+              },
+              markerOptions: {
+                zIndex: 100,
+                cursor: "default",
+              },
+            }}
+          />
+        )}
+      </GoogleMap>
+    </div>
   );
 };
 

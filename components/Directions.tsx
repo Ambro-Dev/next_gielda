@@ -41,7 +41,7 @@ const Directions = ({ transport }: { transport: ExtendedTransport }) => {
       <span className="text-sm font-bold text-center">
         {directionsLeg?.start_address}
       </span>
-      <ArrowBigRight className="mx-5" size={24} />
+      <ArrowBigRight className="mx-5" size={36} />
       <span className="text-sm font-bold text-center">
         {directionsLeg?.end_address}
       </span>

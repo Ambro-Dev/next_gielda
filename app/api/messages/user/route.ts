@@ -4,7 +4,7 @@ import prisma from "@/lib/prismadb";
 export const GET = async (req: NextRequest) => {
   const userId = req.nextUrl.searchParams.get("userId");
 
-  if (!userId) {
+  if (!userId || userId === "" || userId === "undefined") {
     return NextResponse.json({ error: "Brak parametru ID" }, { status: 400 });
   }
 

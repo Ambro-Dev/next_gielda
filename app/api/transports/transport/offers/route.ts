@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
   const transportId = req.nextUrl.searchParams.get("transportId");
 
-  if (!transportId) {
+  if (!transportId || transportId === "" || transportId === "undefined") {
     return NextResponse.json(
       { error: "Brakuje ID transportu" },
       { status: 400 }
