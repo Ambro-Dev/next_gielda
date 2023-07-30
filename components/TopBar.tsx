@@ -420,7 +420,7 @@ const TopBar = () => {
                             router.replace("/user/profile/settings")
                           }
                         >
-                          <MessageSquare className="mr-2 h-4 w-4" />
+                          <Settings className="mr-2 h-4 w-4" />
                           <span>Ustawienia</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -429,14 +429,14 @@ const TopBar = () => {
                             router.replace("/user/market/messages")
                           }
                         >
-                          <PenBox className="mr-2 h-4 w-4" />
+                          <MessageSquare className="mr-2 h-4 w-4" />
                           <span>Wiadomości</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="hover:cursor-pointer hover:bg-amber-400"
                           onClick={() => router.replace("/user/market/offers")}
                         >
-                          <Settings className="mr-2 h-4 w-4" />
+                          <PenBox className="mr-2 h-4 w-4" />
                           <span>Oferty</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
