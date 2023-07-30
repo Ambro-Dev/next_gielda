@@ -45,27 +45,26 @@ const Map = ({
 
   useEffect(() => {
     if (!transport.directions.start || !transport.directions.finish) return;
+    const fetchDirections = async (start: LatLngLiteral) => {
+      if (!transport.directions.finish || !start) return;
+
+      const service = new google.maps.DirectionsService();
+
+      service.route(
+        {
+          origin: start,
+          destination: transport.directions.finish,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === "OK" && result) {
+            setDirections(result);
+          }
+        }
+      );
+    };
     fetchDirections(transport.directions.start);
   }, [transport.directions.start, transport.directions.finish]);
-
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!transport.directions.finish || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: transport.directions.finish,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-        }
-      }
-    );
-  };
 
   const containerStyle = {
     width: "100%",
