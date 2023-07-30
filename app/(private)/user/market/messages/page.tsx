@@ -6,19 +6,27 @@ import { MessagesTable } from "./messages-table";
 
 type Props = {};
 
-const getConversations = async (userId: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/user?userId=${userId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  if (response.ok) {
+const getConversations = async (
+  userId: string
+): Promise<ExtendedConversation[]> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/user?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        next: {
+          revalidate: 60,
+        },
+      }
+    );
     const data = await response.json();
     return data;
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 };
 

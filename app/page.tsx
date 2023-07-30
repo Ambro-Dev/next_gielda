@@ -27,7 +27,6 @@ import { Separator } from "@/components/ui/separator";
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import CardWithMap from "@/components/CardWithMap";
 import Link from "next/link";
 import TransportsMap from "./transports-map";
 
@@ -39,56 +38,60 @@ type Tags = {
   };
 };
 
-const getCategories = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
-
+const getCategories = async (): Promise<Tags[]> => {
   try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
+      {
+        method: "GET",
+        next: {
+          revalidate: 60,
+        },
+      }
+    );
+
     const data = await res.json();
     return data?.categories;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
-const getVehicles = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
+const getVehicles = async (): Promise<Tags[]> => {
   try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
+      {
+        method: "GET",
+        next: {
+          revalidate: 60,
+        },
+      }
+    );
     const data = await res.json();
     return data?.vehicles;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
 const getTransports = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
   try {
-    const data = await res.json();
-    return data?.transports;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
+      {
+        method: "GET",
+        next: {
+          revalidate: 60,
+        },
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      return data?.transports;
+    }
   } catch (error) {
     console.log(error);
   }

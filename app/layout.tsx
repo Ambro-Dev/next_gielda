@@ -27,6 +27,7 @@ export default async function RootLayout({
     <NextAuthProvider>
       <html lang="pl">
         <body className={inter.className}>
+          <Analytics />
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <Toaster />
             <TopBar />
@@ -39,7 +40,6 @@ export default async function RootLayout({
 
             <Footer />
           </main>
-          <Analytics />
         </body>
       </html>
     </NextAuthProvider>
