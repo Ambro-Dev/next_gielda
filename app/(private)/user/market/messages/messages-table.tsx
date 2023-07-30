@@ -12,6 +12,7 @@ import Map from "@/components/Map";
 import { ExtendedConversation } from "./page";
 import Directions from "@/components/Directions";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 export function MessagesTable({ data }: { data: ExtendedConversation[] }) {
   return (
@@ -41,7 +42,9 @@ export function MessagesTable({ data }: { data: ExtendedConversation[] }) {
                           {item.messages[item.messages.length - 1].text}
                         </span>
                       </div>
-                      <Button>Odpowiedz</Button>
+                      <Link href={`/user/market/messages/${item.id}`}>
+                        <Button>Odpowiedz</Button>
+                      </Link>
                     </div>
                   </Card>
                 </div>

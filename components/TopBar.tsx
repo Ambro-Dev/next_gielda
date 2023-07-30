@@ -223,7 +223,7 @@ const TopBar = () => {
                                   <DropdownMenuItem
                                     className="hover:cursor-pointer hover:bg-amber-400"
                                     onClick={() =>
-                                      router.replace("/user/settings/settings")
+                                      router.replace("/user/profile/settings")
                                     }
                                   >
                                     <Settings className="mr-2 h-4 w-4" />
@@ -234,7 +234,7 @@ const TopBar = () => {
                                   <DropdownMenuItem
                                     className="hover:cursor-pointer hover:bg-amber-400"
                                     onClick={() =>
-                                      router.replace("/user/settings/settings")
+                                      router.replace("/user/market/messages")
                                     }
                                   >
                                     <MessageSquare className="mr-2 h-4 w-4" />
@@ -245,7 +245,7 @@ const TopBar = () => {
                                   <DropdownMenuItem
                                     className="hover:cursor-pointer hover:bg-amber-400"
                                     onClick={() =>
-                                      router.replace("/user/market/messages")
+                                      router.replace("/user/market/offers")
                                     }
                                   >
                                     <PenBox className="mr-2 h-4 w-4" />
@@ -417,11 +417,11 @@ const TopBar = () => {
                         <DropdownMenuItem
                           className="hover:cursor-pointer hover:bg-amber-400"
                           onClick={() =>
-                            router.replace("/user/settings/settings")
+                            router.replace("/user/profile/settings")
                           }
                         >
                           <MessageSquare className="mr-2 h-4 w-4" />
-                          <span>Wiadomości</span>
+                          <span>Ustawienia</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="hover:cursor-pointer hover:bg-amber-400"
@@ -430,14 +430,14 @@ const TopBar = () => {
                           }
                         >
                           <PenBox className="mr-2 h-4 w-4" />
-                          <span>Oferty</span>
+                          <span>Wiadomości</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="hover:cursor-pointer hover:bg-amber-400"
                           onClick={() => router.replace("/user/market/offers")}
                         >
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Ustawienia</span>
+                          <span>Oferty</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />

@@ -25,6 +25,41 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
+  const transport = await prisma.transport.findUnique({
+    where: { id: transportId },
+  });
+
+  if (!transport) {
+    return NextResponse.json(
+      { error: "Nie znaleziono transportu" },
+      { status: 404 }
+    );
+  }
+
+  const existingConversation = await prisma.conversation.findFirst({
+    where: {
+      users: {
+        every: {
+          id: {
+            in: [senderId, receiverId],
+          },
+        },
+      },
+      transport: {
+        id: transportId,
+      },
+    },
+  });
+
+  if (existingConversation) {
+    return NextResponse.json({
+      error:
+        "Prowadzisz już konwersację z tym użytkownikiem na temat tego transportu",
+      conversationId: existingConversation.id,
+      status: 409,
+    });
+  }
+
   const conversation = await prisma.conversation.create({
     data: {
       users: {
