@@ -77,7 +77,7 @@ export const GET = async (req: NextRequest) => {
       messages: {
         take: 1,
         orderBy: {
-          createdAt: "desc",
+          createdAt: "asc",
         },
         select: {
           id: true,
