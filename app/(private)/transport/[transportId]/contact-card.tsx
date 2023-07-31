@@ -115,7 +115,7 @@ const TransportContactCard = async ({
         <Separator />
       </CardHeader>
       <CardContent>
-        <OffersTable data={offers} />
+        <OffersTable data={offers} transportId={transport.id} />
       </CardContent>
     </Card>
   );

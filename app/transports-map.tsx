@@ -1,25 +1,6 @@
 import CardWithMap from "@/components/CardWithMap";
 import React from "react";
-
-export type Transport = {
-  id: string;
-  sendDate: Date;
-  receiveDate: Date;
-  vehicle: { id: string; name: string };
-  category: { id: string; name: string };
-  type: { id: string; name: string };
-  directions: {
-    finish: {
-      lat: number;
-      lng: number;
-    };
-    start: {
-      lat: number;
-      lng: number;
-    };
-  };
-  creator: { id: string; username: string };
-};
+import { Transport } from "./page";
 
 const TransportsMap = ({ transports }: { transports: Transport[] }) => {
   return (

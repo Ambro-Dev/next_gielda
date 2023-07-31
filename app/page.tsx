@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
+import { axiosInstance } from "@/lib/axios";
 import TransportsMap from "./transports-map";
 
 type Tags = {
@@ -38,20 +39,31 @@ type Tags = {
   };
 };
 
+export type Transport = {
+  id: string;
+  sendDate: Date;
+  receiveDate: Date;
+  vehicle: { id: string; name: string };
+  category: { id: string; name: string };
+  type: { id: string; name: string };
+  directions: {
+    finish: {
+      lat: number;
+      lng: number;
+    };
+    start: {
+      lat: number;
+      lng: number;
+    };
+  };
+  creator: { id: string; username: string };
+};
+
 const getCategories = async (): Promise<Tags[]> => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
-      {
-        method: "GET",
-        next: {
-          revalidate: 60,
-        },
-      }
-    );
+    const res = await axiosInstance.get("/api/settings/categories");
 
-    const data = await res.json();
-    return data?.categories;
+    return res.data.categories;
   } catch (error) {
     console.log(error);
     return [];
@@ -60,40 +72,21 @@ const getCategories = async (): Promise<Tags[]> => {
 
 const getVehicles = async (): Promise<Tags[]> => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
-      {
-        method: "GET",
-        next: {
-          revalidate: 60,
-        },
-      }
-    );
-    const data = await res.json();
-    return data?.vehicles;
+    const res = await axiosInstance.get("/api/settings/vehicles");
+    return res.data.vehicles;
   } catch (error) {
     console.log(error);
     return [];
   }
 };
 
-const getTransports = async () => {
+const getTransports = async (): Promise<Transport[]> => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
-      {
-        method: "GET",
-        next: {
-          revalidate: 60,
-        },
-      }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      return data?.transports;
-    }
+    const res = await axiosInstance.get("/api/transports");
+    return res.data.transports;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 

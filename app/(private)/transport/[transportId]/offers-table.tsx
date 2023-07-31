@@ -10,6 +10,7 @@ import {
 import { OfferWithCreator } from "./contact-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import Link from "next/link";
 
 const formatDate = (date: Date) => {
   const d = new Date(date);
@@ -21,7 +22,12 @@ const formatDate = (date: Date) => {
   }.${year}`;
 };
 
-export function OffersTable({ data }: { data: OfferWithCreator[] }) {
+type Props = {
+  transportId: string;
+  data: OfferWithCreator[];
+};
+
+export function OffersTable({ transportId, data }: Props) {
   return (
     <Table>
       <TableCaption>Lista złożonych ofert</TableCaption>
@@ -55,7 +61,9 @@ export function OffersTable({ data }: { data: OfferWithCreator[] }) {
                   {item.brutto} {item.currency}
                 </span>
                 <span className="text-xs text-gray-500">brutto</span>
-                <Button>Wyświetl</Button>
+                <Link href={`/transport/${transportId}/offer/${item.id}`}>
+                  <Button>Wyświetl</Button>
+                </Link>
               </div>
             </TableCell>
           </TableRow>
