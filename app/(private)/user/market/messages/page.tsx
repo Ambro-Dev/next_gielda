@@ -17,9 +17,7 @@ const getConversations = async (
         headers: {
           "Content-Type": "application/json",
         },
-        next: {
-          revalidate: 60,
-        },
+        cache: "no-cache",
       }
     );
     const data = await response.json();

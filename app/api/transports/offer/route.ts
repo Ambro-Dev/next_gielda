@@ -1,5 +1,4 @@
 import prisma from "@/lib/prismadb";
-import { Offer } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -17,7 +16,7 @@ export const POST = async (req: NextRequest) => {
     creatorId,
     transportId,
     message,
-  }: Offer = body;
+  } = body;
 
   if (
     !(

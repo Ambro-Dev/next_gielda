@@ -75,10 +75,10 @@ export const GET = async (req: NextRequest) => {
         },
       },
       messages: {
-        take: 1,
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc",
         },
+        take: 1,
         select: {
           id: true,
           createdAt: true,
