@@ -31,7 +31,7 @@ import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Transport } from "@/app/transports-map";
+import { Transport } from "@/app/page";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
