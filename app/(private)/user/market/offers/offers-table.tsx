@@ -12,6 +12,7 @@ import Map from "@/components/Map";
 import Directions from "@/components/Directions";
 import { Card } from "@/components/ui/card";
 import { ExtendedOffer } from "./page";
+import Link from "next/link";
 
 export function OffersTable({ data }: { data: ExtendedOffer[] }) {
   return (
@@ -40,7 +41,11 @@ export function OffersTable({ data }: { data: ExtendedOffer[] }) {
                           Kwota brutto: {item.brutto} {item.currency}
                         </span>
                       </div>
-                      <Button>Zobacz</Button>
+                      <Link
+                        href={`/transport/${item.transport.id}/offer/${item.id}`}
+                      >
+                        <Button>Zobacz</Button>
+                      </Link>
                     </div>
                   </Card>
                 </div>

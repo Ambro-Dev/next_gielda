@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { Conversation } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
@@ -39,20 +40,19 @@ export const POST = async (req: NextRequest) => {
   const existingConversation = await prisma.conversation.findFirst({
     where: {
       users: {
-        every: {
+        some: {
           id: {
             in: [senderId, receiverId],
           },
         },
       },
-      transport: {
-        id: transportId,
-      },
+      transportId: transportId,
     },
   });
 
   if (existingConversation) {
     return NextResponse.json({
+      existingConversation,
       error:
         "Prowadzisz już konwersację z tym użytkownikiem na temat tego transportu",
       conversationId: existingConversation.id,
@@ -64,6 +64,11 @@ export const POST = async (req: NextRequest) => {
     data: {
       users: {
         connect: [{ id: senderId }, { id: receiverId }],
+      },
+      transport: {
+        connect: {
+          id: transportId,
+        },
       },
     },
   });
@@ -103,5 +108,9 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  return NextResponse.json(newMessage, { status: 200 });
+  return NextResponse.json({
+    message: newMessage,
+    conversationId: conversation.id,
+    status: 200,
+  });
 };

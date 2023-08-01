@@ -40,5 +40,5 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ error: "Brak ofert" }, { status: 404 });
   }
 
-  return NextResponse.json(offers);
+  return NextResponse.json({ offers, status: 200 });
 };
