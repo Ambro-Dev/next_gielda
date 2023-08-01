@@ -87,8 +87,10 @@ model School {
   name            String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  administratorId String      @unique @db.ObjectId
-  administrator   User        @relation(fields: [administratorId], references: [id])
+  administratorId String?     @unique @db.ObjectId
+  administrator   User?       @relation(fields: [administratorId], references: [id])
+  isActive        Boolean     @default(true)
+  accessExpires   DateTime
   students        Student[]
   transports      Transport[]
 }

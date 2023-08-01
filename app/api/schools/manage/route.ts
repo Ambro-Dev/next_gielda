@@ -26,11 +26,15 @@ export const GET = async (req: NextRequest) => {
           email: true,
         },
       },
+      accessExpires: true,
     },
   });
 
   if (!school) {
-    return NextResponse.json({ error: "School not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Brak wyszukiwanej szkoły" },
+      { status: 404 }
+    );
   }
 
   const latestTransports = await prisma.transport.findMany({
