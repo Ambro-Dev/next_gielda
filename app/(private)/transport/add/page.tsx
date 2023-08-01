@@ -1,6 +1,7 @@
 import { AddTransportForm } from "@/app/(private)/transport/add/AddTransportForm";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Card, CardContent } from "@/components/ui/card";
+import { axiosInstance } from "@/lib/axios";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -20,55 +21,47 @@ type School = {
 };
 
 const getCategories = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
-    {
-      method: "GET",
-      cache: "no-cache",
-    }
-  );
-  const data = await res.json();
-
-  return data.categories;
+  try {
+    const res = await axiosInstance.get(`/api/settings/categories`);
+    const data = res.data;
+    return data.categories;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 const getVehicles = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
-    {
-      method: "GET",
-      cache: "no-cache",
-    }
-  );
-  const data = await res.json();
-
-  return data.vehicles;
+  try {
+    const res = await axiosInstance.get(`/api/settings/vehicles`);
+    const data = res.data;
+    return data.vehicles;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 const getTypes = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/types`,
-    {
-      method: "GET",
-      cache: "no-cache",
-    }
-  );
-  const data = await res.json();
-
-  return data.types;
+  try {
+    const res = await axiosInstance.get(`/api/settings/types`);
+    const data = res.data;
+    return data.types;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 const getSchool = async (userId: String) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools/school?userId=${userId}`,
-    {
-      method: "GET",
-      cache: "no-cache",
-    }
-  );
-  const school = await res.json();
-
-  return school.data.school;
+  try {
+    const res = await axiosInstance.get(`/api/schools/school?userId=${userId}`);
+    const data = res.data;
+    return data.school;
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
 };
 
 const AddTransportPage = async () => {

@@ -159,6 +159,12 @@ export function AddTransportForm({
         });
         form.reset();
         router.push(`/transport/${response.data.transportId}`);
+      } else {
+        toast({
+          title: "Błąd",
+          description: response.data.error,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({

@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 
 const schema = z.object({
   message: z.string().min(1, "Wiadomość nie może być pusta"),
@@ -43,24 +44,18 @@ const NewMessage = (props: Props) => {
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/conversation/message`,
+      const response = await axiosInstance.post(
+        `/api/messages/conversation/message`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            conversationId: props.conversation.id,
-            message: values.message,
-            userId: data?.user?.id,
-            transportId: props.conversation.transport.id,
-          }),
-          cache: "no-cache",
+          conversationId: props.conversation.id,
+          message: values.message,
+          userId: data?.user?.id,
+          transportId: props.conversation.transport.id,
         }
       );
 
-      if (response.status === 200) {
+      const resData = response.data;
+      if (resData.status === 200) {
         form.reset();
         router.refresh();
       }

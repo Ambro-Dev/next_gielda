@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import React from "react";
 import { OptionCard } from "./option-card";
+import { axiosInstance } from "@/lib/axios";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -13,57 +14,36 @@ type Settings = {
 };
 
 const getVehicles = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
-    {
-      method: "GET",
-      cache: "no-store",
-      next: {
-        tags: ["data"],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  const data = await res.json();
-  return data.vehicles;
+  try {
+    const res = await axiosInstance.get(`/api/settings/vehicles`);
+    const data = res.data;
+    return data.vehicles;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 const getCategories = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
-    {
-      method: "GET",
-      cache: "no-store",
-      next: {
-        tags: ["data"],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  const data = await res.json();
-  return data.categories;
+  try {
+    const res = await axiosInstance.get(`/api/settings/categories`);
+    const data = res.data;
+    return data.categories;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 const getTypes = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/types`,
-    {
-      method: "GET",
-      cache: "no-store",
-      next: {
-        tags: ["data"],
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  const data = await res.json();
-  return data.types;
+  try {
+    const res = await axiosInstance.get(`/api/settings/types`);
+    const data = res.data;
+    return data.types;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 export default async function DashboardPage() {

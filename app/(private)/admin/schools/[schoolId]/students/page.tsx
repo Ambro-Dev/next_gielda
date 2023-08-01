@@ -1,6 +1,8 @@
 import React from "react";
 import { StudentsTable } from "./students-table";
 import { columns } from "./columns";
+import { axiosInstance } from "@/lib/axios";
+import { Student } from "@prisma/client";
 
 interface PageProps {
   params: {
@@ -9,23 +11,20 @@ interface PageProps {
 }
 
 async function getStudents(schoolId: string) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools/students?schoolId=${schoolId}`,
-    {
-      method: "GET",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  const json = await res.json();
-  return json;
+  try {
+    const res = await axiosInstance.get(
+      `/api/schools/students?schoolId=${schoolId}`
+    );
+    const data = res.data;
+    return data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
 
 const Students = async (props: PageProps) => {
   const data = await getStudents(props.params.schoolId);
-  console.log(data);
   return (
     <div>
       <StudentsTable columns={columns} data={data} />

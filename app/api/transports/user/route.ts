@@ -80,5 +80,5 @@ export const GET = async (req: NextRequest) => {
     );
   }
 
-  return NextResponse.json(transports, { status: 200 });
+  return NextResponse.json({ transports, status: 200 });
 };

@@ -3,6 +3,7 @@ import { ExtendedTransport } from "../page";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { OffersTable } from "./offers-table";
+import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
 
@@ -20,27 +21,21 @@ export type ExtendedOffer = {
 };
 
 const getUserOffers = async (userId: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/offers/user?userId=${userId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-cache",
-    }
-  );
-  if (response.ok) {
-    const data = await response.json();
-    return data;
+  try {
+    const response = await axiosInstance.get(
+      `/api/offers/user?userId=${userId}`
+    );
+    const data = response.data;
+    return data.offers;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Nie udało się pobrać ofert");
   }
-  return [];
 };
 
 const MarketOffers = async (props: Props) => {
   const session = await getServerSession(authOptions);
   const offers = await getUserOffers(String(session?.user?.id));
-  console.log(offers);
   return (
     <div>
       <OffersTable data={offers} />

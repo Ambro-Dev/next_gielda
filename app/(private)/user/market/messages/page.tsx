@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import React from "react";
 import { ExtendedTransport } from "../page";
 import { MessagesTable } from "./messages-table";
+import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
 
@@ -10,17 +11,10 @@ const getConversations = async (
   userId: string
 ): Promise<ExtendedConversation[]> => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/user?userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-cache",
-      }
+    const response = await axiosInstance.get(
+      `/api/messages/user?userId=${userId}`
     );
-    const data = await response.json();
+    const data = response.data;
     return data;
   } catch (error) {
     console.log(error);
@@ -51,7 +45,6 @@ const MarketMessages = async (props: Props) => {
   const conversations: ExtendedConversation[] = await getConversations(
     String(session?.user?.id)
   );
-  console.log(conversations);
   return (
     <div>
       <MessagesTable data={conversations} />

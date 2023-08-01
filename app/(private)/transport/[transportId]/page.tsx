@@ -3,6 +3,9 @@ import TransportMap from "./transport-map";
 import TransportDetails from "./transport-details";
 import TransportContactCard from "./contact-card";
 import { Offer } from "@prisma/client";
+import { axiosInstance } from "@/lib/axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 type PageParams = {
   params: {
@@ -17,6 +20,9 @@ export type Transport = {
   createdAt: Date;
   vehicle: { id: string; name: string };
   description: string;
+  _count: {
+    visits: number;
+  };
   directions: {
     start: { lat: number; lng: number };
     finish: { lat: number; lng: number };
@@ -38,27 +44,33 @@ export type Transport = {
   type: { id: string; name: string };
 };
 
-const getTransport = async (transportId: string) => {
+const getTransport = async (transportId: string): Promise<Transport> => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/transport?transportId=${transportId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-cache",
-      }
+    const response = await axiosInstance.get(
+      `/api/transports/transport?transportId=${transportId}`
     );
-    const transport = await response.json();
-    return transport;
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return {} as Transport;
+  }
+};
+
+const addVisit = async (transportId: string, userId: string) => {
+  try {
+    await axiosInstance.post(`/api/transports/visit`, {
+      transportId,
+      userId,
+    });
   } catch (error) {
     console.error(error);
   }
 };
 
 const TransportInfo = async ({ params }: PageParams) => {
+  const session = await getServerSession(authOptions);
   const transport: Transport = await getTransport(params.transportId);
+  await addVisit(params.transportId, String(session?.user?.id));
   return (
     <div className="flex w-full h-full flex-col gap-4 px-3 my-5">
       <TransportMap

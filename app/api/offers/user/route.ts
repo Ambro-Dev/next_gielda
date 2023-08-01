@@ -98,5 +98,5 @@ export const GET = async (req: NextRequest) => {
     );
   }
 
-  return NextResponse.json(offers, { status: 200 });
+  return NextResponse.json({ offers, status: 200 });
 };

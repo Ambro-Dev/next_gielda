@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
+import { axiosInstance } from "@/lib/axios";
 
 type Props = {
   transportId: string;
@@ -47,17 +48,11 @@ const MessageForm = (props: Props) => {
       receiverId: props.transportOwnerId,
       transportId: props.transportId,
     };
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/messages/message`,
-      {
-        method: "POST",
-        body: JSON.stringify(newMessage),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    const response = await axiosInstance.post(
+      `/api/messages/message`,
+      newMessage
     );
-    if (response.ok) {
+    if (response.data.status === 200) {
       form.reset();
       toast({
         title: "Wiadomość została wysłana",

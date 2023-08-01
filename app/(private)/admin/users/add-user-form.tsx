@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@radix-ui/react-dropdown-menu";
+import { axiosInstance } from "@/lib/axios";
 
 const formSchema = z.object({
   username: z.string().min(1, {
@@ -72,14 +73,8 @@ export const AddUserForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-      }
-    );
-    const data = await res.json();
+    const res = await axiosInstance.post(`/api/auth/users`, values);
+    const data = res.data;
     if (data.message) {
       setCreatedUser(data.user);
       form.reset();

@@ -3,14 +3,19 @@ import { ProfileForm } from "./profile-form";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 
 const getProfile = async (userId: String) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users/profile?userId=${userId}`
-  );
-  const data = await res.json();
-
-  return data;
+  try {
+    const res = await axiosInstance.get(
+      `/api/auth/users/profile?userId=${userId}`
+    );
+    const data = res.data;
+    return data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 };
 
 export default async function SettingsProfilePage() {

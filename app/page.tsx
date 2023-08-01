@@ -46,6 +46,9 @@ export type Transport = {
   vehicle: { id: string; name: string };
   category: { id: string; name: string };
   type: { id: string; name: string };
+  _count: {
+    visits: number;
+  };
   directions: {
     finish: {
       lat: number;

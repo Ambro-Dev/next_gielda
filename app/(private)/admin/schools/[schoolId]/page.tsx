@@ -15,6 +15,7 @@ import admin from "@/assets/icons/administrator.png";
 import Image from "next/image";
 import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
+import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 
 interface PageProps {
   params: {
@@ -78,11 +79,7 @@ const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
 export default async function SchoolPage({ params }: PageProps) {
   const data = await getSchool(params.schoolId);
 
-  const today = new Date();
-  const timeToExpire = Math.floor(
-    (new Date(data.school.accessExpires).getTime() - today.getTime()) /
-      (1000 * 3600 * 24)
-  );
+  const timeToExpire = GetExpireTimeLeft(data.school.accessExpires);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -90,11 +87,11 @@ export default async function SchoolPage({ params }: PageProps) {
         <h2 className="text-3xl font-bold tracking-tight">
           {data.school.name}
         </h2>
-        {timeToExpire > 0 ? (
+        {!timeToExpire.isExpired ? (
           <p className="text-sm">
             Dostęp dla szkoły wygaśnie za:{" "}
-            <span className="font-semibold">{timeToExpire}</span>
-            {timeToExpire > 1 ? " dni" : " dzień"}
+            <span className="font-semibold">{timeToExpire.daysLeft}</span>
+            {timeToExpire.daysLeft === 1 ? " dzień" : " dni"}
           </p>
         ) : (
           <p className="text-sm text-red-500">Dostęp dla szkoły wygasł</p>

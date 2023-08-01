@@ -29,6 +29,7 @@ import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { set } from "mongoose";
+import { axiosInstance } from "@/lib/axios";
 
 const formSchema = z.object({
   message: z.string(),
@@ -130,18 +131,10 @@ const OfferForm = ({ transport }: { transport: string }) => {
       transportId: transport,
     };
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/offer`,
-      {
-        method: "POST",
-        body: JSON.stringify(offer),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axiosInstance.post(`/api/transports/offer`, offer);
+    const resData = response.data;
 
-    if (response.ok) {
+    if (resData.status === 201) {
       form.reset();
       toast({
         title: "Oferta została dodana",

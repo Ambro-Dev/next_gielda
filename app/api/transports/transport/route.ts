@@ -34,6 +34,11 @@ export async function GET(req: NextRequest) {
           name: true,
         },
       },
+      _count: {
+        select: {
+          visits: true,
+        },
+      },
       description: true,
       directions: {
         select: {

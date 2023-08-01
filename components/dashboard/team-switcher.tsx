@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/popover";
 import { useRouter } from "next/navigation";
 import NewSchoolForm from "./new-school-form";
+import { axiosInstance } from "@/lib/axios";
 
 type Schools = {
   id: string;
@@ -43,16 +44,14 @@ export default function SchoolSwitcher({
   const router = useRouter();
 
   async function fetchSchools() {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/schools`,
-      {
-        method: "GET",
-        cache: "no-store",
-      }
-    );
-
-    const data = await res.json();
-    setSchools(data.schools);
+    try {
+      const res = await axiosInstance.get(`/api/schools`);
+      const data = res.data;
+      setSchools(data.schools);
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 
   React.useEffect(() => {

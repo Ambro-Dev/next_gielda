@@ -21,24 +21,18 @@ import OfferForm from "./offer-form";
 import { Offer } from "@prisma/client";
 import { OffersTable } from "./offers-table";
 import { Transport } from "./page";
+import { axiosInstance } from "@/lib/axios";
 
 const getTransportOffers = async (transportId: string) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/transport/offers?transportId=${transportId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-cache",
-      }
+    const response = await axiosInstance.get(
+      `/api/transports/transport/offers?transportId=${transportId}`
     );
-    if (response.status === 404) return [];
-    const offers = await response.json();
-    return offers;
+    const data = response.data;
+    return data.offers;
   } catch (error) {
     console.error(error);
+    return [];
   }
 };
 

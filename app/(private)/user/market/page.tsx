@@ -3,22 +3,20 @@ import { UserTransports } from "./user-transports";
 import { Transport } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
 
 const getUserTransports = async (userId: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports/user?userId=${userId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  if (response.ok) {
-    const data = await response.json();
-    return data;
+  try {
+    const response = await axiosInstance.get(
+      `/api/transports/user?userId=${userId}`
+    );
+    const data = response.data;
+    return data.transports;
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 };
 
@@ -52,8 +50,6 @@ const Market = async (props: Props) => {
   const transports: ExtendedTransport[] = await getUserTransports(
     String(session?.user?.id)
   );
-
-  console.log(transports);
 
   return (
     <div className="w-full">
