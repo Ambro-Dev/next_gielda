@@ -25,6 +25,8 @@ import TransportObjectsCard from "../../../../components/TransportObjectsCard";
 import TransportMapSelector from "../../../../components/TransportMapSelector";
 import NewTransportMapCard from "../../../../components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
+import { axiosInstance } from "@/lib/axios";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   category: z
@@ -113,6 +115,7 @@ export function AddTransportForm({
   types: Settings[];
   vehicles: Settings[];
 }) {
+  const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
 
@@ -144,18 +147,24 @@ export function AddTransportForm({
       school: school ? school.id : undefined,
     };
 
-    const response = await fetch("/api/transports", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newTransport),
-    });
-
-    if (response.ok) {
-      router.replace("/");
-    } else {
-      console.log("Błąd");
+    try {
+      const response = await axiosInstance.post(
+        "/api/transports",
+        newTransport
+      );
+      if (response.data.status === 201) {
+        toast({
+          title: "Sukces",
+          description: "Transport został dodany.",
+        });
+        form.reset();
+        router.push(`/transport/${response.data.transportId}`);
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas dodawania transportu.",
+      });
     }
   };
 

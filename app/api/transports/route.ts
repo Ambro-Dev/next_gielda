@@ -40,15 +40,14 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!transport) {
-    throw new Error("Error creating transport");
+    throw new Error("Błąd dodawania transportu");
   }
 
-  return NextResponse.json(
-    {
-      message: "Transport created",
-    },
-    { status: 201 }
-  );
+  return NextResponse.json({
+    message: "Transport został dodany",
+    transportId: transport.id,
+    status: 201,
+  });
 };
 
 export const GET = async (req: NextRequest) => {
