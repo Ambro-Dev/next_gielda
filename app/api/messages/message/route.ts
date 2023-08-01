@@ -65,11 +65,7 @@ export const POST = async (req: NextRequest) => {
       users: {
         connect: [{ id: senderId }, { id: receiverId }],
       },
-      transport: {
-        connect: {
-          id: transportId,
-        },
-      },
+      transportId: transportId,
     },
   });
 
