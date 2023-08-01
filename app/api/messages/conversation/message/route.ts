@@ -48,11 +48,6 @@ export const POST = async (req: NextRequest) => {
           id: userId,
         },
       },
-      transport: {
-        connect: {
-          id: transportId,
-        },
-      },
       conversation: {
         connect: {
           id: conversation.id,

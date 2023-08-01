@@ -164,7 +164,6 @@ model Message {
   conversationId String       @db.ObjectId
   senderId       String       @db.ObjectId
   sender         User         @relation(fields: [senderId], references: [id])
-  transportId    String       @db.ObjectId
 }
 
 enum Currency {
