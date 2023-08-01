@@ -114,11 +114,6 @@ export const GET = async (req: NextRequest) => {
           name: true,
         },
       },
-      _count: {
-        select: {
-          visits: true,
-        },
-      },
       directions: {
         select: {
           finish: {

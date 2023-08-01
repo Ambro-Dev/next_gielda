@@ -73,10 +73,6 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
             </span>
           </div>
           <div className="flex flex-row items-center gap-2">
-            <Image src={view_icon} alt="distance" width={24} height={24} />
-            <span className="text-sm font-bold">{transport._count.visits}</span>
-          </div>
-          <div className="flex flex-row items-center gap-2">
             <Image src={vehicle_icon} alt="date" width={24} height={24} />
             <span className="text-sm font-bold capitalize">
               {transport.vehicle.name}

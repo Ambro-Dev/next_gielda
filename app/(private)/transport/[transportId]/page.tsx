@@ -20,9 +20,6 @@ export type Transport = {
   createdAt: Date;
   vehicle: { id: string; name: string };
   description: string;
-  _count: {
-    visits: number;
-  };
   directions: {
     start: { lat: number; lng: number };
     finish: { lat: number; lng: number };

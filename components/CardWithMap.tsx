@@ -135,12 +135,6 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-            <div className="flex flex-row items-center gap-2 w-1/5">
-              <Image src={view_icon} alt="distance" width={24} height={24} />
-              <span className="text-sm font-bold">
-                {transport._count.visits}
-              </span>
-            </div>
           </div>
           <div className="grid grid-cols-3 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
