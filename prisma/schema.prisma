@@ -59,14 +59,13 @@ model User {
 
   accounts        Account[]
   sessions        Session[]
-  school          School         @relation(fields: [schoolId], references: [id])
+  school          School?
   transports      Transport[]
-  student         Student
+  student         Student?
   messages        Message[]
   offers          Offer[]
   conversationIDs String[]       @db.ObjectId
   conversations   Conversation[] @relation(fields: [conversationIDs], references: [id])
-  schoolId        String         @db.ObjectId
 }
 
 model VerificationToken {
