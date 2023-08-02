@@ -9,13 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RecentTransports } from "../[schoolId]/recent-transports";
+import { RecentTransports } from "@/components/dashboard/recent-transports";
 
 import admin from "@/assets/icons/administrator.png";
 import Image from "next/image";
 import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
+import AddSchoolAdmin from "./add-school-admin";
 
 interface PageProps {
   params: {
@@ -137,7 +138,7 @@ export default async function SchoolPage({ params }: PageProps) {
                     Jednostka nie posiada administratora, dodaj go.
                     Administrator będzie miał możliwość zarządzania jednostką.
                   </p>
-                  <Button size="lg">Dodaj administratora</Button>
+                  <AddSchoolAdmin schoolId={params.schoolId} />
                 </div>
               )}
             </Card>
