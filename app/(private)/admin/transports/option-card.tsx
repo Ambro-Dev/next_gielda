@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 
 type OptionParams = {
   options: {
@@ -89,14 +90,8 @@ export const OptionCard = (params: OptionParams) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/${route}`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-      }
-    );
-    const data = await res.json();
+    const res = await axiosInstance.post(`/api/settings/${route}`, values);
+    const data = res.data;
     if (data.message) {
       form.reset();
       setShowNewSchoolDialog(false);

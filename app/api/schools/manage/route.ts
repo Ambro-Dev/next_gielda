@@ -3,7 +3,7 @@ import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
   const schoolId = req.nextUrl.searchParams.get("schoolId");
-  if (!schoolId) {
+  if (!schoolId || schoolId === "" || schoolId === "undefined") {
     return NextResponse.json({ error: "Missing schoolId" }, { status: 400 });
   }
   const school = await prisma.school.findUnique({
@@ -26,11 +26,15 @@ export const GET = async (req: NextRequest) => {
           email: true,
         },
       },
+      accessExpires: true,
     },
   });
 
   if (!school) {
-    return NextResponse.json({ error: "School not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Brak wyszukiwanej szkoły" },
+      { status: 404 }
+    );
   }
 
   const latestTransports = await prisma.transport.findMany({

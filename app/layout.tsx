@@ -8,6 +8,7 @@ import MessengerChatBox from "@/components/MessengerChat";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { getServerSession } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export default function RootLayout({
     <NextAuthProvider>
       <html lang="pl">
         <body className={inter.className}>
+          <Analytics />
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <Toaster />
             <TopBar />
@@ -38,7 +40,6 @@ export default function RootLayout({
 
             <Footer />
           </main>
-          <Analytics />
         </body>
       </html>
     </NextAuthProvider>

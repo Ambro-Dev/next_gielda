@@ -35,14 +35,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@radix-ui/react-dropdown-menu";
+import { axiosInstance } from "@/lib/axios";
 
 const formSchema = z.object({
-  username: z.string().min(1, {
-    message: "Podaj nazwę.",
-  }),
-  email: z.string().min(1, {
-    message: "Podaj email.",
-  }),
+  username: z
+    .string({
+      required_error: "Podaj nazwę użytkownika.",
+    })
+    .min(5, {
+      message: "Nazwa użytkownika musi mieć minimum 5 znaków.",
+    })
+    .max(30, {
+      message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
+    }),
+  email: z
+    .string({
+      required_error: "Adres email jest wymagany.",
+    })
+    .email({
+      message: "Podaj poprawny adres email.",
+    }),
   role: z.string().min(1, {
     message: "Wybierz jedną z ról.",
   }),
@@ -72,14 +84,8 @@ export const AddUserForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`,
-      {
-        method: "POST",
-        body: JSON.stringify(values),
-      }
-    );
-    const data = await res.json();
+    const res = await axiosInstance.post(`/api/auth/users`, values);
+    const data = res.data;
     if (data.message) {
       setCreatedUser(data.user);
       form.reset();
@@ -185,23 +191,43 @@ export const AddUserForm = () => {
           </Form>
         ) : (
           <div className="flex flex-col">
-            <div className="flex flex-col">
-              <h3 className="text-3xl font-bold tracking-tight">
-                Użytkownik został dodany
-              </h3>
-              <div className="flex flex-col">
-                <h3 className="text-3xl font-bold tracking-tight">
-                  Nazwa użytkownika: {createdUser.username}
-                </h3>
-                <h3 className="text-3xl font-bold tracking-tight">
-                  Email użytkownika: {createdUser.email}
-                </h3>
-                <h3 className="text-3xl font-bold tracking-tight">
-                  Rola użytkownika: {createdUser.role}
-                </h3>
-                <h3 className="text-3xl font-bold tracking-tight">
-                  Hasło użytkownika: {createdUser.password}
-                </h3>
+            <div className="flex flex-col space-y-4">
+              <DialogHeader>
+                <DialogTitle>Użytkownik dodany</DialogTitle>
+                <DialogDescription>
+                  Skopiuj dane i wyślij do użytkownika
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2 pb-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">
+                    Nazwa użytkownika
+                  </Label>
+                  <Input
+                    type="text"
+                    value={createdUser.username}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Email</Label>
+                  <Input
+                    type="text"
+                    value={createdUser.email}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Hasło</Label>
+                  <Input
+                    type="text"
+                    value={createdUser.password}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex flex-col">

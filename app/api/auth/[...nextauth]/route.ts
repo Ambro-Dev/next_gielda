@@ -16,20 +16,23 @@ export const authOptions: NextAuthOptions = {
           password: string;
         };
 
-        if (!username || !password) throw new Error("Missing fields");
+        if (!username || !password) throw new Error("Brakuje danych logowania");
 
         const user = await prisma.user.findUnique({
           where: { username },
         });
 
-        if (!user || !user.hashedPassword) throw new Error("User not found");
+        if (user?.isBlocked) throw new Error("Użytkownik jest zablokowany");
+
+        if (!user || !user.hashedPassword)
+          throw new Error("Nie znaleziono użytkownika");
 
         const passwordMatch = await bcrypt.compare(
           password,
           user.hashedPassword
         );
 
-        if (!passwordMatch) throw new Error("Invalid password");
+        if (!passwordMatch) throw new Error("Nieprawidłowe hasło");
 
         return { ...user };
       },

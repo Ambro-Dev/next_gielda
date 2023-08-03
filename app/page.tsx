@@ -27,8 +27,8 @@ import { Separator } from "@/components/ui/separator";
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import CardWithMap from "@/components/CardWithMap";
 import Link from "next/link";
+import { axiosInstance } from "@/lib/axios";
 import TransportsMap from "./transports-map";
 
 type Tags = {
@@ -39,58 +39,54 @@ type Tags = {
   };
 };
 
-const getCategories = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/categories`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
+export type Transport = {
+  id: string;
+  sendDate: Date;
+  receiveDate: Date;
+  vehicle: { id: string; name: string };
+  category: { id: string; name: string };
+  type: { id: string; name: string };
+  directions: {
+    finish: {
+      lat: number;
+      lng: number;
+    };
+    start: {
+      lat: number;
+      lng: number;
+    };
+  };
+  creator: { id: string; username: string };
+};
 
+const getCategories = async (): Promise<Tags[]> => {
   try {
-    const data = await res.json();
-    return data?.categories;
+    const res = await axiosInstance.get("/api/settings/categories");
+
+    return res.data.categories;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
-const getVehicles = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/settings/vehicles`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
+const getVehicles = async (): Promise<Tags[]> => {
   try {
-    const data = await res.json();
-    return data?.vehicles;
+    const res = await axiosInstance.get("/api/settings/vehicles");
+    return res.data.vehicles;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
-const getTransports = async () => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transports`,
-    {
-      method: "GET",
-      next: {
-        revalidate: 60,
-      },
-    }
-  );
+const getTransports = async (): Promise<Transport[]> => {
   try {
-    const data = await res.json();
-    return data?.transports;
+    const res = await axiosInstance.get("/api/transports");
+    return res.data.transports;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 

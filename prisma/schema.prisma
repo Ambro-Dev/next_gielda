@@ -51,17 +51,22 @@ model User {
   emailVerified  DateTime?
   image          String?
   hashedPassword String
+  isBlocked      Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   role Role @default(user)
 
-  accounts   Account[]
-  sessions   Session[]
-  school     School?
-  transports Transport[]
-  student    Student?
+  accounts        Account[]
+  sessions        Session[]
+  school          School?
+  transports      Transport[]
+  student         Student?
+  messages        Message[]
+  offers          Offer[]
+  conversationIDs String[]       @db.ObjectId
+  conversations   Conversation[] @relation(fields: [conversationIDs], references: [id])
 }
 
 model VerificationToken {
@@ -83,8 +88,10 @@ model School {
   name            String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  administratorId String      @unique @db.ObjectId
-  administrator   User        @relation(fields: [administratorId], references: [id])
+  administratorId String?     @unique @db.ObjectId
+  administrator   User?       @relation(fields: [administratorId], references: [id])
+  isActive        Boolean     @default(true)
+  accessExpires   DateTime
   students        Student[]
   transports      Transport[]
 }
@@ -102,26 +109,75 @@ model Student {
 }
 
 model Transport {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  categoryId    String      @db.ObjectId
-  category      Category    @relation(fields: [categoryId], references: [id])
-  vehicleId     String      @db.ObjectId
-  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  categoryId    String         @db.ObjectId
+  category      Category       @relation(fields: [categoryId], references: [id])
+  vehicleId     String         @db.ObjectId
+  vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
   isAvailable   Boolean
   sendDate      DateTime
   timeAvailable Int
   receiveDate   DateTime
   directions    Directions?
   description   String
-  creatorId     String      @db.ObjectId
-  creator       User        @relation(fields: [creatorId], references: [id])
-  typeId        String      @db.ObjectId
-  type          Type        @relation(fields: [typeId], references: [id])
+  creatorId     String         @db.ObjectId
+  creator       User           @relation(fields: [creatorId], references: [id])
+  typeId        String         @db.ObjectId
+  type          Type           @relation(fields: [typeId], references: [id])
   objects       Object[]
-  schoolId      String      @db.ObjectId
-  school        School      @relation(fields: [schoolId], references: [id])
+  schoolId      String?        @db.ObjectId
+  school        School?        @relation(fields: [schoolId], references: [id])
+  offers        Offer[]
+  conversations Conversation[]
+}
+
+model Conversation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  messages    Message[]
+  userIDs     String[]  @db.ObjectId
+  users       User[]    @relation(fields: [userIDs], references: [id])
+  transportId String    @db.ObjectId
+  transport   Transport @relation(fields: [transportId], references: [id])
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  text           String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String       @db.ObjectId
+  senderId       String       @db.ObjectId
+  sender         User         @relation(fields: [senderId], references: [id])
+}
+
+enum Currency {
+  PLN
+  EUR
+  USD
+}
+
+model Offer {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime  @default(now())
+  currency      Currency
+  vat           Int
+  netto         Int
+  brutto        Int
+  loadDate      DateTime
+  unloadDate    DateTime
+  unloadTime    Int
+  contactNumber String
+  updatedAt     DateTime  @updatedAt
+  transportId   String    @db.ObjectId
+  transport     Transport @relation(fields: [transportId], references: [id])
+  creatorId     String    @db.ObjectId
+  creator       User      @relation(fields: [creatorId], references: [id])
+  message       String?   @db.String
 }
 
 model Directions {
@@ -131,7 +187,7 @@ model Directions {
   transportId String    @unique @db.ObjectId
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  transport   Transport @relation(fields: [transportId], references: [id])
+  transport   Transport @relation(fields: [transportId], references: [id], onDelete: Cascade)
 }
 
 model Object {
@@ -146,7 +202,7 @@ model Object {
   weight      Int
   updatedAt   DateTime  @updatedAt
   tansportId  String    @db.ObjectId
-  transport   Transport @relation(fields: [tansportId], references: [id])
+  transport   Transport @relation(fields: [tansportId], references: [id], onDelete: Cascade)
 }
 
 model Category {

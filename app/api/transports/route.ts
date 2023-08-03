@@ -1,7 +1,7 @@
-import dbConnect from "@/lib/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/lib/prismadb";
+import { Object } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
@@ -19,6 +19,45 @@ export const POST = async (req: NextRequest) => {
     directions,
   } = body;
 
+  const existingTransport = await prisma.transport.findFirst({
+    where: {
+      description,
+      objects: {
+        every: {
+          name: {
+            in: objects.map((object: Object) => object.name),
+          },
+        },
+      },
+      receiveDate,
+      sendDate,
+      timeAvailable,
+      isAvailable: true,
+      vehicleId: vehicle,
+      categoryId: category,
+      creatorId: creator,
+      typeId: type,
+      schoolId: school ? school : undefined,
+      directions: {
+        start: {
+          lat: directions.start.lat,
+          lng: directions.start.lng,
+        },
+        finish: {
+          lat: directions.finish.lat,
+          lng: directions.finish.lng,
+        },
+      },
+    },
+  });
+
+  if (existingTransport) {
+    return NextResponse.json({
+      error: "Transport o podanych parametrach już istnieje",
+      status: 409,
+    });
+  }
+
   const transport = await prisma.transport.create({
     data: {
       description,
@@ -33,7 +72,7 @@ export const POST = async (req: NextRequest) => {
       categoryId: category,
       creatorId: creator,
       typeId: type,
-      schoolId: school,
+      schoolId: school ? school : undefined,
       directions: {
         create: directions,
       },
@@ -41,15 +80,14 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!transport) {
-    throw new Error("Error creating transport");
+    throw new Error("Błąd dodawania transportu");
   }
 
-  return NextResponse.json(
-    {
-      message: "Transport created",
-    },
-    { status: 201 }
-  );
+  return NextResponse.json({
+    message: "Transport został dodany",
+    transportId: transport.id,
+    status: 201,
+  });
 };
 
 export const GET = async (req: NextRequest) => {

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { getToken } from "next-auth/jwt";
 
 export const GET = async (req: NextRequest) => {
   const schools = await prisma.school.findMany({
@@ -22,18 +19,61 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
 
-  const { name, administratorId } = body;
+  const { name, plan } = body;
+
+  if (!(name || plan)) {
+    return NextResponse.json({ error: "Brakuje wymaganych pól", status: 400 });
+  }
+
+  const schoolExists = await prisma.school.findFirst({
+    where: {
+      name,
+    },
+  });
+
+  if (schoolExists) {
+    return NextResponse.json({
+      error: "Szkoła o takiej nazwie już istnieje",
+      status: 422,
+    });
+  }
+
+  const expireDate = () => {
+    const date = new Date();
+    switch (plan) {
+      case "month":
+        date.setMonth(date.getMonth() + 1);
+        break;
+      case "year":
+        date.setFullYear(date.getFullYear() + 1);
+        break;
+      case "half-year":
+        date.setMonth(date.getMonth() + 6);
+        break;
+      default:
+        date.setMonth(date.getMonth() + 1);
+        break;
+    }
+    return date;
+  };
 
   const school = await prisma.school.create({
     data: {
       name,
-      administratorId,
+      accessExpires: expireDate(),
     },
   });
 
   if (!school) {
-    return NextResponse.json({ error: "Error creating school", status: 422 });
+    return NextResponse.json({
+      error: "Błąd podczas dodawania szkoły",
+      status: 422,
+    });
   }
 
-  return NextResponse.json(school, { status: 200 });
+  return NextResponse.json({
+    message: "Szkoła dodana",
+    schoolId: school.id,
+    status: 200,
+  });
 };

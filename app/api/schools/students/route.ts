@@ -29,7 +29,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No students found" }, { status: 404 });
   }
 
-  return NextResponse.json(students);
+  const studentsReturn = students.map((student) => {
+    return {
+      id: student.user.id,
+      username: student.user.username,
+      name: student.name,
+      surname: student.surname,
+    };
+  });
+
+  return NextResponse.json(studentsReturn);
 }
 
 export async function POST(req: NextRequest) {
@@ -38,24 +47,32 @@ export async function POST(req: NextRequest) {
   const { username, schoolId, email } = await body;
 
   if (!username || !schoolId || !email) {
-    return NextResponse.json(
-      { error: "Brakuje wymaganych pól" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Brakuje wymaganych pól", status: 400 });
   }
 
-  const user = await prisma.user.findUnique({
+  const usernameTaken = await prisma.user.findUnique({
     where: { username },
   });
 
-  if (user) {
-    return NextResponse.json(
-      { error: `Użytkownik o nazwie ${username} już istnieje` },
-      { status: 400 }
-    );
+  if (usernameTaken) {
+    return NextResponse.json({
+      error: `Użytkownik o nazwie ${username} już istnieje`,
+      status: 400,
+    });
   }
 
-  const password = Math.random().toString(36).slice(-8);
+  const emailTaken = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (emailTaken) {
+    return NextResponse.json({
+      error: `Użytkownik o emailu ${email} już istnieje`,
+      status: 400,
+    });
+  }
+
+  const password = Math.random().toString(36).slice(-12);
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   const student = await prisma.student.create({
@@ -77,13 +94,20 @@ export async function POST(req: NextRequest) {
   });
 
   if (!student) {
-    return NextResponse.json({ error: "Student not created" }, { status: 500 });
+    return NextResponse.json({
+      error: "Nie udało się dodać studenta",
+      status: 500,
+    });
   }
 
-  const studentReturn = {
-    ...student,
-    password: password,
-  };
-
-  return NextResponse.json(studentReturn);
+  return NextResponse.json({
+    user: {
+      username,
+      email,
+      role: "student",
+      password,
+    },
+    message: "Student dodany prawidłowo",
+    status: 201,
+  });
 }

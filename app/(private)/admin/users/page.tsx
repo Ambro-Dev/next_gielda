@@ -4,15 +4,21 @@ import { Card } from "@/components/ui/card";
 import { AddUserForm } from "./add-user-form";
 import { DataTable } from "./all-users-table";
 import { User, columns } from "./columns";
+import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
 
 async function getUsers(): Promise<User[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`
-  );
-  const json = await res.json();
-  return json;
+  try {
+    const res = await axiosInstance.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`
+    );
+    const json = res.data;
+    return json;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
 
 async function UsersPage({}: Props) {

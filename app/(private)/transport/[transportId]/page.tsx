@@ -1,92 +1,81 @@
-"use client";
-import { LoadScriptNext } from "@react-google-maps/api";
+import React from "react";
+import TransportMap from "./transport-map";
+import TransportDetails from "./transport-details";
+import TransportContactCard from "./contact-card";
+import { Offer } from "@prisma/client";
+import { axiosInstance } from "@/lib/axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
-
-import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
-
-type LatLngLiteral = google.maps.LatLngLiteral;
-type DirectionsResult = google.maps.DirectionsResult;
-type MapOptions = google.maps.MapOptions;
-
-const start = {
-  lat: 51.22977,
-  lng: 25.01178,
-};
-const finish = {
-  lat: 42.22977,
-  lng: 19.01178,
-};
-
-const googleApi: string | undefined =
-  process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
-
-const TransportInfo = () => {
-  const mapRef = useRef<GoogleMap>();
-
-  const [loaded, setLoaded] = useState(false);
-
-  const [directionsLeg, setDirectionsLeg] =
-    useState<google.maps.DirectionsLeg>();
-
-  const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-  const [directions, setDirections] = useState<DirectionsResult>();
-
-  const options = useMemo<MapOptions>(
-    () => ({
-      streetViewControl: false,
-      mapTypeControl: false,
-    }),
-    []
-  );
-
-  const containerStyle = {
-    width: "100%",
-    height: "300px",
-    borderRadius: "0.5rem",
+type PageParams = {
+  params: {
+    transportId: string;
   };
+};
+
+export type Transport = {
+  id: string;
+  category: { id: string; name: string };
+  creator: { id: string; username: string };
+  createdAt: Date;
+  vehicle: { id: string; name: string };
+  description: string;
+  directions: {
+    start: { lat: number; lng: number };
+    finish: { lat: number; lng: number };
+  };
+  objects: [
+    {
+      id: string;
+      name: string;
+      amount: number;
+      description: string;
+      height: number;
+      width: number;
+      length: number;
+      weight: number;
+    }
+  ];
+  sendDate: Date;
+  receiveDate: Date;
+  type: { id: string; name: string };
+};
+
+const getTransport = async (transportId: string): Promise<Transport> => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/transports/transport?transportId=${transportId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return {} as Transport;
+  }
+};
+
+const addVisit = async (transportId: string, userId: string) => {
+  try {
+    await axiosInstance.post(`/api/transports/visit`, {
+      transportId,
+      userId,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const TransportInfo = async ({ params }: PageParams) => {
+  const session = await getServerSession(authOptions);
+  const transport: Transport = await getTransport(params.transportId);
+  await addVisit(params.transportId, String(session?.user?.id));
   return (
-    <div className="flex w-full h-full flex-col gap-4 px-3">
-      <LoadScriptNext
-        googleMapsApiKey={googleApi as string}
-        libraries={["places"]}
-        onLoad={() => {
-          setLoaded(true);
-        }}
-        loadingElement={<div className="h-full" />}
-      >
-        <GoogleMap
-          zoom={11}
-          mapContainerClassName="map-container"
-          options={options}
-          onLoad={onLoad}
-          mapContainerStyle={containerStyle}
-        >
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                polylineOptions: {
-                  strokeColor: "#1976D2",
-                  strokeWeight: 5,
-                  clickable: false,
-                },
-                markerOptions: {
-                  zIndex: 100,
-                  cursor: "default",
-                },
-              }}
-            />
-          )}
-        </GoogleMap>
-      </LoadScriptNext>
+    <div className="flex w-full h-full flex-col gap-4 px-3 my-5">
+      <TransportMap
+        start={transport.directions.start}
+        finish={transport.directions.finish}
+      />
+      <TransportDetails transport={transport} />
+      <TransportContactCard transport={transport} />
     </div>
   );
 };

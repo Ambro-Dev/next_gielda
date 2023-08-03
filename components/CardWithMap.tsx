@@ -31,7 +31,7 @@ import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Transport } from "@/app/transports-map";
+import { Transport } from "@/app/page";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -134,10 +134,6 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
             <div className="flex flex-row items-center gap-2">
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
-            </div>
-            <div className="flex flex-row items-center gap-2 w-1/5">
-              <Image src={view_icon} alt="distance" width={24} height={24} />
-              <span className="text-sm font-bold">{8}</span>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4 px-5">

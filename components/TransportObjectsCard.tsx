@@ -198,28 +198,12 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                         name="width"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Szerokość*</FormLabel>
+                            <FormLabel>Szerokość ( A )*</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>
                             <FormDescription>
-                              Podaj szerokość przedmiotu w cm
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={objectForm.control}
-                        name="height"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Wysokość*</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="number" />
-                            </FormControl>
-                            <FormDescription>
-                              Podaj wysokość przedmiotu w cm
+                              Podaj szerokość przedmiotu w m
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -230,12 +214,28 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
                         name="length"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Długość*</FormLabel>
+                            <FormLabel>Długość ( B )*</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>
                             <FormDescription>
-                              Podaj długość przedmiotu w cm
+                              Podaj długość przedmiotu w m
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={objectForm.control}
+                        name="height"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Wysokość ( C )*</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormDescription>
+                              Podaj wysokość przedmiotu w m
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
