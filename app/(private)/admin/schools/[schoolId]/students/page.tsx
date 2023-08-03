@@ -3,6 +3,7 @@ import { StudentsTable } from "./students-table";
 import { columns } from "./columns";
 import { axiosInstance } from "@/lib/axios";
 import { Student } from "@prisma/client";
+import { AddStudentForm } from "./add-student-form";
 
 interface PageProps {
   params: {
@@ -28,6 +29,9 @@ const Students = async (props: PageProps) => {
   return (
     <div>
       <StudentsTable columns={columns} data={data} />
+      <div className="w-full px-10 pb-10">
+        <AddStudentForm schoolId={props.params.schoolId} />
+      </div>
     </div>
   );
 };

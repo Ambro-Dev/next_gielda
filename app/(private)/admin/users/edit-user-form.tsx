@@ -61,13 +61,12 @@ const formSchema = z.object({
 });
 
 type User = {
-  password: string;
   username: string;
   email: string;
   role: string;
 } | null;
 
-export const AddUserForm = () => {
+export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
   const [createdUser, setCreatedUser] = React.useState<User>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -77,14 +76,28 @@ export const AddUserForm = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      email: "",
-      role: "",
+      username: user?.username || "",
+      email: user?.email || "",
+      role: user?.role || "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await axiosInstance.post(`/api/auth/users`, values);
+    if (
+      user?.role === values.role &&
+      user?.username === values.username &&
+      user?.email === values.email
+    ) {
+      toast({
+        title: "Informacja",
+        description: "Nie wprowadzono żadnych zmian.",
+      });
+      return;
+    }
+    const res = await axiosInstance.put(`/api/auth/users/update`, {
+      ...values,
+      userId: user?.id,
+    });
     const data = res.data;
     if (data.message) {
       setCreatedUser(data.user);
@@ -93,6 +106,8 @@ export const AddUserForm = () => {
         title: "Sukces",
         description: data.message,
       });
+      router.refresh();
+      setShowNewSchoolDialog(false);
     } else {
       toast({
         variant: "destructive",
@@ -105,15 +120,21 @@ export const AddUserForm = () => {
   return (
     <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
       <DialogTrigger asChild>
-        <Button>Dodaj użytkownika</Button>
+        <Button
+          className="text-sm font-semibold w-full text-left"
+          variant="ghost"
+          size="sm"
+        >
+          <span className="-ml-4">Edytuj użytkownika</span>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         {!createdUser ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <DialogHeader>
-                <DialogTitle>Nowy użytkownik</DialogTitle>
-                <DialogDescription>Uzupełnij wszystkie pola</DialogDescription>
+                <DialogTitle>Edytuj użytkownika</DialogTitle>
+                <DialogDescription>Edytuj wybrane pola</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2 pb-4">
                 <FormField
@@ -125,7 +146,9 @@ export const AddUserForm = () => {
                       <FormControl>
                         <Input {...field} type="text" />
                       </FormControl>
-                      <FormDescription>Podaj nazwę użytkownika</FormDescription>
+                      <FormDescription>
+                        Edytuj nazwę użytkownika
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -139,7 +162,9 @@ export const AddUserForm = () => {
                       <FormControl>
                         <Input {...field} type="email" />
                       </FormControl>
-                      <FormDescription>Podaj email użytkownika</FormDescription>
+                      <FormDescription>
+                        Edytuj email użytkownika
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -172,7 +197,7 @@ export const AddUserForm = () => {
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormDescription>Wybierz jedną z ról</FormDescription>
+                      <FormDescription>Edytuj rolę użytkownika</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -185,7 +210,18 @@ export const AddUserForm = () => {
                 >
                   Anuluj
                 </Button>
-                <Button type="submit">Dodaj</Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    !(
+                      !(user?.role === form.getValues("role")) ||
+                      !(user?.username === form.getValues("username")) ||
+                      !(user?.email === form.getValues("email"))
+                    )
+                  }
+                >
+                  Edytuj
+                </Button>
               </DialogFooter>
             </form>
           </Form>
@@ -193,9 +229,9 @@ export const AddUserForm = () => {
           <div className="flex flex-col">
             <div className="flex flex-col space-y-4">
               <DialogHeader>
-                <DialogTitle>Użytkownik dodany</DialogTitle>
+                <DialogTitle>Użytkownik zaktualizowany</DialogTitle>
                 <DialogDescription>
-                  Skopiuj dane i wyślij do użytkownika
+                  Dane użytkownika zostały zaktualizowane
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2 pb-4">
@@ -220,10 +256,10 @@ export const AddUserForm = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Hasło</Label>
+                  <Label className="text-sm font-semibold">Rola</Label>
                   <Input
                     type="text"
-                    value={createdUser.password}
+                    value={createdUser.role}
                     readOnly
                     className="bg-gray-100"
                   />

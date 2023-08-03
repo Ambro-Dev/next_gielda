@@ -27,13 +27,6 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
 
@@ -55,9 +48,6 @@ const formSchema = z.object({
     .email({
       message: "Podaj poprawny adres email.",
     }),
-  role: z.string().min(1, {
-    message: "Wybierz jedną z ról.",
-  }),
 });
 
 type User = {
@@ -67,7 +57,7 @@ type User = {
   role: string;
 } | null;
 
-export const AddUserForm = () => {
+export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
   const [createdUser, setCreatedUser] = React.useState<User>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -79,12 +69,14 @@ export const AddUserForm = () => {
     defaultValues: {
       username: "",
       email: "",
-      role: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await axiosInstance.post(`/api/auth/users`, values);
+    const res = await axiosInstance.post(`/api/schools/students`, {
+      ...values,
+      schoolId,
+    });
     const data = res.data;
     if (data.message) {
       setCreatedUser(data.user);
@@ -105,7 +97,7 @@ export const AddUserForm = () => {
   return (
     <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
       <DialogTrigger asChild>
-        <Button>Dodaj użytkownika</Button>
+        <Button>Dodaj studenta</Button>
       </DialogTrigger>
       <DialogContent>
         {!createdUser ? (
@@ -140,39 +132,6 @@ export const AddUserForm = () => {
                         <Input {...field} type="email" />
                       </FormControl>
                       <FormDescription>Podaj email użytkownika</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Rola</FormLabel>
-                      <FormControl>
-                        <Select
-                          defaultValue={field.value}
-                          onValueChange={(e) => field.onChange(e)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a plan" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">
-                              <span className="text-muted-foreground">
-                                Admin
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="user">
-                              <span className="text-muted-foreground">
-                                Użytkownik
-                              </span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription>Wybierz jedną z ról</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
