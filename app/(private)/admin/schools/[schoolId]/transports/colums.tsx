@@ -14,6 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { axiosInstance } from "@/lib/axios";
+import { toast } from "@/components/ui/use-toast";
+import RefreshPage from "@/app/lib/refreshPage";
 
 type Transport = {
   id: string;
@@ -23,6 +34,30 @@ type Transport = {
   creator: string;
   type: string;
   objects: number;
+};
+
+const handleDelete = async (id: string) => {
+  try {
+    const response = await axiosInstance.put(
+      "/api/transports/transport/delete",
+      {
+        transportId: id,
+      }
+    );
+    const data = await response.data;
+    if (data.message) {
+      toast({
+        title: "Sukces",
+        description: data.message,
+      });
+      RefreshPage();
+    }
+  } catch (error) {
+    toast({
+      title: "Błąd",
+      description: "Nie udało się usunąć transportu, spróbuj ponownie",
+    });
+  }
 };
 
 export const columns: ColumnDef<Transport>[] = [
@@ -117,29 +152,50 @@ export const columns: ColumnDef<Transport>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Otwórz menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Akcje</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(transport.creator)}
-            >
-              Kopiuj nazwę użytkownika
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/transport/${transport.id}`}>
-                Przejdż do transportu
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="font-bold text-red-500">
-              Usuń transport
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+          <Dialog>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Otwórz menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Akcje</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(transport.creator)}
+              >
+                Kopiuj nazwę użytkownika
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/transport/${transport.id}`}>
+                  Przejdż do transportu
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="font-bold text-red-500" asChild>
+                <DialogTrigger className="w-full">Usuń transport</DialogTrigger>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Czy na pewno chcesz usunąć transport?</DialogTitle>
+                <DialogDescription>
+                  Akcja ta usunie również wszystkie konwersacje i oferty
+                  związane z transportem, a po usunięciu transportu nie będzie
+                  można go przywrócić.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-x-4">
+                <Button variant="ghost">Anuluj</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(transport.id)}
+                >
+                  Usuń transport
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </DropdownMenu>
       );
     },
