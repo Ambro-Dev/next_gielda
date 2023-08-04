@@ -60,7 +60,7 @@ const getSchool = async (userId: String) => {
     return data.school;
   } catch (error) {
     console.log(error);
-    return {};
+    return "";
   }
 };
 
@@ -72,7 +72,7 @@ const AddTransportPage = async () => {
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
   const typesData = getTypes();
-  const school: School = await getSchool(session.user.id);
+  const school = await getSchool(String(session?.user.id));
 
   const [vehicles, categories, types] = await Promise.all<Settings[]>([
     vehiclesData,

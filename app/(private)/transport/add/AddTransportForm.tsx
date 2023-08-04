@@ -144,8 +144,10 @@ export function AddTransportForm({
         finish: endDestination,
       },
       creator: data?.user?.id,
-      school: school ? school.id : undefined,
+      school: school ? school : undefined,
     };
+
+    console.log(newTransport, school);
 
     try {
       const response = await axiosInstance.post(

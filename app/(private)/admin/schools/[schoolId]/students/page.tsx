@@ -2,7 +2,6 @@ import React from "react";
 import { StudentsTable } from "./students-table";
 import { columns } from "./columns";
 import { axiosInstance } from "@/lib/axios";
-import { Student } from "@prisma/client";
 import { AddStudentForm } from "./add-student-form";
 
 interface PageProps {

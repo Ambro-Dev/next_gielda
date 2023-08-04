@@ -23,6 +23,7 @@ import {
 import { axiosInstance } from "@/lib/axios";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { toast } from "@/components/ui/use-toast";
+import { ResetPassword } from "./reset-password";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -160,6 +161,7 @@ export const columns: ColumnDef<User>[] = [
                     : "Zablokuj użytkownika"}
                 </DialogTrigger>
               </DropdownMenuItem>
+              <ResetPassword userId={user.id} />
             </DropdownMenuContent>
             <DialogContent>
               <DialogHeader>
