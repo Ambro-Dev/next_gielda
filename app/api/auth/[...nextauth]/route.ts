@@ -22,6 +22,25 @@ export const authOptions: NextAuthOptions = {
           where: { username },
         });
 
+        if (user?.role === "student" || user?.role === "school_admin") {
+          const school = await prisma.school.findFirst({
+            where: {
+              students: {
+                some: {
+                  userId: user?.id,
+                },
+              },
+            },
+            select: {
+              accessExpires: true,
+            },
+          });
+
+          if (school?.accessExpires && school.accessExpires < new Date()) {
+            throw new Error("Dostęp do szkoły wygasł");
+          }
+        }
+
         if (user?.isBlocked) throw new Error("Użytkownik jest zablokowany");
 
         if (!user || !user.hashedPassword)

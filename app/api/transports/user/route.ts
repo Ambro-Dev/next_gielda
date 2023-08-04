@@ -5,10 +5,7 @@ export const GET = async (req: NextRequest) => {
   const userId = req.nextUrl.searchParams.get("userId");
 
   if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json(
-      { error: "Brakuje ID użytkownika" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Brakuje ID użytkownika", status: 400 });
   }
 
   const user = await prisma.user.findUnique({
@@ -18,10 +15,10 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!user) {
-    return NextResponse.json(
-      { error: "Nie znaleziono użytkownika" },
-      { status: 404 }
-    );
+    return NextResponse.json({
+      error: "Nie znaleziono użytkownika",
+      status: 404,
+    });
   }
 
   const transports = await prisma.transport.findMany({
@@ -74,10 +71,10 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (transports.length === 0 || !transports) {
-    return NextResponse.json(
-      { error: "Nie znaleziono transportów" },
-      { status: 404 }
-    );
+    return NextResponse.json({
+      error: "Nie znaleziono transportów",
+      status: 404,
+    });
   }
 
   return NextResponse.json({ transports, status: 200 });
