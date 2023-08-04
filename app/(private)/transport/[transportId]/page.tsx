@@ -53,21 +53,8 @@ const getTransport = async (transportId: string): Promise<Transport> => {
   }
 };
 
-const addVisit = async (transportId: string, userId: string) => {
-  try {
-    await axiosInstance.post(`/api/transports/visit`, {
-      transportId,
-      userId,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const TransportInfo = async ({ params }: PageParams) => {
-  const session = await getServerSession(authOptions);
   const transport: Transport = await getTransport(params.transportId);
-  await addVisit(params.transportId, String(session?.user?.id));
   return (
     <div className="flex w-full h-full flex-col gap-4 px-3 my-5">
       <TransportMap

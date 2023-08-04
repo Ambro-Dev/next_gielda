@@ -80,7 +80,6 @@ const MessageForm = (props: Props) => {
       `/api/messages/message`,
       newMessage
     );
-    console.log(response.data);
     if (response.data.status === 200) {
       form.reset();
       toast({
