@@ -25,9 +25,11 @@ const formatDate = (date: Date) => {
 type Props = {
   transportId: string;
   data: OfferWithCreator[];
+  user: string;
+  owner: string;
 };
 
-export function OffersTable({ transportId, data }: Props) {
+export function OffersTable({ transportId, data, user, owner }: Props) {
   return (
     <Table>
       <TableCaption>Lista złożonych ofert</TableCaption>
@@ -47,24 +49,37 @@ export function OffersTable({ transportId, data }: Props) {
               {item.creator.username}
             </TableCell>
             <TableCell>
-              <div className="flex flex-col gap-2">
-                <span>
-                  Data załadunku: {formatDate(item.loadDate)} -{" "}
-                  {formatDate(item.unloadDate)}
-                </span>
-                <span>Termin dostawy: w ciągu {item.unloadTime} dni</span>
-              </div>
+              {owner === user || item.creator.id === user ? (
+                <div className="flex flex-col gap-2">
+                  <span>
+                    Data załadunku: {formatDate(item.loadDate)} -{" "}
+                    {formatDate(item.unloadDate)}
+                  </span>
+                  <span>Termin dostawy: w ciągu {item.unloadTime} dni</span>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <span>...</span>
+                </div>
+              )}
             </TableCell>
             <TableCell className="text-right">
-              <div className="flex flex-col gap-2">
-                <span>
-                  {item.brutto} {item.currency}
-                </span>
-                <span className="text-xs text-gray-500">brutto</span>
-                <Link href={`/transport/${transportId}/offer/${item.id}`}>
-                  <Button>Wyświetl</Button>
-                </Link>
-              </div>
+              {owner === user || item.creator.id === user ? (
+                <div className="flex flex-col gap-2">
+                  <span>
+                    {item.brutto} {item.currency}
+                  </span>
+                  <span className="text-xs text-gray-500">brutto</span>
+
+                  <Link href={`/transport/${transportId}/offer/${item.id}`}>
+                    <Button>Wyświetl</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <span>...</span>
+                </div>
+              )}
             </TableCell>
           </TableRow>
         ))}

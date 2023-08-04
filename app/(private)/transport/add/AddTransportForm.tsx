@@ -77,7 +77,7 @@ const formSchema = z
         message: "Nieprawidłowa data dostawy.",
       }),
   })
-  .refine((data) => data.sendDate > data.receiveDate, {
+  .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
     path: ["receiveDate"],
   });
@@ -151,8 +151,6 @@ export function AddTransportForm({
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
-
-    console.log(newTransport, school);
 
     try {
       const response = await axiosInstance.post(

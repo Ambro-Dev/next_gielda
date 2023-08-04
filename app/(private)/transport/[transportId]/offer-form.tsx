@@ -298,7 +298,7 @@ const OfferForm = ({ transport }: { transport: string }) => {
               name="number"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Numer</FormLabel>
+                  <FormLabel>Numer telefonu</FormLabel>
                   <FormControl>
                     <Input {...field} type="tel" />
                   </FormControl>
