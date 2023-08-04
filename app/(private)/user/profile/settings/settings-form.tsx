@@ -25,6 +25,15 @@ import React, { useEffect } from "react";
 import { axiosInstance } from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import ChangePassword from "./change-password";
 
 const accountFormSchema = z.object({
   name: z
@@ -53,6 +62,8 @@ export function AccountForm({
   userInfo: { name: string; surname: string };
 }) {
   const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [openPassword, setOpenPassword] = React.useState(false);
   const { data, status } = useSession();
   const [showAlert, setShowAlert] = React.useState(false);
 
@@ -86,6 +97,17 @@ export function AccountForm({
   });
 
   const onSubmit = async (values: z.infer<typeof accountFormSchema>) => {
+    if (!data?.user?.id)
+      return toast({
+        title: "Błąd",
+        description: "Coś poszło nie tak, spróbuj ponownie później.",
+      });
+
+    if (values.name === userInfo.name && values.surname === userInfo.surname)
+      return toast({
+        title: "Błąd",
+        description: "Nie wprowadzono żadnych zmian.",
+      });
     try {
       const response = await axiosInstance.put("/api/auth/user", {
         ...values,
@@ -98,6 +120,7 @@ export function AccountForm({
           description: resData.message,
         });
         router.refresh();
+        setShowAlert(false);
       } else {
         toast({
           title: "Błąd",
@@ -134,56 +157,79 @@ export function AccountForm({
   }, []);
 
   return (
-    <Form {...form}>
-      {showAlert && alertBox}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Imię</FormLabel>
-              <FormControl>
-                <Input type="text" {...field} />
-              </FormControl>
-              <FormDescription>
-                Imię nie będzie widoczne dla innych użytkowników, tylko dla
-                administratorów.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="surname"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nazwisko</FormLabel>
-              <FormControl>
-                <Input type="text" {...field} />
-              </FormControl>
-              <FormDescription>
-                Nazwisko nie będzie widoczne dla innych użytkowników, tylko dla
-                administratorów.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button
-          type="submit"
-          disabled={
-            !(
-              !(userInfo.name === form.getValues("name")) ||
-              !(userInfo.surname === form.getValues("surname"))
-            )
-          }
-        >
-          Zaktualizuj konto
-        </Button>
-      </form>
-    </Form>
+    <>
+      <Form {...form}>
+        {showAlert && alertBox}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Imię</FormLabel>
+                <FormControl>
+                  <Input type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Imię nie będzie widoczne dla innych użytkowników, tylko dla
+                  administratorów.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="surname"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nazwisko</FormLabel>
+                <FormControl>
+                  <Input type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Nazwisko nie będzie widoczne dla innych użytkowników, tylko
+                  dla administratorów.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            disabled={
+              !(
+                !(userInfo.name === form.getValues("name")) ||
+                !(userInfo.surname === form.getValues("surname"))
+              )
+            }
+          >
+            Zaktualizuj konto
+          </Button>
+        </form>
+      </Form>
+      <div className="w-full flex justify-end">
+        <Dialog open={openPassword} onOpenChange={setOpenPassword}>
+          <DialogTrigger asChild>
+            <Button>Zmień hasło</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Zmień hasło</DialogTitle>
+              <DialogDescription>
+                Wpisz obecne hasło, a następnie nowe hasło i potwierdź je.
+              </DialogDescription>
+              <div className="py-5">
+                <ChangePassword
+                  userId={String(data?.user.id)}
+                  open={openPassword}
+                  setOpen={setOpenPassword}
+                />
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 }

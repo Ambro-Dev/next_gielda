@@ -35,7 +35,7 @@ export type User = {
   role: "admin" | "user";
 };
 
-const blockUser = async (id: string) => {
+export const blockUser = async (id: string) => {
   try {
     const res = await axiosInstance.put(`/api/auth/users/block`, {
       userId: id,
@@ -59,7 +59,7 @@ const blockUser = async (id: string) => {
   }
 };
 
-const unblockUser = async (id: string) => {
+export const unblockUser = async (id: string) => {
   try {
     const res = await axiosInstance.put(`/api/auth/users/unblock`, {
       userId: id,

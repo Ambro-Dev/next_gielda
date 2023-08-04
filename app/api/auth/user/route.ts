@@ -45,6 +45,15 @@ export const GET = async (req: NextRequest) => {
         status: 402,
       });
     }
+
+    return NextResponse.json({
+      message: "Wszystko aktualne",
+      user: {
+        name: student.name,
+        surname: student.surname,
+      },
+      status: 200,
+    });
   }
 
   if (!user.name || !user.surname) {

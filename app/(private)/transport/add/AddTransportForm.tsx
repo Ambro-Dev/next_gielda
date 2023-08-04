@@ -28,54 +28,59 @@ import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 
-const formSchema = z.object({
-  category: z
-    .string({
-      required_error: "Wybierz kategorię.",
-    })
-    .min(1, {
-      message: "Wybierz kategorię.",
-    }),
-  vehicle: z
-    .string({
-      required_error: "Wybierz typ pojazdu.",
-    })
-    .min(1, {
-      message: "Wybierz typ pojazdu.",
-    }),
-  type: z
-    .string({
-      required_error: "Wybierz typ pojazdu.",
-    })
-    .min(1, {
-      message: "Wybierz typ pojazdu.",
-    }),
-  timeAvailable: z.preprocess(
-    (val) => Number(val),
-    z.number().min(1, {
-      message: "Podaj czas dostępności.",
-    })
-  ),
-  description: z
-    .string({
-      required_error: "Podaj opis.",
-    })
-    .min(1, {
-      message: "Podaj opis.",
-    }),
-  sendDate: z
-    .date({
-      required_error: "Podaj datę wysyłki.",
-    })
-    .min(new Date(), {
-      message: "Nieprawidłowa data wysyłki.",
-    }),
-  receiveDate: z
-    .date({ required_error: "Podaj datę dostawy." })
-    .min(new Date(), {
-      message: "Nieprawidłowa data dostawy.",
-    }),
-});
+const formSchema = z
+  .object({
+    category: z
+      .string({
+        required_error: "Wybierz kategorię.",
+      })
+      .min(1, {
+        message: "Wybierz kategorię.",
+      }),
+    vehicle: z
+      .string({
+        required_error: "Wybierz typ pojazdu.",
+      })
+      .min(1, {
+        message: "Wybierz typ pojazdu.",
+      }),
+    type: z
+      .string({
+        required_error: "Wybierz typ pojazdu.",
+      })
+      .min(1, {
+        message: "Wybierz typ pojazdu.",
+      }),
+    timeAvailable: z.preprocess(
+      (val) => Number(val),
+      z.number().min(1, {
+        message: "Podaj czas dostępności.",
+      })
+    ),
+    description: z
+      .string({
+        required_error: "Podaj opis.",
+      })
+      .min(1, {
+        message: "Podaj opis.",
+      }),
+    sendDate: z
+      .date({
+        required_error: "Podaj datę wysyłki.",
+      })
+      .min(new Date(), {
+        message: "Nieprawidłowa data wysyłki.",
+      }),
+    receiveDate: z
+      .date({ required_error: "Podaj datę dostawy." })
+      .min(new Date(), {
+        message: "Nieprawidłowa data dostawy.",
+      }),
+  })
+  .refine((data) => data.sendDate > data.receiveDate, {
+    message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
+    path: ["receiveDate"],
+  });
 
 type Objects = {
   name: string;

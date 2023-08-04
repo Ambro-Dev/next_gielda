@@ -83,16 +83,17 @@ const getVehicles = async (): Promise<Tags[]> => {
   }
 };
 
-const checkUserInfo = async (userId: string) => {
+const checkUserInfo = async (userId: string): Promise<number> => {
   try {
     const response = await axiosInstance.get(`/api/auth/user?userId=${userId}`);
     const data = response.data;
     if (data.status === 402) {
-      redirect("/user/profile/settings");
+      return 402;
     }
   } catch (error) {
     console.log(error);
   }
+  return 200;
 };
 
 const getTransports = async (): Promise<Transport[]> => {
@@ -110,9 +111,11 @@ export default async function Home() {
   const vehiclesData = getVehicles();
   const transports = await getTransports();
   const session = await getServerSession(authOptions);
-
   if (session) {
-    await checkUserInfo(String(session?.user?.id));
+    const status = await checkUserInfo(String(session?.user?.id));
+    if (status === 402) {
+      redirect("/user/profile/settings");
+    }
   }
 
   const [vehicles, categories] = await Promise.all<Tags[]>([

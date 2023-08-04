@@ -17,13 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 
@@ -35,20 +28,22 @@ const profileFormSchema = z.object({
     })
     .max(30, {
       message: "Nazwa użytkownika nie może mieć więcej niż 30 znaków.",
-    }),
+    })
+    .optional(),
   email: z
     .string({
       required_error: "Email jest wymagany.",
     })
-    .email(),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.string().url({ message: "Wpisz prawidłowy adres url" }),
-      })
-    )
+    .email()
     .optional(),
+  bio: z
+    .string()
+    .max(160, {
+      message: "Bio nie może mieć więcej niż 160 znaków.",
+    })
+    .min(4, {
+      message: "Bio musi mieć co najmniej 4 znaki.",
+    }),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -58,6 +53,7 @@ type Profile = {
   username: string;
   email: string;
   role: string;
+  bio: string;
   school?: {
     id: string;
     name: string;
@@ -69,22 +65,16 @@ type Profile = {
   };
 };
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: "Posiadam komputer",
-  urls: [{ value: "https://ambro.dev" }, { value: "http://fenilo.pl" }],
-};
-
 export function ProfileForm({ profile }: { profile: Profile }) {
+  // This can come from your database or API.
+  const defaultValues: Partial<ProfileFormValues> = {
+    bio: profile.bio || "Posiadam komputer",
+  };
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
     mode: "onChange",
-  });
-
-  const { fields, append } = useFieldArray({
-    name: "urls",
-    control: form.control,
   });
 
   function onSubmit(data: ProfileFormValues) {
@@ -108,7 +98,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <FormItem>
               <FormLabel>Nazwa użytkownika</FormLabel>
               <FormControl>
-                <Input placeholder={profile.username} {...field} />
+                <Input placeholder={profile.username} {...field} disabled />
               </FormControl>
               <FormDescription>
                 Twoja nazwa użytkownika jest wyświetlana na Twoim profilu.
@@ -123,9 +113,15 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
-              <Input type="email" placeholder={profile.email} {...field} />
+              <Input
+                type="email"
+                placeholder={profile.email}
+                {...field}
+                disabled
+              />
               <FormDescription>
-                Twój adres email jest prywatny i nie jest widoczny dla innych
+                Twój adres email jest prywatny i widoczny tylko dla
+                administratorów.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -139,51 +135,20 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               <FormLabel>Bio</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us a little bit about yourself"
+                  placeholder="Posiadam komputer"
                   className="resize-none"
+                  maxLength={160}
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Powiedz nam coś o sobie. Możesz użyć do 160 znaków.
+                Powiedz nam coś o sobie. Możesz użyć do 160 znaków. Pozostało{" "}
+                {160 - field.value.length} znaki(ów).
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div>
-          {fields.map((field, index) => (
-            <FormField
-              control={form.control}
-              key={field.id}
-              name={`urls.${index}.value`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(index !== 0 && "sr-only")}>
-                    URLs
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && "sr-only")}>
-                    Dodaj link do swojej strony internetowej, bloga lub
-                    portfolio.
-                  </FormDescription>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            onClick={() => append({ value: "" })}
-          >
-            Dodaj URL
-          </Button>
-        </div>
         <Button type="submit">Zapisz</Button>
       </form>
     </Form>
