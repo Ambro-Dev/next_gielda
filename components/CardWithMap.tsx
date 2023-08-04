@@ -130,19 +130,19 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
       </CardHeader>
       <div className="grow">
         <CardContent>
-          <div className="flex pb-6 flex-row items-center justify-between w-full gap-2">
+          <div className="flex mb-6 flex-row items-center justify-around w-full gap-2">
             <div className="flex flex-row items-center gap-2">
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4 px-5">
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center justify-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
               <span className="text-sm font-bold">
                 {transport.creator.username}
               </span>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
               <Image src={vehicle_icon} alt="date" width={24} height={24} />
               <span className="text-sm font-bold capitalize">
@@ -165,7 +165,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 {directionsLeg?.distance?.text}
               </span>
             </div>
-            <div className="flex col-span-2 flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2">
               <Image src={time_icon} alt="time" width={24} height={24} />
               <span className="text-sm font-bold">
                 {directionsLeg?.duration?.text}

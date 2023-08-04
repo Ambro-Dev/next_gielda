@@ -30,6 +30,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { axiosInstance } from "@/lib/axios";
 import TransportsMap from "./transports-map";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 type Tags = {
   id: string;
@@ -80,6 +83,18 @@ const getVehicles = async (): Promise<Tags[]> => {
   }
 };
 
+const checkUserInfo = async (userId: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/auth/user?userId=${userId}`);
+    const data = response.data;
+    if (data.status === 402) {
+      redirect("/user/profile/settings");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const getTransports = async (): Promise<Transport[]> => {
   try {
     const res = await axiosInstance.get("/api/transports");
@@ -94,6 +109,11 @@ export default async function Home() {
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
   const transports = await getTransports();
+  const session = await getServerSession(authOptions);
+
+  if (session) {
+    await checkUserInfo(String(session?.user?.id));
+  }
 
   const [vehicles, categories] = await Promise.all<Tags[]>([
     vehiclesData,

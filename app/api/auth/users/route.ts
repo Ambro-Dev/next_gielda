@@ -68,7 +68,12 @@ export const GET = async (req: NextRequest) => {
     },
   });
 
-  const usersWithoutAdmin = users.filter((user) => user.username !== "admin");
+  const usersWithoutAdmin = users.filter(
+    (user) =>
+      user.username !== "admin" &&
+      user.role !== "student" &&
+      user.role !== "school_admin"
+  );
 
   if (!usersWithoutAdmin) {
     return NextResponse.json({

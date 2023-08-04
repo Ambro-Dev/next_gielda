@@ -49,6 +49,8 @@ model User {
   username       String    @unique
   email          String    @unique
   emailVerified  DateTime?
+  name           String?
+  surname        String?
   image          String?
   hashedPassword String
   isBlocked      Boolean   @default(false)

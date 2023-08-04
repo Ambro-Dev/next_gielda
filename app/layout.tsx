@@ -9,6 +9,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { axiosInstance } from "@/lib/axios";
 
 const inter = Inter({ subsets: ["latin"] });
 
