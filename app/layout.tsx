@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { axiosInstance } from "@/lib/axios";
+import FacebookMessenger from "@/components/MessengerChat";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,7 +39,7 @@ export default async function RootLayout({
                 {children}
               </div>
             </GoogleApiProvider>
-            <MessengerChatBox />
+            <FacebookMessenger />
 
             <Footer />
           </main>
