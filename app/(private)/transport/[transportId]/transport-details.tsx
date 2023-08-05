@@ -15,6 +15,7 @@ import arrow_down from "@/assets/icons/arrow_down.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ObjectsTable } from "@/components/ObjectsTable";
+import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 
 const formatDate = (date: Date) => {
   const newDate = new Date(date);
@@ -60,9 +61,20 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
   return (
     <>
       <div className="flex flex-col items-start justify-center space-y-8">
-        <div className="flex pb-6 flex-row items-center justify-start gap-2">
-          <Badge>{transport.category.name}</Badge>
-          <Badge className="uppercase">{transport.type.name}</Badge>
+        <div className="flex pb-6 px-5 sm:flex-row flex-col items-center justify-start gap-4 w-full">
+          <div className="space-x-4">
+            <Badge>{transport.category.name}</Badge>
+            <Badge className="uppercase">{transport.type.name}</Badge>
+          </div>
+
+          <Badge variant="destructive">
+            Wygaśnie za:{" "}
+            {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+              ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
+              : `${
+                  GetExpireTimeLeft(transport.availableDate).hoursLeft
+                } godzin`}{" "}
+          </Badge>
         </div>
 
         <div className="flex flex-row gap-8 px-5 items-center justify-around w-full flex-wrap">

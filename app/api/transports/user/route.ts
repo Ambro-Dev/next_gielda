@@ -54,7 +54,7 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
-      timeAvailable: true,
+      availableDate: true,
       type: {
         select: {
           id: true,

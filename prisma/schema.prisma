@@ -122,7 +122,7 @@ model Transport {
   vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
   isAvailable   Boolean
   sendDate      DateTime
-  timeAvailable Int
+  availableDate DateTime
   receiveDate   DateTime
   directions    Directions?
   description   String

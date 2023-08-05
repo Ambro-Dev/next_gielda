@@ -2,10 +2,7 @@ import React from "react";
 import TransportMap from "./transport-map";
 import TransportDetails from "./transport-details";
 import TransportContactCard from "./contact-card";
-import { Offer } from "@prisma/client";
 import { axiosInstance } from "@/lib/axios";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 type PageParams = {
   params: {
@@ -36,6 +33,7 @@ export type Transport = {
       weight: number;
     }
   ];
+  availableDate: Date;
   sendDate: Date;
   receiveDate: Date;
   type: { id: string; name: string };

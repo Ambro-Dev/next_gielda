@@ -28,6 +28,7 @@ export const GET = async (req: NextRequest) => {
     where: {
       transport: {
         creatorId: userId,
+        isAvailable: true,
       },
     },
     select: {
@@ -70,7 +71,7 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          timeAvailable: true,
+          availableDate: true,
           type: {
             select: {
               id: true,

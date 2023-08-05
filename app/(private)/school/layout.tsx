@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Giełda transportowa - fenilo.pl - zleć i znajdź transport szybko i przystępnie.",
 };
 
-export default async function UserLayout({
+export default async function SchoolManage({
   children,
 }: {
   children: React.ReactNode;
@@ -19,6 +19,6 @@ export default async function UserLayout({
   const session = await getServerSession(authOptions);
 
   if (!session) redirect("/signin");
-  if (session.user.role !== "admin") redirect("/");
+  if (session.user.role !== "school_admin") redirect("/");
   return <Card className="flex flex-col space-y-8 mb-5">{children}</Card>;
 }

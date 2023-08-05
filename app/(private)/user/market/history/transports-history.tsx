@@ -25,7 +25,7 @@ const formatDate = (date: Date) => {
   }.${year}`;
 };
 
-export function UserTransports({ data }: { data: ExtendedTransport[] }) {
+export function TransportsHistory({ data }: { data: ExtendedTransport[] }) {
   return (
     <Table>
       <TableCaption>Lista zleconych transportów</TableCaption>
@@ -48,16 +48,6 @@ export function UserTransports({ data }: { data: ExtendedTransport[] }) {
                 </div>
                 <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
                   <div className="flex flex-col md:gap-4 items-center justify-center">
-                    <Badge variant="destructive">
-                      Wygaśnie za:{" "}
-                      {GetExpireTimeLeft(item.availableDate).daysLeft > 0
-                        ? `${
-                            GetExpireTimeLeft(item.availableDate).daysLeft
-                          } dni`
-                        : `${
-                            GetExpireTimeLeft(item.availableDate).hoursLeft
-                          } godzin`}{" "}
-                    </Badge>
                     <div className="md:px-10 px-5">
                       <Directions transport={item} />
                     </div>
@@ -69,7 +59,9 @@ export function UserTransports({ data }: { data: ExtendedTransport[] }) {
 
                   <div className="flex lg:flex-col flex-row gap-2 justify-center">
                     <Button>Edytuj</Button>
-                    <Button variant="destructive">Zakończ</Button>
+                    <span>
+                      Edytuj transport jeśli chcesz jescze raz go zlecić
+                    </span>
                   </div>
                 </div>
               </div>

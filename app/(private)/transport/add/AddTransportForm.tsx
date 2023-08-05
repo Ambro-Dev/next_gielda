@@ -51,12 +51,13 @@ const formSchema = z
       .min(1, {
         message: "Wybierz typ pojazdu.",
       }),
-    timeAvailable: z.preprocess(
-      (val) => Number(val),
-      z.number().min(1, {
-        message: "Podaj czas dostępności.",
+    availableDate: z
+      .date({
+        required_error: "Poda do kiedy ogłoszenie jest ważne.",
       })
-    ),
+      .min(new Date(), {
+        message: "Nieprawidłowa data.",
+      }),
     description: z
       .string({
         required_error: "Podaj opis.",
@@ -80,6 +81,11 @@ const formSchema = z
   .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
     path: ["receiveDate"],
+  })
+  .refine((data) => data.availableDate < data.sendDate, {
+    message:
+      "Data wysyłki musi być równa lub późniejsza niż data ważności ogłoszenia.",
+    path: ["sendDate"],
   });
 
 type Objects = {
@@ -134,7 +140,6 @@ export function AddTransportForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      timeAvailable: 0,
       description: "",
     },
   });
@@ -240,14 +245,14 @@ export function AddTransportForm({
             />
             <FormField
               control={form.control}
-              name="timeAvailable"
+              name="availableDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Ważność ogłoszenia*</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <DatePicker onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Ważność ogłoszenia w dniach</FormDescription>
+                  <FormDescription>Ważność ogłoszenia do</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
