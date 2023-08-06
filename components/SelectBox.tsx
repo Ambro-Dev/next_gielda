@@ -12,14 +12,15 @@ type Props = {
   data: { id: string; name: string }[];
   onChange: (id: string) => void;
   title: string;
+  defaultValue?: string;
 };
 
 const SelectBox = (props: Props) => {
-  const { data, onChange, title } = props;
+  const { data, onChange, title, defaultValue } = props;
   return (
     <Select onValueChange={(e) => onChange(e)}>
       <SelectTrigger className="w-full">
-        <SelectValue placeholder="Wybierz..." />
+        <SelectValue placeholder={defaultValue ? defaultValue : "Wybierz..."} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

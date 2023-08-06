@@ -73,7 +73,7 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
               : `${
                   GetExpireTimeLeft(transport.availableDate).hoursLeft
-                } godzin`}{" "}
+                } godz.`}{" "}
           </Badge>
         </div>
 

@@ -16,10 +16,13 @@ import { pl } from "date-fns/locale";
 
 type Props = {
   onChange: (date: Date) => void;
+  defaultValue?: Date;
 };
 
-export function DatePicker({ onChange }: Props) {
+export function DatePicker({ onChange, defaultValue }: Props) {
   const [date, setDate] = React.useState<Date | undefined>();
+
+  const formatedDate = defaultValue && new Date(defaultValue);
 
   React.useEffect(() => {
     if (date) {
@@ -30,20 +33,37 @@ export function DatePicker({ onChange }: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? (
-            format(date, "PPP", { locale: pl })
-          ) : (
-            <span>Wybierz datę</span>
-          )}
-        </Button>
+        {formatedDate ? (
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !formatedDate && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {formatedDate ? (
+              format(formatedDate, "PPP", { locale: pl })
+            ) : (
+              <span>Wybierz datę</span>
+            )}
+          </Button>
+        ) : (
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? (
+              format(date, "PPP", { locale: pl })
+            ) : (
+              <span>Wybierz datę</span>
+            )}
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar

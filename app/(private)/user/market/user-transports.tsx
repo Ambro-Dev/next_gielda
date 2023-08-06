@@ -14,6 +14,7 @@ import Map from "@/components/Map";
 import Directions from "@/components/Directions";
 import { Badge } from "@/components/ui/badge";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
+import Link from "next/link";
 
 const formatDate = (date: Date) => {
   const d = new Date(date);
@@ -68,7 +69,9 @@ export function UserTransports({ data }: { data: ExtendedTransport[] }) {
                   </div>
 
                   <div className="flex lg:flex-col flex-row gap-2 justify-center">
-                    <Button>Edytuj</Button>
+                    <Link href={`/transport/${item.id}/edit`}>
+                      <Button className="w-full">Edytuj</Button>
+                    </Link>
                     <Button variant="destructive">Zakończ</Button>
                   </div>
                 </div>

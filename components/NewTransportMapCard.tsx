@@ -18,6 +18,8 @@ import React from "react";
 type NewTransportMapCardProps = {
   setStartDestination: (position: google.maps.LatLngLiteral) => void;
   setEndDestination: (position: google.maps.LatLngLiteral) => void;
+  startDestination?: google.maps.LatLngLiteral;
+  endDestination?: google.maps.LatLngLiteral;
 };
 
 const formSchema = z.object({
@@ -34,9 +36,15 @@ const formSchema = z.object({
 const NewTransportMapCard = ({
   setStartDestination,
   setEndDestination,
+  startDestination,
+  endDestination,
 }: NewTransportMapCardProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      start: startDestination,
+      finish: endDestination,
+    },
   });
 
   React.useEffect(() => {
