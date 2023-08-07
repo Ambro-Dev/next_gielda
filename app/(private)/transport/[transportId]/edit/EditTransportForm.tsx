@@ -28,6 +28,8 @@ import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Transport } from "../page";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CurrentTransportMap from "./CurrentMap";
 
 const formSchema = z
   .object({
@@ -161,16 +163,18 @@ export function EditTransportForm({
       category: transport.category.id,
       type: transport.type.id,
       vehicle: transport.vehicle.id,
-      availableDate: transport.availableDate,
-      sendDate: transport.sendDate,
-      receiveDate: transport.receiveDate,
+      availableDate: new Date(transport.availableDate),
+      sendDate: new Date(transport.sendDate),
+      receiveDate: new Date(transport.receiveDate),
     },
   });
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log(values);
     const newTransport = {
       ...values,
+      id: transport.id,
       objects,
       directions: {
         start: startDestination,
@@ -182,13 +186,13 @@ export function EditTransportForm({
 
     try {
       const response = await axiosInstance.post(
-        "/api/transports",
+        "/api/transports/edit",
         newTransport
       );
       if (response.data.status === 201) {
         toast({
           title: "Sukces",
-          description: "Transport został dodany.",
+          description: "Transport został zaktualizowany.",
         });
         form.reset();
         router.push(`/transport/${response.data.transportId}`);
@@ -202,7 +206,7 @@ export function EditTransportForm({
     } catch (error) {
       toast({
         title: "Błąd",
-        description: "Wystąpił błąd podczas dodawania transportu.",
+        description: "Wystąpił błąd podczas zmiany transportu.",
       });
     }
   };
@@ -355,12 +359,24 @@ export function EditTransportForm({
           </div>
         </form>
       </Form>
-      <NewTransportMapCard
-        setEndDestination={setEndDestination}
-        setStartDestination={setStartDestination}
-        startDestination={startDestination}
-        endDestination={endDestination}
-      />
+      <Tabs defaultValue="current" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="current">Obecna trasa</TabsTrigger>
+          <TabsTrigger value="edit">Edytuj trasę</TabsTrigger>
+        </TabsList>
+        <TabsContent value="current" className="space-y-4">
+          <CurrentTransportMap transport={transport} />
+        </TabsContent>
+        <TabsContent value="edit" className="space-y-4">
+          <NewTransportMapCard
+            setEndDestination={setEndDestination}
+            setStartDestination={setStartDestination}
+            startDestination={startDestination}
+            endDestination={endDestination}
+          />
+        </TabsContent>
+      </Tabs>
+
       <TransportObjectsCard objects={objects} setObjects={setObjects} />
       <div className="w-full flex justify-end items-center">
         <Button
@@ -368,7 +384,7 @@ export function EditTransportForm({
           onClick={form.handleSubmit(onSubmit)}
           className="w-full"
         >
-          Dodaj
+          Zapisz zmiany
         </Button>
       </div>
     </div>
