@@ -171,7 +171,6 @@ export function EditTransportForm({
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     const newTransport = {
       ...values,
       id: transport.id,

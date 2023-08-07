@@ -58,7 +58,7 @@ const CurrentTransportMap = ({ transport }: { transport: Transport }) => {
             <Label className="text-sm font-semibold">Miejsce wysyłki</Label>
             <Input
               type="text"
-              value={directionsLeg?.start_address}
+              value={directionsLeg?.start_address || ""}
               readOnly
               className="bg-gray-100 w-full"
             />
@@ -71,7 +71,7 @@ const CurrentTransportMap = ({ transport }: { transport: Transport }) => {
             <Label className="text-sm font-semibold">Miejsce odbioru</Label>
             <Input
               type="text"
-              value={directionsLeg?.end_address}
+              value={directionsLeg?.end_address || ""}
               readOnly
               className="bg-gray-100"
             />

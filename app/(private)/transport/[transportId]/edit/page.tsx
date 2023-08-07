@@ -94,7 +94,6 @@ const EditTransport = async (props: Props) => {
   const typesData = getTypes();
   const school = await getSchool(String(session?.user.id));
   const transport = await getTransport(String(props.params.transportId));
-  console.log(transport);
 
   const [vehicles, categories, types] = await Promise.all<Settings[]>([
     vehiclesData,
