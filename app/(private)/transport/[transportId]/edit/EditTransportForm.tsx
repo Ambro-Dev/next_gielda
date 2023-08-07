@@ -186,7 +186,7 @@ export function EditTransportForm({
 
     try {
       const response = await axiosInstance.post(
-        "/api/transports/edit",
+        "/api/transports/transport/edit",
         newTransport
       );
       if (response.data.status === 201) {

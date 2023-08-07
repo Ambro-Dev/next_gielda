@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { LatLngLiteral } from "leaflet";
 import arrow_down from "@/assets/icons/arrow_down.png";
-import { Transport } from "../page";
-import Map from "@/components/Map";
 import { ArrowDown } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Transport } from "../page";
+import EditMap from "./EditMap";
 
 const formatDate = (date: Date) => {
   const newDate = new Date(date);
@@ -50,25 +52,34 @@ const CurrentTransportMap = ({ transport }: { transport: Transport }) => {
 
   return (
     <>
-      <div className="flex flex-row items-center justify-center space-y-8">
-        <div className="grid md:grid-cols-2 grid-cols-1 w-full gap-8">
-          <div className="flex flex-col pt-6 items-center gap-4">
-            <div className="flex flex-col items-center justify-start">
-              <span className="text-lg text-center">
-                {directionsLeg?.start_address}
-              </span>
-            </div>
-            <div className="flex items-center justify-center my-auto">
-              <ArrowDown />
-            </div>
-
-            <div className="flex flex-col items-center justify-between">
-              <span className="text-lg text-center ">
-                {directionsLeg?.end_address}
-              </span>
-            </div>
+      <div className="grid md:grid-cols-2 grid-cols-1 w-full gap-8">
+        <div className="grid pt-6 items-start w-full space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Miejsce wysyłki</Label>
+            <Input
+              type="text"
+              value={directionsLeg?.start_address}
+              readOnly
+              className="bg-gray-100 w-full"
+            />
           </div>
-        </div>{" "}
+          <div className="flex items-center justify-center my-auto">
+            <ArrowDown />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Miejsce odbioru</Label>
+            <Input
+              type="text"
+              value={directionsLeg?.end_address}
+              readOnly
+              className="bg-gray-100"
+            />
+          </div>
+        </div>
+        <div className="grid w-full">
+          <EditMap transport={transport} className="h-[300px] w-full" />
+        </div>
       </div>
     </>
   );

@@ -7,6 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Delete } from "lucide-react";
 
 type Props = {
   data:
@@ -31,6 +33,7 @@ export function ObjectsTable({ data }: Props) {
           <TableHead>Ilość</TableHead>
           <TableHead>Waga</TableHead>
           <TableHead className="text-right">Wymiary</TableHead>
+          <TableHead className="w-[80px] text-right"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -41,6 +44,11 @@ export function ObjectsTable({ data }: Props) {
             <TableCell>{item.weight}kg</TableCell>
             <TableCell className="text-right">
               {item.width}m x {item.length}m x {item.height}m
+            </TableCell>
+            <TableCell className="text-right">
+              <Button size="icon" variant="ghost">
+                <Delete color="#FF0000" size={20} />
+              </Button>
             </TableCell>
           </TableRow>
         ))}
