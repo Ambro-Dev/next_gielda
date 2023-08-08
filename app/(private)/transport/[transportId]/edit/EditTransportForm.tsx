@@ -172,10 +172,14 @@ export function EditTransportForm({
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const newTransport = {
+    const objectsWithoutId = objects.map((object) => {
+      const { id, ...rest } = object;
+      return rest;
+    });
+    const editTransport = {
       ...values,
       id: transport.id,
-      objects,
+      objects: objectsWithoutId,
       directions: {
         start: startDestination,
         finish: endDestination,
@@ -185,9 +189,9 @@ export function EditTransportForm({
     };
 
     try {
-      const response = await axiosInstance.post(
+      const response = await axiosInstance.put(
         "/api/transports/transport/edit",
-        newTransport
+        editTransport
       );
       if (response.data.status === 201) {
         toast({
@@ -195,7 +199,8 @@ export function EditTransportForm({
           description: "Transport został zaktualizowany.",
         });
         form.reset();
-        router.push(`/transport/${response.data.transportId}`);
+        router.replace(`/transport/${response.data.transportId}`);
+        router.refresh();
       } else {
         toast({
           title: "Błąd",
@@ -382,7 +387,15 @@ export function EditTransportForm({
         setObjects={setObjects}
         edit={true}
       />
-      <div className="w-full flex justify-end items-center">
+      <div className="w-full flex justify-end items-center gap-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => router.back()}
+        >
+          Anuluj
+        </Button>
         <Button
           type="button"
           onClick={form.handleSubmit(onSubmit)}

@@ -109,19 +109,21 @@ const TransportContactCard = async ({
             )}
           </div>
         </CardTitle>
-        <CardDescription className="sm:text-end">
-          {transport.isAvailable ? (
-            <span>
-              Oferty można składać od pojawienia się ogłoszenia do zakończenia
-              ogłoszenia.
-            </span>
-          ) : (
-            <span className="text-red-500">
-              Oferty nie są już przyjmowane. Możesz wysłać wiadomość do
-              zleceniodawcy
-            </span>
-          )}
-        </CardDescription>
+        {session?.user.id !== transport.creator.id && (
+          <CardDescription className="sm:text-end">
+            {transport.isAvailable ? (
+              <span>
+                Oferty można składać od pojawienia się ogłoszenia do zakończenia
+                ogłoszenia.
+              </span>
+            ) : (
+              <span className="text-red-500">
+                Oferty nie są już przyjmowane. Możesz wysłać wiadomość do
+                zleceniodawcy
+              </span>
+            )}
+          </CardDescription>
+        )}
         <Separator />
       </CardHeader>
       <CardContent>

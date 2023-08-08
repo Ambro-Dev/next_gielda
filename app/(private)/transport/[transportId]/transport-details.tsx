@@ -25,6 +25,15 @@ import {
 } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { axiosInstance } from "@/lib/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
 
 const formatDate = (date: Date) => {
   const newDate = new Date(date);
@@ -36,7 +45,39 @@ const formatDate = (date: Date) => {
   });
 };
 
+const setTransportUnavailable = async (transportId: string, userId: string) => {
+  try {
+    const response = await axiosInstance.put(
+      `/api/transports/transport/unavailable`,
+      {
+        transportId,
+        userId,
+      }
+    );
+    const data = response.data;
+    if (data.message) {
+      toast({
+        title: "Sukces",
+        description: data.message,
+      });
+    } else {
+      toast({
+        title: "Błąd",
+        description: data.error,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Błąd",
+      description:
+        "Wystąpił błąd podczas wykonywania tej operacji, spróbuj ponownie później.",
+    });
+  }
+};
+
 const TransportDetails = ({ transport }: { transport: Transport }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const router = useRouter();
   const start = transport.directions.start;
   const finish = transport.directions.finish;
@@ -79,7 +120,8 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-            {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 ? (
+            {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 &&
+            transport.isAvailable ? (
               <Badge variant="destructive">
                 Wygaśnie za:{" "}
                 {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
@@ -93,7 +135,11 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
             )}
           </div>
           {data?.user.id === transport.creator.id && (
-            <div className="flex md:flex-row flex-col w-full md:justify-end justify-center md:items-center gap-4">
+            <div
+              className={`flex md:flex-row flex-col ${
+                transport.isAvailable ? "sm:w-full" : "sm:w-1/2"
+              } w-full md:justify-end justify-center md:items-center gap-4`}
+            >
               <Button
                 variant="outline"
                 className="w-full"
@@ -101,22 +147,57 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               >
                 Edytuj ogłoszenie
               </Button>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="destructive" className="w-full">
-                      Usuń ogłoszenie
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      Oznacza ogłoszenie jako nieaktywne, znajdziesz je pożniej
-                      w zakładce zakończone zlecenia w panelu &quot;Moja
-                      giełda&quot;
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {transport.isAvailable && (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive" className="w-full">
+                            Usuń ogłoszenie
+                          </Button>
+                        </DialogTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          Oznacza ogłoszenie jako nieaktywne, znajdziesz je
+                          pożniej w zakładce zakończone zlecenia w panelu
+                          &quot;Moja giełda&quot;
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        Czy na pewno chcesz usunąć ogłoszenie?
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-row items-center justify-center gap-4 pt-5">
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        onClick={() =>
+                          setTransportUnavailable(
+                            transport.id,
+                            String(data?.user.id)
+                          ).then(() => {
+                            setDialogOpen(false);
+                            router.refresh();
+                          })
+                        }
+                      >
+                        Tak
+                      </Button>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          Nie
+                        </Button>
+                      </DialogTrigger>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           )}
         </div>

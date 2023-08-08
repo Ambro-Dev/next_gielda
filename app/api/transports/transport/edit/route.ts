@@ -39,6 +39,7 @@ export const PUT = async (req: NextRequest) => {
     data: {
       description,
       objects: {
+        deleteMany: {},
         create: objects,
       },
       receiveDate,
@@ -51,7 +52,7 @@ export const PUT = async (req: NextRequest) => {
       typeId: type,
       schoolId: school ? school : undefined,
       directions: {
-        create: directions,
+        update: directions,
       },
     },
   });
