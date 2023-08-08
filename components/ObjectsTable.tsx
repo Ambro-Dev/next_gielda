@@ -25,7 +25,7 @@ type Props = {
       }[]
     | null;
   edit?: boolean;
-  handleDelete: (id: string) => void;
+  handleDelete?: (id: string) => void;
 };
 
 export function ObjectsTable({ data, edit, handleDelete }: Props) {
@@ -52,13 +52,15 @@ export function ObjectsTable({ data, edit, handleDelete }: Props) {
             </TableCell>
             {edit && (
               <TableCell className="text-right">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <Delete color="#FF0000" size={20} />
-                </Button>
+                {handleDelete && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <Delete color="#FF0000" size={20} />
+                  </Button>
+                )}
               </TableCell>
             )}
           </TableRow>

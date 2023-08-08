@@ -49,6 +49,7 @@ const TransportContactCard = async ({
 }) => {
   const offers: OfferWithCreator[] = await getTransportOffers(transport.id);
   const session = await getServerSession(authOptions);
+  console.log(transport);
   return (
     <Card className="p-3">
       <CardHeader className="space-y-4">
@@ -89,6 +90,7 @@ const TransportContactCard = async ({
                     <Button
                       className="rounded-full hover:bg-amber-500 transition-all duration-500"
                       size="lg"
+                      disabled={!transport.isAvailable}
                     >
                       Złóż ofertę
                     </Button>
@@ -108,8 +110,17 @@ const TransportContactCard = async ({
           </div>
         </CardTitle>
         <CardDescription className="sm:text-end">
-          Oferty można składać od pojawienia się ogłoszenia do zakończenia
-          ogłoszenia.
+          {transport.isAvailable ? (
+            <span>
+              Oferty można składać od pojawienia się ogłoszenia do zakończenia
+              ogłoszenia.
+            </span>
+          ) : (
+            <span className="text-red-500">
+              Oferty nie są już przyjmowane. Możesz wysłać wiadomość do
+              zleceniodawcy
+            </span>
+          )}
         </CardDescription>
         <Separator />
       </CardHeader>

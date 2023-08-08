@@ -137,7 +137,6 @@ export function AddTransportForm({
   const [endDestination, setEndDestination] =
     React.useState<Destination | null>(null);
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -145,11 +144,6 @@ export function AddTransportForm({
     },
   });
 
-  React.useEffect(() => {
-    console.log(objects);
-  }, [objects]);
-
-  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const objectsWithoutId = objects.map((object) => {
       const { id, ...rest } = object;

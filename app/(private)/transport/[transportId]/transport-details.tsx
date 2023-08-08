@@ -79,15 +79,18 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-
-            <Badge variant="destructive">
-              Wygaśnie za:{" "}
-              {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
-                ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
-                : `${
-                    GetExpireTimeLeft(transport.availableDate).hoursLeft
-                  } godz.`}{" "}
-            </Badge>
+            {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 ? (
+              <Badge variant="destructive">
+                Wygaśnie za:{" "}
+                {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+                  ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
+                  : `${
+                      GetExpireTimeLeft(transport.availableDate).hoursLeft
+                    } godz.`}{" "}
+              </Badge>
+            ) : (
+              <Badge variant="destructive">Wygasło</Badge>
+            )}
           </div>
           {data?.user.id === transport.creator.id && (
             <div className="flex md:flex-row flex-col w-full md:justify-end justify-center md:items-center gap-4">

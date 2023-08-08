@@ -17,6 +17,7 @@ export type Transport = {
   createdAt: Date;
   vehicle: { id: string; name: string };
   description: string;
+  isAvailable: boolean;
   directions: {
     start: { lat: number; lng: number };
     finish: { lat: number; lng: number };
