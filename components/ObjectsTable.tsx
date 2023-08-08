@@ -43,7 +43,7 @@ export function ObjectsTable({ data, edit, handleDelete }: Props) {
       </TableHeader>
       <TableBody>
         {data?.map((item) => (
-          <TableRow key={item.name}>
+          <TableRow key={item.id}>
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>{item.amount}</TableCell>
             <TableCell>{item.weight}kg</TableCell>
