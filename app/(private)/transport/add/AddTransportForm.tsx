@@ -89,6 +89,7 @@ const formSchema = z
   });
 
 type Objects = {
+  id: string;
   name: string;
   description: string;
   weight: number;
@@ -144,11 +145,19 @@ export function AddTransportForm({
     },
   });
 
+  React.useEffect(() => {
+    console.log(objects);
+  }, [objects]);
+
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const objectsWithoutId = objects.map((object) => {
+      const { id, ...rest } = object;
+      return rest;
+    });
     const newTransport = {
       ...values,
-      objects,
+      objects: objectsWithoutId,
       directions: {
         start: startDestination,
         finish: endDestination,
@@ -316,7 +325,11 @@ export function AddTransportForm({
         setEndDestination={setEndDestination}
         setStartDestination={setStartDestination}
       />
-      <TransportObjectsCard objects={objects} setObjects={setObjects} />
+      <TransportObjectsCard
+        objects={objects}
+        setObjects={setObjects}
+        edit={true}
+      />
       <div className="w-full flex justify-end items-center">
         <Button
           type="button"

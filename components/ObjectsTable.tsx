@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import { Delete } from "lucide-react";
 type Props = {
   data:
     | {
+        id: string;
         name: string;
         amount: number;
         weight: number;
@@ -21,9 +24,11 @@ type Props = {
         height: number;
       }[]
     | null;
+  edit?: boolean;
+  handleDelete: (id: string) => void;
 };
 
-export function ObjectsTable({ data }: Props) {
+export function ObjectsTable({ data, edit, handleDelete }: Props) {
   return (
     <Table>
       <TableCaption>Lista dodanych przedmiotów</TableCaption>
@@ -33,7 +38,7 @@ export function ObjectsTable({ data }: Props) {
           <TableHead>Ilość</TableHead>
           <TableHead>Waga</TableHead>
           <TableHead className="text-right">Wymiary</TableHead>
-          <TableHead className="w-[80px] text-right"></TableHead>
+          {edit && <TableHead className="w-[80px] text-right"></TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -45,11 +50,17 @@ export function ObjectsTable({ data }: Props) {
             <TableCell className="text-right">
               {item.width}m x {item.length}m x {item.height}m
             </TableCell>
-            <TableCell className="text-right">
-              <Button size="icon" variant="ghost">
-                <Delete color="#FF0000" size={20} />
-              </Button>
-            </TableCell>
+            {edit && (
+              <TableCell className="text-right">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <Delete color="#FF0000" size={20} />
+                </Button>
+              </TableCell>
+            )}
           </TableRow>
         ))}
       </TableBody>

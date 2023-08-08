@@ -92,6 +92,7 @@ const formSchema = z
   });
 
 type Objects = {
+  id: string;
   name: string;
   description: string;
   weight: number;
@@ -376,7 +377,11 @@ export function EditTransportForm({
         </TabsContent>
       </Tabs>
 
-      <TransportObjectsCard objects={objects} setObjects={setObjects} />
+      <TransportObjectsCard
+        objects={objects}
+        setObjects={setObjects}
+        edit={true}
+      />
       <div className="w-full flex justify-end items-center">
         <Button
           type="button"

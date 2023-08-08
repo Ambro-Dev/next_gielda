@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import { v4 as uuidv4 } from "uuid";
+
 import {
   Card,
   CardContent,
@@ -84,14 +86,25 @@ const ObjectFormSchema = z.object({
     })
   ),
 });
-type Object = z.infer<typeof ObjectFormSchema>;
+
+type Object = {
+  id: string;
+  name: string;
+  description: string;
+  weight: number;
+  width: number;
+  height: number;
+  length: number;
+  amount: number;
+};
 
 type Props = {
+  edit?: boolean;
   objects: Object[];
   setObjects: React.Dispatch<React.SetStateAction<Object[]>>;
 };
 
-const TransportObjectsCard = ({ objects, setObjects }: Props) => {
+const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
@@ -110,6 +123,7 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
 
   const submitForm = async (values: z.infer<typeof ObjectFormSchema>) => {
     const newObject = {
+      id: uuidv4(),
       name: values.name,
       description: values.description,
       weight: values.weight,
@@ -126,6 +140,14 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
     });
 
     objectForm.reset();
+  };
+
+  const handleDelete = (id: string) => {
+    setObjects((prev) => prev.filter((object) => object.id !== id));
+    toast({
+      title: "Przedmiot usunięty",
+      description: "Przedmiot został usunięty z listy.",
+    });
   };
 
   return (
@@ -290,7 +312,7 @@ const TransportObjectsCard = ({ objects, setObjects }: Props) => {
           </DialogContent>
         </Dialog>
 
-        <ObjectsTable data={objects} />
+        <ObjectsTable data={objects} edit={edit} handleDelete={handleDelete} />
       </CardContent>
     </Card>
   );

@@ -16,6 +16,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ObjectsTable } from "@/components/ObjectsTable";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const formatDate = (date: Date) => {
   const newDate = new Date(date);
@@ -28,8 +37,11 @@ const formatDate = (date: Date) => {
 };
 
 const TransportDetails = ({ transport }: { transport: Transport }) => {
+  const router = useRouter();
   const start = transport.directions.start;
   const finish = transport.directions.finish;
+
+  const { data, status } = useSession();
 
   const [directionsLeg, setDirectionsLeg] =
     useState<google.maps.DirectionsLeg>();
@@ -61,20 +73,49 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
   return (
     <>
       <div className="flex flex-col items-start justify-center space-y-8">
-        <div className="flex pb-6 px-5 sm:flex-row flex-col items-center justify-start gap-4 w-full">
-          <div className="space-x-4">
-            <Badge>{transport.category.name}</Badge>
-            <Badge className="uppercase">{transport.type.name}</Badge>
-          </div>
+        <div className="flex sm:flex-row flex-col justify-between w-full">
+          <div className="flex pb-6 px-5 sm:flex-row flex-col items-center justify-start gap-4 w-full">
+            <div className="flex gap-4">
+              <Badge>{transport.category.name}</Badge>
+              <Badge className="uppercase">{transport.type.name}</Badge>
+            </div>
 
-          <Badge variant="destructive">
-            Wygaśnie za:{" "}
-            {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
-              ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
-              : `${
-                  GetExpireTimeLeft(transport.availableDate).hoursLeft
-                } godz.`}{" "}
-          </Badge>
+            <Badge variant="destructive">
+              Wygaśnie za:{" "}
+              {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+                ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
+                : `${
+                    GetExpireTimeLeft(transport.availableDate).hoursLeft
+                  } godz.`}{" "}
+            </Badge>
+          </div>
+          {data?.user.id === transport.creator.id && (
+            <div className="flex md:flex-row flex-col w-full md:justify-end justify-center md:items-center gap-4">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => router.push(`/transport/${transport.id}/edit`)}
+              >
+                Edytuj ogłoszenie
+              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="destructive" className="w-full">
+                      Usuń ogłoszenie
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Oznacza ogłoszenie jako nieaktywne, znajdziesz je pożniej
+                      w zakładce zakończone zlecenia w panelu &quot;Moja
+                      giełda&quot;
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-row gap-8 px-5 items-center justify-around w-full flex-wrap">
@@ -169,7 +210,7 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ObjectsTable data={transport.objects} />
+              <ObjectsTable data={transport.objects} edit={false} />
             </CardContent>
           </Card>
         </div>

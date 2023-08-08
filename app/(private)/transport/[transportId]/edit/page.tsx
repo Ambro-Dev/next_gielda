@@ -95,6 +95,10 @@ const EditTransport = async (props: Props) => {
   const school = await getSchool(String(session?.user.id));
   const transport = await getTransport(String(props.params.transportId));
 
+  if (!transport) redirect("/");
+  if (transport.creator.id !== session?.user.id)
+    redirect(`/transport/${transport.id}`);
+
   const [vehicles, categories, types] = await Promise.all<Settings[]>([
     vehiclesData,
     categoriesData,
