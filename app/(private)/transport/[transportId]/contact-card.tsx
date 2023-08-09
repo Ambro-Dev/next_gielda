@@ -49,7 +49,6 @@ const TransportContactCard = async ({
 }) => {
   const offers: OfferWithCreator[] = await getTransportOffers(transport.id);
   const session = await getServerSession(authOptions);
-  console.log(transport);
   return (
     <Card className="p-3">
       <CardHeader className="space-y-4">

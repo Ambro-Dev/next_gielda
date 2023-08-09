@@ -125,10 +125,6 @@ const TransportsFilter = (props: Props) => {
   const [filteredTransports, setFilteredTransports] =
     React.useState<Transport[]>(transports);
 
-  useEffect(() => {
-    console.log(filteredTransports);
-  }, [filteredTransports]);
-
   return (
     <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
       <Link href="/transport/add">
