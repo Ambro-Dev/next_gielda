@@ -57,7 +57,7 @@ const Market = async (props: Props) => {
 
   return (
     <div className="w-full">
-      <UserTransports data={activeTransports} />
+      <UserTransports transports={activeTransports} />
     </div>
   );
 };
