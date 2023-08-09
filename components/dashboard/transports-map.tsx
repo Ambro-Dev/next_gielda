@@ -1,6 +1,6 @@
+import { Transport } from "@/app/(private)/transport/page";
 import CardWithMap from "@/components/CardWithMap";
 import React from "react";
-import { Transport } from "../../app/page";
 
 const TransportsMap = ({ transports }: { transports: Transport[] }) => {
   return (
