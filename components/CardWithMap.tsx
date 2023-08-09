@@ -31,7 +31,7 @@ import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Transport } from "@/app/page";
+import { Transport } from "@/app/(private)/transport/page";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -101,7 +101,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
     borderRadius: "0.5rem",
   };
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-md">
       <CardHeader className="h-80">
         <GoogleMap
           zoom={11}
