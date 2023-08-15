@@ -48,8 +48,8 @@ export function TransportsHistory({ data }: { data: ExtendedTransport[] }) {
                   <Badge className="justify-center">{item.type.name}</Badge>
                   <Badge className="justify-center">{item.vehicle.name}</Badge>
                 </div>
-                <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
-                  <div className="flex flex-col md:gap-4 items-center justify-center">
+                <div className="grid lg:grid-cols-4 grid-cols-1 gap-4 items-center justify-center">
+                  <div className="flex col-span-3 flex-col md:gap-4 items-center justify-center">
                     <div className="md:px-10 px-5">
                       <Directions transport={item} />
                     </div>
@@ -59,8 +59,11 @@ export function TransportsHistory({ data }: { data: ExtendedTransport[] }) {
                     </span>
                   </div>
 
-                  <div className="flex lg:flex-col flex-row gap-2 justify-center">
-                    <Link href={`/transport/${item.id}/edit`}>
+                  <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 justify-center items-center">
+                    <Link
+                      href={`/transport/${item.id}/edit`}
+                      className="flex justify-center"
+                    >
                       <Button>Edytuj</Button>
                     </Link>
                     <span>
