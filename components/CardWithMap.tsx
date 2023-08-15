@@ -175,6 +175,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 width={48}
                 height={48}
                 alt="start"
+                priority
               />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.start_address}
@@ -190,6 +191,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 width={48}
                 height={48}
                 alt="start"
+                priority
               />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.end_address}

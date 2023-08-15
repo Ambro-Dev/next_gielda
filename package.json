@@ -49,6 +49,7 @@
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.9",
     "eslint-plugin-react-hooks": "^5.0.0-canary-493f72b0a-20230727",
+    "lottie-react": "^2.4.0",
     "lucide-react": "^0.259.0",
     "mongodb": "^5.7.0",
     "mongoose": "^7.3.4",

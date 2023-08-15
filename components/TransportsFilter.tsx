@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
+import Lottie from "lottie-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +27,10 @@ import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Filter } from "lucide-react";
-import { Card } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+
+import noResults from "@/assets/animations/no-results.json";
+import noOffers from "@/assets/animations/no-offers.json";
 
 type Props = {
   categories: Tags[];
@@ -51,11 +55,16 @@ const TransportsFilter = (props: Props) => {
     searchParams.getAll("vehicle")
   );
 
+  const [filteredTransports, setFilteredTransports] =
+    React.useState<Transport[]>(transports);
+
   useEffect(() => {
     setSearchString(searchParams.toString());
     setSelectedCategories(searchParams.getAll("category"));
     setSelectedVehicles(searchParams.getAll("vehicle"));
+  }, [searchParams]);
 
+  useEffect(() => {
     const filteredTransports = transports.filter((transport) => {
       if (selectedCategories.length === 0 && selectedVehicles.length === 0) {
         return true;
@@ -114,9 +123,6 @@ const TransportsFilter = (props: Props) => {
     }
   }
 
-  const [filteredTransports, setFilteredTransports] =
-    React.useState<Transport[]>(transports);
-
   return (
     <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
       <Link href="/transport/add">
@@ -167,16 +173,12 @@ const TransportsFilter = (props: Props) => {
                   <React.Fragment key={category.id}>
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="terms"
                         onCheckedChange={() =>
                           handleCategoryChange(category.id)
                         }
                         checked={selectedCategories.includes(category.id)}
                       />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                      >
+                      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
                         {category.name} {`(${category._count.transports})`}
                       </label>
                     </div>
@@ -193,14 +195,10 @@ const TransportsFilter = (props: Props) => {
                   <React.Fragment key={vehicle.id}>
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="terms"
                         onCheckedChange={() => handleVehicleChange(vehicle.id)}
                         checked={selectedVehicles.includes(vehicle.id)}
                       />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                      >
+                      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
                         {vehicle.name} {`(${vehicle._count.transports})`}
                       </label>
                     </div>
@@ -232,16 +230,12 @@ const TransportsFilter = (props: Props) => {
                       <React.Fragment key={category.id}>
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="terms"
                             onCheckedChange={() =>
                               handleCategoryChange(category.id)
                             }
                             checked={selectedCategories.includes(category.id)}
                           />
-                          <label
-                            htmlFor="terms"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                          >
+                          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
                             {category.name} {`(${category._count.transports})`}
                           </label>
                         </div>
@@ -258,16 +252,12 @@ const TransportsFilter = (props: Props) => {
                       <React.Fragment key={vehicle.id}>
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="terms"
                             onCheckedChange={() =>
                               handleVehicleChange(vehicle.id)
                             }
                             checked={selectedVehicles.includes(vehicle.id)}
                           />
-                          <label
-                            htmlFor="terms"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                          >
+                          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
                             {vehicle.name} {`(${vehicle._count.transports})`}
                           </label>
                         </div>
@@ -275,11 +265,55 @@ const TransportsFilter = (props: Props) => {
                       </React.Fragment>
                     ))}
                 </div>
+                <Button
+                  className="flex mx-auto w-40 my-5"
+                  onClick={handleSearch}
+                >
+                  Szukaj
+                </Button>
               </ScrollArea>
             </PopoverContent>
           </Popover>
         </div>
-        <TransportsMap transports={filteredTransports} />
+        <>
+          {transports.length === 0 ? (
+            <Card className="w-full">
+              <CardHeader className="w-full justify-center items-center py-10">
+                <h3 className="text-xl text-center">
+                  Brak ogłoszeń do wyświetlenia
+                </h3>
+              </CardHeader>
+              <CardContent className="flex justify-center items-center">
+                <Lottie
+                  animationData={noOffers}
+                  className="flex justify-center items-center"
+                  loop={true}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {filteredTransports.length === 0 && transports.length > 0 ? (
+                <Card className="w-full">
+                  <CardHeader className="w-full justify-center items-center py-10">
+                    <h3 className="text-xl text-center">
+                      Brak ogłoszeń dla wybranych parametrów wyszukiwania
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="flex justify-center items-center">
+                    <Lottie
+                      animationData={noResults}
+                      className="flex justify-center items-center"
+                      loop={true}
+                    />
+                  </CardContent>
+                </Card>
+              ) : (
+                <TransportsMap transports={filteredTransports} />
+              )}
+            </>
+          )}
+        </>
       </div>
     </div>
   );
