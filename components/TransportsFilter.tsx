@@ -4,15 +4,6 @@ import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -33,8 +24,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
-import { Filter, FilterX } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Filter } from "lucide-react";
 import { Card } from "./ui/card";
 
 type Props = {
@@ -49,6 +40,10 @@ const TransportsFilter = (props: Props) => {
 
   const searchParams = useSearchParams();
 
+  const [searchString, setSearchString] = React.useState<string>(
+    searchParams.toString()
+  );
+
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
     searchParams.getAll("category")
   );
@@ -56,51 +51,11 @@ const TransportsFilter = (props: Props) => {
     searchParams.getAll("vehicle")
   );
 
-  function handleCategoryChange(id: string) {
-    if (selectedCategories.includes(id)) {
-      router.push(
-        `/transport?${searchParams.toString().replace(`category=${id}`, "")}`
-      );
-    } else {
-      router.push(`/transport?${searchParams.toString()}&category=${id}`);
-    }
-  }
-
-  function handleVehicleChange(id: string) {
-    if (selectedVehicles.includes(id)) {
-      router.push(
-        `/transport?${searchParams.toString().replace(`vehicle=${id}`, "")}`
-      );
-    } else {
-      router.push(`/transport?${searchParams.toString()}&vehicle=${id}`);
-    }
-  }
-
   useEffect(() => {
-    if (selectedCategories.length === 0) {
-      router.push(
-        `/transport?${searchParams.toString().replace("category", "")}`
-      );
-    }
-  }, [selectedCategories]);
-
-  useEffect(() => {
+    setSearchString(searchParams.toString());
     setSelectedCategories(searchParams.getAll("category"));
-  }, [searchParams]);
-
-  useEffect(() => {
     setSelectedVehicles(searchParams.getAll("vehicle"));
-  }, [searchParams]);
 
-  useEffect(() => {
-    if (selectedVehicles.length === 0) {
-      router.push(
-        `/transport?${searchParams.toString().replace("vehicle", "")}`
-      );
-    }
-  }, [selectedVehicles]);
-
-  useEffect(() => {
     const filteredTransports = transports.filter((transport) => {
       if (selectedCategories.length === 0 && selectedVehicles.length === 0) {
         return true;
@@ -121,7 +76,43 @@ const TransportsFilter = (props: Props) => {
     });
 
     setFilteredTransports(filteredTransports);
-  }, [selectedCategories, selectedVehicles]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (selectedVehicles.length === 0) {
+      setSearchString(`${searchString.replace("vehicle", "")}`);
+    }
+  }, [selectedVehicles]);
+
+  useEffect(() => {
+    if (selectedCategories.length === 0) {
+      setSearchString(`${searchString.replace("category", "")}`);
+    }
+  }, [selectedCategories]);
+
+  function handleSearch() {
+    router.push(`/transport?${searchString}`);
+  }
+
+  function handleCategoryChange(id: string) {
+    if (selectedCategories.includes(id)) {
+      setSelectedCategories(selectedCategories.filter((c) => c !== id));
+      setSearchString(`${searchString.replace(`category=${id}`, "")}`);
+    } else {
+      setSelectedCategories([...selectedCategories, id]);
+      setSearchString(`${searchString}&category=${id}`);
+    }
+  }
+
+  function handleVehicleChange(id: string) {
+    if (selectedVehicles.includes(id)) {
+      setSelectedVehicles(selectedVehicles.filter((c) => c !== id));
+      setSearchString(`${searchString.replace(`vehicle=${id}`, "")}`);
+    } else {
+      setSelectedVehicles([...selectedVehicles, id]);
+      setSearchString(`${searchString}&vehicle=${id}`);
+    }
+  }
 
   const [filteredTransports, setFilteredTransports] =
     React.useState<Transport[]>(transports);
@@ -217,6 +208,9 @@ const TransportsFilter = (props: Props) => {
                   </React.Fragment>
                 ))}
             </div>
+            <Button className="flex mx-auto w-40 my-5" onClick={handleSearch}>
+              Szukaj
+            </Button>
           </ScrollArea>
         </Card>
         <div className="lg:collapse visible lg:w-0 w-full">

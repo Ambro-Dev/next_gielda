@@ -97,7 +97,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
     borderRadius: "0.5rem",
   };
   return (
-    <Card className="flex flex-col transition-all duration-500 hover:scale-105 hover:shadow-md">
+    <Card className="flex flex-col transition-all duration-500 hover:scale-[102%] hover:shadow-md">
       <CardHeader className="h-80">
         <GoogleMap
           zoom={11}
