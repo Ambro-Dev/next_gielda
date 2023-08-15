@@ -1,5 +1,4 @@
 "use client";
-import { LoadScriptNext } from "@react-google-maps/api";
 
 import {
   Card,
@@ -23,11 +22,8 @@ import distance_icon from "@/assets/icons/distance.png";
 import time_icon from "@/assets/icons/time.png";
 import date_icon from "@/assets/icons/date.png";
 import user_icon from "@/assets/icons/user.png";
-import view_icon from "@/assets/icons/view.png";
 import vehicle_icon from "@/assets/icons/vehicle.png";
 import arrow_icon from "@/assets/icons/arrow.png";
-import pin_a from "@/assets/icons/pin-A.png";
-import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";

@@ -35,6 +35,7 @@ import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { Filter, FilterX } from "lucide-react";
+import { Card } from "./ui/card";
 
 type Props = {
   categories: Tags[];
@@ -164,7 +165,7 @@ const TransportsFilter = (props: Props) => {
         </div>
       </div>
       <div className="flex lg:flex-row flex-col w-full gap-4">
-        <div className="lg:w-1/5 lg:visible collapse w-0 lg:h-auto h-0">
+        <Card className="lg:w-1/5 lg:visible collapse w-0 lg:h-auto h-0">
           <ScrollArea className="h-auto w-full rounded-md border lg:visible">
             <div className="p-4 flex lg:flex-col flex-row ">
               <h4 className="mb-4 text-sm font-semibold leading-none">
@@ -217,7 +218,7 @@ const TransportsFilter = (props: Props) => {
                 ))}
             </div>
           </ScrollArea>
-        </div>
+        </Card>
         <div className="lg:collapse visible lg:w-0 w-full">
           <Popover>
             <PopoverTrigger asChild>
