@@ -31,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 import noResults from "@/assets/animations/no-results.json";
 import noOffers from "@/assets/animations/no-offers.json";
+import SearchNearby from "./SearchNearby";
 
 type Props = {
   categories: Tags[];
@@ -133,37 +134,13 @@ const TransportsFilter = (props: Props) => {
           Dodaj ogłoszenie
         </Button>
       </Link>
-      <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-4 py-7 px-3">
-        <div className="w-full flex flex-col gap-4">
-          <div className="w-full flex flex-row gap-4">
-            <Input className="w-full" type="text" placeholder="Skąd" />
-            <Input className="w-full" type="text" placeholder="Dokąd" />
-          </div>
-        </div>
-
-        <div className="flex justify-center flex-col items-center w-full gap-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button className="w-full hover:bg-neutral-800 bg-transparent border-2 hover:text-white border-neutral-800 text-black">
-                  Szukaj przy trasie
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p>
-                  Wyszukaj ogłoszenia, których lokalizacje znajdują się w
-                  pobliżu Twojej trasy. Wyszukane zostaną wyniki w odległości
-                  ok. 10% długości Twojej trasy licząc w linii prostej, jednak
-                  nie bliżej niż 5km i nie dalej niż 50km od trasy.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
+      <SearchNearby />
       <div className="flex lg:flex-row flex-col w-full gap-4">
         <Card className="lg:w-1/5 lg:visible collapse w-0 lg:h-auto h-0">
           <ScrollArea className="h-auto w-full rounded-md border lg:visible">
+            <h3 className="flex justify-center items-center text-center my-5 font-semibold text-sm uppercase">
+              Filtruj ogłoszenia
+            </h3>
             <div className="p-4 flex lg:flex-col flex-row ">
               <h4 className="mb-4 text-sm font-semibold leading-none">
                 Kategorie ogłoszeń
