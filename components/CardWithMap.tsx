@@ -1,5 +1,4 @@
 "use client";
-import { LoadScriptNext } from "@react-google-maps/api";
 
 import {
   Card,
@@ -23,15 +22,12 @@ import distance_icon from "@/assets/icons/distance.png";
 import time_icon from "@/assets/icons/time.png";
 import date_icon from "@/assets/icons/date.png";
 import user_icon from "@/assets/icons/user.png";
-import view_icon from "@/assets/icons/view.png";
 import vehicle_icon from "@/assets/icons/vehicle.png";
 import arrow_icon from "@/assets/icons/arrow.png";
-import pin_a from "@/assets/icons/pin-A.png";
-import pin_b from "@/assets/icons/pin-B.png";
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Transport } from "@/app/page";
+import { Transport } from "@/app/(private)/transport/page";
 
 type LatLngLiteral = google.maps.LatLngLiteral;
 type DirectionsResult = google.maps.DirectionsResult;
@@ -101,7 +97,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
     borderRadius: "0.5rem",
   };
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col transition-all duration-500 hover:scale-[102%] hover:shadow-md">
       <CardHeader className="h-80">
         <GoogleMap
           zoom={11}
@@ -130,19 +126,19 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
       </CardHeader>
       <div className="grow">
         <CardContent>
-          <div className="flex pb-6 flex-row items-center justify-between w-full gap-2">
+          <div className="flex mb-6 flex-row items-center justify-around w-full gap-2">
             <div className="flex flex-row items-center gap-2">
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4 px-5">
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center justify-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
               <span className="text-sm font-bold">
                 {transport.creator.username}
               </span>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 px-5">
             <div className="flex flex-row items-center gap-2">
               <Image src={vehicle_icon} alt="date" width={24} height={24} />
               <span className="text-sm font-bold capitalize">
@@ -165,7 +161,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 {directionsLeg?.distance?.text}
               </span>
             </div>
-            <div className="flex col-span-2 flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2">
               <Image src={time_icon} alt="time" width={24} height={24} />
               <span className="text-sm font-bold">
                 {directionsLeg?.duration?.text}
@@ -179,6 +175,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 width={48}
                 height={48}
                 alt="start"
+                priority
               />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.start_address}
@@ -194,6 +191,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 width={48}
                 height={48}
                 alt="start"
+                priority
               />
               <span className="text-sm font-bold text-center">
                 {directionsLeg?.end_address}

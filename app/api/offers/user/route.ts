@@ -5,10 +5,10 @@ export const GET = async (req: NextRequest) => {
   const userId = req.nextUrl.searchParams.get("userId");
 
   if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json(
-      { error: "Brakuje parametru userId" },
-      { status: 400 }
-    );
+    return NextResponse.json({
+      error: "Brakuje parametru userId",
+      status: 400,
+    });
   }
 
   const user = await prisma.user.findUnique({
@@ -18,16 +18,17 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!user) {
-    return NextResponse.json(
-      { error: "Użytkownik o podanym id nie istnieje" },
-      { status: 404 }
-    );
+    return NextResponse.json({
+      error: "Użytkownik o podanym id nie istnieje",
+      status: 404,
+    });
   }
 
   const offers = await prisma.offer.findMany({
     where: {
       transport: {
         creatorId: userId,
+        isAvailable: true,
       },
     },
     select: {
@@ -70,7 +71,7 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          timeAvailable: true,
+          availableDate: true,
           type: {
             select: {
               id: true,
@@ -92,10 +93,10 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!offers || offers.length === 0) {
-    return NextResponse.json(
-      { error: "Nie znaleziono ofert dla użytkownika" },
-      { status: 404 }
-    );
+    return NextResponse.json({
+      error: "Nie znaleziono ofert dla użytkownika",
+      status: 404,
+    });
   }
 
   return NextResponse.json({ offers, status: 200 });

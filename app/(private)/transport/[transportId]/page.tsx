@@ -2,10 +2,7 @@ import React from "react";
 import TransportMap from "./transport-map";
 import TransportDetails from "./transport-details";
 import TransportContactCard from "./contact-card";
-import { Offer } from "@prisma/client";
 import { axiosInstance } from "@/lib/axios";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 type PageParams = {
   params: {
@@ -20,6 +17,7 @@ export type Transport = {
   createdAt: Date;
   vehicle: { id: string; name: string };
   description: string;
+  isAvailable: boolean;
   directions: {
     start: { lat: number; lng: number };
     finish: { lat: number; lng: number };
@@ -36,6 +34,7 @@ export type Transport = {
       weight: number;
     }
   ];
+  availableDate: Date;
   sendDate: Date;
   receiveDate: Date;
   type: { id: string; name: string };
@@ -53,21 +52,8 @@ const getTransport = async (transportId: string): Promise<Transport> => {
   }
 };
 
-const addVisit = async (transportId: string, userId: string) => {
-  try {
-    await axiosInstance.post(`/api/transports/visit`, {
-      transportId,
-      userId,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const TransportInfo = async ({ params }: PageParams) => {
-  const session = await getServerSession(authOptions);
   const transport: Transport = await getTransport(params.transportId);
-  await addVisit(params.transportId, String(session?.user?.id));
   return (
     <div className="flex w-full h-full flex-col gap-4 px-3 my-5">
       <TransportMap

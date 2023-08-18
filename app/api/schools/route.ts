@@ -10,7 +10,7 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!schools) {
-    return NextResponse.json({ error: "No schools found", status: 422 });
+    return NextResponse.json({ error: "Nie znaleziono szkół", status: 422 });
   }
 
   return NextResponse.json({ schools, status: 200 });

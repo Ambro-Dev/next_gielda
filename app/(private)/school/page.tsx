@@ -16,6 +16,7 @@ import { RecentTransports } from "@/components/dashboard/recent-transports";
 import { School } from "@prisma/client";
 import { StudentsTable } from "../admin/schools/[schoolId]/students/students-table";
 import { columns } from "../admin/schools/[schoolId]/students/columns";
+import { AddStudentForm } from "../admin/schools/[schoolId]/students/add-student-form";
 
 type SchoolWithTransports = {
   school: {
@@ -106,26 +107,62 @@ export default async function SchoolManagement() {
   return (
     <Card>
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex flex-col justify-center space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">
-            {data.school.name}
-          </h2>
-          {!timeToExpire.isExpired ? (
-            <p className="text-sm">
-              Dostęp dla szkoły wygaśnie za:{" "}
-              <span className="font-semibold">{timeToExpire.daysLeft}</span>
-              {timeToExpire.daysLeft === 1 ? " dzień" : " dni"}
-            </p>
-          ) : (
-            <p className="text-sm text-red-500">Dostęp dla szkoły wygasł</p>
-          )}
-        </div>
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Ogólne</TabsTrigger>
-            <TabsTrigger value="users">Użytkownicy</TabsTrigger>
-            <TabsTrigger value="transports">Transporty</TabsTrigger>
-          </TabsList>
+          <div className="grid lg:grid-cols-4 grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <div className="flex flex-col justify-center space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">
+                  {data.school.name}
+                </h2>
+                {!timeToExpire.isExpired ? (
+                  <p className="text-sm">
+                    Dostęp dla szkoły wygaśnie za:{" "}
+                    <span className="font-semibold">
+                      {timeToExpire.daysLeft}
+                    </span>
+                    {timeToExpire.daysLeft === 1 ? " dzień" : " dni"}
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-500">
+                    Dostęp dla szkoły wygasł
+                  </p>
+                )}
+              </div>
+
+              <TabsList>
+                <TabsTrigger value="overview">Ogólne</TabsTrigger>
+                <TabsTrigger value="users">Użytkownicy</TabsTrigger>
+                <TabsTrigger value="transports">Transporty</TabsTrigger>
+              </TabsList>
+            </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Transporty
+                </CardTitle>
+                <Truck size={24} className="text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data.school._count.transports}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Konta uczniów
+                </CardTitle>
+                <Users size={24} className="text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data.school._count.students}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="col-span-2 p-2">
@@ -137,36 +174,11 @@ export default async function SchoolManagement() {
                   <RecentTransports transports={data.latestTransports} />
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Transporty
-                  </CardTitle>
-                  <Truck size={24} className="text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {data.school._count.transports}
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Konta uczniów
-                  </CardTitle>
-                  <Users size={24} className="text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {data.school._count.students}
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
           <TabsContent value="users">
             <StudentsTable columns={columns} data={students} />
+            <AddStudentForm schoolId={school.id} />
           </TabsContent>
           <TabsContent value="transports">
             <div>Transporty</div>

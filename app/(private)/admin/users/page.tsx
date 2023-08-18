@@ -10,9 +10,7 @@ type Props = {};
 
 async function getUsers(): Promise<User[]> {
   try {
-    const res = await axiosInstance.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/users`
-    );
+    const res = await axiosInstance.get(`/api/auth/users`);
     const json = res.data;
     return json;
   } catch (error) {

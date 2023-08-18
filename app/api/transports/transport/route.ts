@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
         },
       },
       createdAt: true,
+      availableDate: true,
+      isAvailable: true,
       vehicle: {
         select: {
           id: true,

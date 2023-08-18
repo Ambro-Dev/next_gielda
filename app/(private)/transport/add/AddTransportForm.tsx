@@ -28,56 +28,68 @@ import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 
-const formSchema = z.object({
-  category: z
-    .string({
-      required_error: "Wybierz kategorię.",
-    })
-    .min(1, {
-      message: "Wybierz kategorię.",
-    }),
-  vehicle: z
-    .string({
-      required_error: "Wybierz typ pojazdu.",
-    })
-    .min(1, {
-      message: "Wybierz typ pojazdu.",
-    }),
-  type: z
-    .string({
-      required_error: "Wybierz typ pojazdu.",
-    })
-    .min(1, {
-      message: "Wybierz typ pojazdu.",
-    }),
-  timeAvailable: z.preprocess(
-    (val) => Number(val),
-    z.number().min(1, {
-      message: "Podaj czas dostępności.",
-    })
-  ),
-  description: z
-    .string({
-      required_error: "Podaj opis.",
-    })
-    .min(1, {
-      message: "Podaj opis.",
-    }),
-  sendDate: z
-    .date({
-      required_error: "Podaj datę wysyłki.",
-    })
-    .min(new Date(), {
-      message: "Nieprawidłowa data wysyłki.",
-    }),
-  receiveDate: z
-    .date({ required_error: "Podaj datę dostawy." })
-    .min(new Date(), {
-      message: "Nieprawidłowa data dostawy.",
-    }),
-});
+const formSchema = z
+  .object({
+    category: z
+      .string({
+        required_error: "Wybierz kategorię.",
+      })
+      .min(1, {
+        message: "Wybierz kategorię.",
+      }),
+    vehicle: z
+      .string({
+        required_error: "Wybierz typ pojazdu.",
+      })
+      .min(1, {
+        message: "Wybierz typ pojazdu.",
+      }),
+    type: z
+      .string({
+        required_error: "Wybierz typ pojazdu.",
+      })
+      .min(1, {
+        message: "Wybierz typ pojazdu.",
+      }),
+    availableDate: z
+      .date({
+        required_error: "Poda do kiedy ogłoszenie jest ważne.",
+      })
+      .min(new Date(), {
+        message: "Nieprawidłowa data.",
+      }),
+    description: z
+      .string({
+        required_error: "Podaj opis.",
+      })
+      .min(1, {
+        message: "Podaj opis.",
+      }),
+    sendDate: z
+      .date({
+        required_error: "Podaj datę wysyłki.",
+      })
+      .min(new Date(), {
+        message: "Nieprawidłowa data wysyłki.",
+      }),
+    receiveDate: z
+      .date({ required_error: "Podaj datę dostawy." })
+      .min(new Date(), {
+        message: "Nieprawidłowa data dostawy.",
+      }),
+  })
+  .refine((data) => data.sendDate < data.receiveDate, {
+    message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
+    path: ["receiveDate"],
+  })
+  .refine((data) => data.availableDate < data.sendDate, {
+    message:
+      "Data wysyłki musi być równa lub późniejsza niż data ważności ogłoszenia.",
+    path: ["sendDate"],
+  });
 
 type Objects = {
+  id: string;
   name: string;
   description: string;
   weight: number;
@@ -125,26 +137,27 @@ export function AddTransportForm({
   const [endDestination, setEndDestination] =
     React.useState<Destination | null>(null);
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      timeAvailable: 0,
       description: "",
     },
   });
 
-  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const objectsWithoutId = objects.map((object) => {
+      const { id, ...rest } = object;
+      return rest;
+    });
     const newTransport = {
       ...values,
-      objects,
+      objects: objectsWithoutId,
       directions: {
         start: startDestination,
         finish: endDestination,
       },
       creator: data?.user?.id,
-      school: school ? school.id : undefined,
+      school: school ? school : undefined,
     };
 
     try {
@@ -235,14 +248,14 @@ export function AddTransportForm({
             />
             <FormField
               control={form.control}
-              name="timeAvailable"
+              name="availableDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Ważność ogłoszenia*</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <DatePicker onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Ważność ogłoszenia w dniach</FormDescription>
+                  <FormDescription>Ważność ogłoszenia do</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -306,7 +319,11 @@ export function AddTransportForm({
         setEndDestination={setEndDestination}
         setStartDestination={setStartDestination}
       />
-      <TransportObjectsCard objects={objects} setObjects={setObjects} />
+      <TransportObjectsCard
+        objects={objects}
+        setObjects={setObjects}
+        edit={true}
+      />
       <div className="w-full flex justify-end items-center">
         <Button
           type="button"

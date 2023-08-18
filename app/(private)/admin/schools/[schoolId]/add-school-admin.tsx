@@ -75,7 +75,6 @@ const AddSchoolAdmin = ({ schoolId }: { schoolId: string }) => {
         ...values,
         schoolId,
       });
-      console.log(response.data);
       if (response.data.status === 200) {
         form.reset();
         toast({

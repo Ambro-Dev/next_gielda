@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { OffersTable } from "./offers-table";
 import { axiosInstance } from "@/lib/axios";
+import { toast } from "@/components/ui/use-toast";
 
 type Props = {};
 
@@ -29,7 +30,7 @@ const getUserOffers = async (userId: string) => {
     return data.offers;
   } catch (error) {
     console.log(error);
-    throw new Error("Nie udało się pobrać ofert");
+    return [];
   }
 };
 

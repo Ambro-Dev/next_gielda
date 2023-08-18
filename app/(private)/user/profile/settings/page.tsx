@@ -1,7 +1,25 @@
 import { Separator } from "@/components/ui/separator";
 import { AccountForm } from "./settings-form";
+import { axiosInstance } from "@/lib/axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export default function SettingsAccountPage() {
+const getUserInfo = async (
+  userId: string
+): Promise<{ name: string; surname: string }> => {
+  try {
+    const response = await axiosInstance.get(`/api/auth/user?userId=${userId}`);
+    const data = response.data;
+    return data.user;
+  } catch (error) {
+    console.log(error);
+    return { name: "", surname: "" };
+  }
+};
+
+export default async function SettingsAccountPage() {
+  const session = await getServerSession(authOptions);
+  const userInfo = await getUserInfo(String(session?.user?.id));
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +29,7 @@ export default function SettingsAccountPage() {
         </p>
       </div>
       <Separator />
-      <AccountForm />
+      <AccountForm userInfo={userInfo} />
     </div>
   );
 }

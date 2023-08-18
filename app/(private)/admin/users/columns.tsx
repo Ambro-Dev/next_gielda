@@ -23,6 +23,7 @@ import {
 import { axiosInstance } from "@/lib/axios";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { toast } from "@/components/ui/use-toast";
+import { ResetPassword } from "./reset-password";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -34,7 +35,7 @@ export type User = {
   role: "admin" | "user";
 };
 
-const blockUser = async (id: string) => {
+export const blockUser = async (id: string) => {
   try {
     const res = await axiosInstance.put(`/api/auth/users/block`, {
       userId: id,
@@ -58,7 +59,7 @@ const blockUser = async (id: string) => {
   }
 };
 
-const unblockUser = async (id: string) => {
+export const unblockUser = async (id: string) => {
   try {
     const res = await axiosInstance.put(`/api/auth/users/unblock`, {
       userId: id,
@@ -160,6 +161,7 @@ export const columns: ColumnDef<User>[] = [
                     : "Zablokuj użytkownika"}
                 </DialogTrigger>
               </DropdownMenuItem>
+              <ResetPassword userId={user.id} />
             </DropdownMenuContent>
             <DialogContent>
               <DialogHeader>

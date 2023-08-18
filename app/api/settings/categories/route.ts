@@ -11,7 +11,11 @@ export const GET = async (req: NextRequest) => {
       name: true,
       _count: {
         select: {
-          transports: true,
+          transports: {
+            where: {
+              isAvailable: true,
+            },
+          },
         },
       },
     },

@@ -19,5 +19,6 @@ export default async function UserLayout({
   const session = await getServerSession(authOptions);
 
   if (!session) redirect("/signin");
-  return <Card className="flex flex-col space-y-8">{children}</Card>;
+  if (session.user.role !== "admin") redirect("/");
+  return <Card className="flex flex-col space-y-8 mb-5">{children}</Card>;
 }

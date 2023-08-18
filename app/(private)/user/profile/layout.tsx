@@ -42,8 +42,7 @@ export default async function UserLayout({
             Konto użytkownika
           </h2>
           <p className="text-muted-foreground">
-            Zaktualizuj ustawienia konta. Zmień adres mailowy lub zresetuj
-            hasło.
+            Zaktualizuj ustawienia konta. Zmień adres mailowy lub zmień hasło.
           </p>
         </div>
         <Separator className="my-6" />
@@ -51,7 +50,7 @@ export default async function UserLayout({
           <aside className="-mx-4 lg:w-1/5">
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className="flex-1 lg:max-w-2xl">{children}</div>
+          <div className="lg:max-w-2xl">{children}</div>
         </div>
       </div>
     </Card>

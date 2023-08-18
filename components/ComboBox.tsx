@@ -22,9 +22,11 @@ import { RefCallBack } from "react-hook-form";
 export function ComboBox({
   data,
   onChange,
+  defaulValue,
 }: {
   data: { id: string; name: string }[];
   onChange: (id: string) => void;
+  defaulValue?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -32,20 +34,34 @@ export function ComboBox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {value
-            ? data.find((item) => item.name === value)?.name
-            : "Wybierz..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        {defaulValue ? (
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {defaulValue
+              ? data.find((item) => item.id === defaulValue)?.name
+              : "Wybierz..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {value
+              ? data.find((item) => item.name === value)?.name
+              : "Wybierz..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
+        <Command defaultValue={defaulValue}>
           <CommandInput placeholder="Wybierz..." />
           <CommandEmpty>Nie znaleziono.</CommandEmpty>
           <CommandGroup>

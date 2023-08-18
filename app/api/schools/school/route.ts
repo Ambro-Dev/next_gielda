@@ -4,17 +4,19 @@ import prisma from "@/lib/prismadb";
 export const GET = async (req: NextRequest) => {
   const userId = req.nextUrl.searchParams.get("userId");
   if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({ error: "Missing schoolId" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Brakuje ID użytkownika" },
+      { status: 400 }
+    );
   }
-  const data = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
     select: {
-      school: {
+      student: {
         select: {
-          id: true,
-          administrator: {
+          school: {
             select: {
               id: true,
             },
@@ -24,9 +26,12 @@ export const GET = async (req: NextRequest) => {
     },
   });
 
-  if (!data) {
-    return NextResponse.json({ error: "School not found" }, { status: 404 });
+  if (!user) {
+    return NextResponse.json({
+      error: "Nie ma takiego użytkownika",
+      status: 404,
+    });
   }
 
-  return NextResponse.json({ data }, { status: 200 });
+  return NextResponse.json({ school: user.student?.school.id, status: 200 });
 };

@@ -17,7 +17,7 @@ import Link from "next/link";
 export function OffersTable({ data }: { data: ExtendedOffer[] }) {
   return (
     <Table>
-      <TableCaption>Lista ofert</TableCaption>
+      <TableCaption>Lista ofert dla aktywnych zleceń</TableCaption>
       <TableBody>
         {data?.map((item) => (
           <TableRow key={item.id}>

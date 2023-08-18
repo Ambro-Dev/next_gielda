@@ -22,6 +22,8 @@ import { Offer } from "@prisma/client";
 import { OffersTable } from "./offers-table";
 import { Transport } from "./page";
 import { axiosInstance } from "@/lib/axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const getTransportOffers = async (transportId: string) => {
   try {
@@ -46,6 +48,7 @@ const TransportContactCard = async ({
   transport: Transport;
 }) => {
   const offers: OfferWithCreator[] = await getTransportOffers(transport.id);
+  const session = await getServerSession(authOptions);
   return (
     <Card className="p-3">
       <CardHeader className="space-y-4">
@@ -55,61 +58,80 @@ const TransportContactCard = async ({
               <span>Oferty</span>
               <Separator className="h-[3px] mt-3 bg-amber-500 w-1/5" />
             </div>
-            <div className="flex flex-row w-full sm:justify-end gap-8">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    className="rounded-full hover:bg-amber-500 transition-all duration-500"
-                    size="lg"
-                  >
-                    Napisz wiadomość
-                  </Button>
-                </DialogTrigger>
+            {session?.user.id !== transport.creator.id && (
+              <div className="flex flex-row w-full sm:justify-end gap-8">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="rounded-full hover:bg-amber-500 transition-all duration-500"
+                      size="lg"
+                    >
+                      Napisz wiadomość
+                    </Button>
+                  </DialogTrigger>
 
-                <DialogContent className="space-y-4">
-                  <DialogHeader>
-                    <DialogTitle>Wiadomość</DialogTitle>
-                    <DialogDescription>
-                      Wpisz wiadomość, którą chcesz wysłać
-                    </DialogDescription>
-                  </DialogHeader>
-                  <MessageForm
-                    transportId={transport.id}
-                    transportOwnerId={transport.creator.id}
-                  />
-                </DialogContent>
-              </Dialog>
+                  <DialogContent className="space-y-4">
+                    <DialogHeader>
+                      <DialogTitle>Wiadomość</DialogTitle>
+                      <DialogDescription>
+                        Wpisz wiadomość, którą chcesz wysłać
+                      </DialogDescription>
+                    </DialogHeader>
+                    <MessageForm
+                      transportId={transport.id}
+                      transportOwnerId={transport.creator.id}
+                    />
+                  </DialogContent>
+                </Dialog>
 
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    className="rounded-full hover:bg-amber-500 transition-all duration-500"
-                    size="lg"
-                  >
-                    Złóż ofertę
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="space-y-4">
-                  <DialogHeader>
-                    <DialogTitle>Nowa oferta</DialogTitle>
-                    <DialogDescription>
-                      Złóż ofertę na przewóz
-                    </DialogDescription>
-                  </DialogHeader>
-                  <OfferForm transport={transport.id} />
-                </DialogContent>
-              </Dialog>
-            </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="rounded-full hover:bg-amber-500 transition-all duration-500"
+                      size="lg"
+                      disabled={!transport.isAvailable}
+                    >
+                      Złóż ofertę
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="space-y-4">
+                    <DialogHeader>
+                      <DialogTitle>Nowa oferta</DialogTitle>
+                      <DialogDescription>
+                        Złóż ofertę na przewóz
+                      </DialogDescription>
+                    </DialogHeader>
+                    <OfferForm transport={transport.id} />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
           </div>
         </CardTitle>
-        <CardDescription className="sm:text-end">
-          Oferty można składać od pojawienia się ogłoszenia do zakończenia
-          ogłoszenia.
-        </CardDescription>
+        {session?.user.id !== transport.creator.id && (
+          <CardDescription className="sm:text-end">
+            {transport.isAvailable ? (
+              <span>
+                Oferty można składać od pojawienia się ogłoszenia do zakończenia
+                ogłoszenia.
+              </span>
+            ) : (
+              <span className="text-red-500">
+                Oferty nie są już przyjmowane. Możesz wysłać wiadomość do
+                zleceniodawcy
+              </span>
+            )}
+          </CardDescription>
+        )}
         <Separator />
       </CardHeader>
       <CardContent>
-        <OffersTable data={offers} transportId={transport.id} />
+        <OffersTable
+          data={offers}
+          transportId={transport.id}
+          user={String(session?.user.id)}
+          owner={transport.creator.id}
+        />
       </CardContent>
     </Card>
   );

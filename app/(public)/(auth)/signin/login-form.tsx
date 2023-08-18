@@ -52,6 +52,7 @@ export function LoginForm() {
     });
 
     if (response?.error) {
+      setLoading(false);
       if (response.error === "User not found") {
         form.setError("username", {
           type: "manual",
@@ -61,6 +62,11 @@ export function LoginForm() {
         form.setError("password", {
           type: "manual",
           message: "Hasło jest nieprawidłowe.",
+        });
+      } else {
+        form.setError("username", {
+          type: "manual",
+          message: response.error,
         });
       }
     } else {

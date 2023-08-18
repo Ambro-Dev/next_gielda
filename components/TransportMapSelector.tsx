@@ -25,9 +25,10 @@ import usePlacesAutocomplete, {
 
 type Props = {
   setPlace: (position: google.maps.LatLngLiteral) => void;
+  placeholder?: string;
 };
 
-const TransportMapSelector = ({ setPlace }: Props) => {
+const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
   const [open, setOpen] = React.useState(false);
 
   const [currentValue, setCurrentValue] = React.useState("");
@@ -59,14 +60,18 @@ const TransportMapSelector = ({ setPlace }: Props) => {
           aria-expanded={open}
           className="w-full justify-between capitalize"
         >
-          {currentValue ? currentValue : "Szukaj miejsca..."}
+          {currentValue
+            ? currentValue
+            : placeholder
+            ? placeholder
+            : "Szukaj miejsca..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput
-            placeholder="Szukaj miejsca..."
+            placeholder={placeholder ? placeholder : "Szukaj miejsca..."}
             onValueChange={(e) => setValue(e)}
           />
           <CommandEmpty>Nie znaleziono miejsca.</CommandEmpty>

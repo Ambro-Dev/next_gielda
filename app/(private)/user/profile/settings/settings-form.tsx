@@ -20,13 +20,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
-import { pl } from "date-fns/locale";
+import React, { useEffect } from "react";
+import { axiosInstance } from "@/lib/axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import ChangePassword from "./change-password";
 
 const accountFormSchema = z.object({
   name: z
@@ -37,104 +44,192 @@ const accountFormSchema = z.object({
     .max(30, {
       message: "Imię nie może mieć więcej niż 30 znaków.",
     }),
-  dob: z.date({
-    required_error: "Data urodzenia jest wymagana.",
-  }),
+  surname: z
+    .string()
+    .min(2, {
+      message: "Nazwisko musi mieć co najmniej 2 znaki.",
+    })
+    .max(30, {
+      message: "Nazwisko nie może mieć więcej niż 30 znaków.",
+    }),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-// This can come from your database or API.
-const defaultValues: Partial<AccountFormValues> = {
-  // name: "Your name",
-  // dob: new Date("2023-01-23"),
-};
+export function AccountForm({
+  userInfo,
+}: {
+  userInfo: { name: string; surname: string };
+}) {
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [openPassword, setOpenPassword] = React.useState(false);
+  const { data, status } = useSession();
+  const [showAlert, setShowAlert] = React.useState(false);
 
-export function AccountForm() {
+  const alertBox = (
+    <div className="alert alert-error">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="stroke-current shrink-0 h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <span className="text-sm font-semibold">
+        Uzupełnij dane osobowe, możesz też ustawić nowe hasło
+      </span>
+    </div>
+  );
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: userInfo.name || "",
+      surname: userInfo.surname || "",
+    },
   });
 
-  function onSubmit(data: AccountFormValues) {
-    toast({
-      title: "Zaktualizowałaś/eś następujące dane:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
+  const onSubmit = async (values: z.infer<typeof accountFormSchema>) => {
+    if (!data?.user?.id)
+      return toast({
+        title: "Błąd",
+        description: "Coś poszło nie tak, spróbuj ponownie później.",
+      });
+
+    if (values.name === userInfo.name && values.surname === userInfo.surname)
+      return toast({
+        title: "Błąd",
+        description: "Nie wprowadzono żadnych zmian.",
+      });
+    try {
+      const response = await axiosInstance.put("/api/auth/user", {
+        ...values,
+        userId: data?.user?.id,
+      });
+      const resData = response.data;
+      if (resData.message) {
+        toast({
+          title: "Sukces",
+          description: resData.message,
+        });
+        router.refresh();
+        setShowAlert(false);
+      } else {
+        toast({
+          title: "Błąd",
+          description: resData.error,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Błąd",
+        description: "Coś poszło nie tak, spróbuj ponownie później.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!userInfo.name || userInfo.name === "")
+      form.setError("name", {
+        type: "manual",
+        message: "Uzupełnij imię",
+      });
+    if (!userInfo.surname || userInfo.surname === "")
+      form.setError("surname", {
+        type: "manual",
+        message: "Uzupełnij nazwisko",
+      });
+    if (
+      !userInfo.name ||
+      userInfo.name === "" ||
+      !userInfo.surname ||
+      userInfo.surname === ""
+    )
+      setShowAlert(true);
+  }, []);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Imię i nazwisko</FormLabel>
-              <FormControl>
-                <Input placeholder="Twoje imię" {...field} />
-              </FormControl>
-              <FormDescription>
-                Imię i nazwisko nie będą widoczne dla innych użytkowników, tylko
-                dla administratorów.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="dob"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Data urodzenia</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: pl })
-                      ) : (
-                        <span>Wybierz datę</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    locale={pl}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Data urodzenia nie będzie widoczna dla innych użytkowników.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit">Zaktualizuj konto</Button>
-      </form>
-    </Form>
+    <>
+      <Form {...form}>
+        {showAlert && alertBox}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Imię</FormLabel>
+                <FormControl>
+                  <Input type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Imię nie będzie widoczne dla innych użytkowników, tylko dla
+                  administratorów.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="surname"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nazwisko</FormLabel>
+                <FormControl>
+                  <Input type="text" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Nazwisko nie będzie widoczne dla innych użytkowników, tylko
+                  dla administratorów.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            disabled={
+              !(
+                !(userInfo.name === form.getValues("name")) ||
+                !(userInfo.surname === form.getValues("surname"))
+              )
+            }
+          >
+            Zaktualizuj konto
+          </Button>
+        </form>
+      </Form>
+      <div className="w-full flex justify-end">
+        <Dialog open={openPassword} onOpenChange={setOpenPassword}>
+          <DialogTrigger asChild>
+            <Button>Zmień hasło</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Zmień hasło</DialogTitle>
+              <DialogDescription>
+                Wpisz obecne hasło, a następnie nowe hasło i potwierdź je.
+              </DialogDescription>
+              <div className="py-5">
+                <ChangePassword
+                  userId={String(data?.user.id)}
+                  open={openPassword}
+                  setOpen={setOpenPassword}
+                />
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 }
