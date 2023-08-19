@@ -51,9 +51,9 @@ const Market = async (props: Props) => {
     String(session?.user?.id)
   );
 
-  const activeTransports = transports.filter(
-    (transport) => transport.isAvailable === true
-  );
+  const activeTransports = transports
+    ? transports.filter((transport) => transport.isAvailable === true)
+    : [];
 
   return (
     <div className="w-full">
