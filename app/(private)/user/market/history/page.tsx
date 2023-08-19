@@ -52,9 +52,9 @@ const MarketHistory = async (props: Props) => {
     String(session?.user?.id)
   );
 
-  const unactiveTransports = transports.filter(
-    (transport) => transport.isAvailable === false
-  );
+  const unactiveTransports = transports
+    ? transports.filter((transport) => transport.isAvailable === false)
+    : [];
 
   return (
     <div className="w-full">
