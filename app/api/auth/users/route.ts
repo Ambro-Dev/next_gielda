@@ -31,7 +31,7 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  const password = Math.random().toString(36).slice(-8);
+  const password = Math.random().toString(36).slice(-12);
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
