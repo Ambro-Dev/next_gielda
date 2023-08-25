@@ -263,7 +263,7 @@ const TransportsFilter = (props: Props) => {
               <CardContent className="flex justify-center items-center">
                 <Lottie
                   animationData={noOffers}
-                  className="flex justify-center items-center"
+                  className="flex justify-center items-center w-60"
                   loop={true}
                 />
               </CardContent>
