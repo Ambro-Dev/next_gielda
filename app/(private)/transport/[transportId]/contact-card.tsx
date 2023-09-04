@@ -96,9 +96,29 @@ const TransportContactCard = async ({
                     </Button>
                   </Link>
                 )}
-
-                <Dialog>
-                  <DialogTrigger asChild>
+                {session?.user ? (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="rounded-full hover:bg-amber-500 transition-all duration-500"
+                        size="lg"
+                        disabled={!transport.isAvailable}
+                      >
+                        Złóż ofertę
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="space-y-4">
+                      <DialogHeader>
+                        <DialogTitle>Nowa oferta</DialogTitle>
+                        <DialogDescription>
+                          Złóż ofertę na przewóz
+                        </DialogDescription>
+                      </DialogHeader>
+                      <OfferForm transport={transport.id} />
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <Link href="/signin">
                     <Button
                       className="rounded-full hover:bg-amber-500 transition-all duration-500"
                       size="lg"
@@ -106,17 +126,8 @@ const TransportContactCard = async ({
                     >
                       Złóż ofertę
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="space-y-4">
-                    <DialogHeader>
-                      <DialogTitle>Nowa oferta</DialogTitle>
-                      <DialogDescription>
-                        Złóż ofertę na przewóz
-                      </DialogDescription>
-                    </DialogHeader>
-                    <OfferForm transport={transport.id} />
-                  </DialogContent>
-                </Dialog>
+                  </Link>
+                )}
               </div>
             )}
           </div>
