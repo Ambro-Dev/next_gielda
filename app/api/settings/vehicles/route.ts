@@ -118,8 +118,6 @@ export const PUT = async (req: NextRequest) => {
     return NextResponse.json({ error: "Błąd w zmianie nazwy", status: 422 });
   }
 
-  const vehicles = await prisma.vehicle.findMany();
-
   return NextResponse.json({
     message: "Zmiana nazwy pojazdu zakończona sukcesem",
     status: 200,
