@@ -1,8 +1,10 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -10,12 +12,14 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios";
 import { Offer } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 import React from "react";
 
 type Props = {
   params: {
     offerId: string;
+    transportId: string;
   };
 };
 
@@ -24,6 +28,48 @@ type OfferWithCreator = Offer & {
   transport: {
     id: string;
   };
+};
+
+type Transport = {
+  id: string;
+  category: { id: string; name: string };
+  creator: { id: string; username: string };
+  createdAt: Date;
+  vehicle: { id: string; name: string };
+  description: string;
+  isAvailable: boolean;
+  directions: {
+    start: { lat: number; lng: number };
+    finish: { lat: number; lng: number };
+  };
+  objects: [
+    {
+      id: string;
+      name: string;
+      amount: number;
+      description: string;
+      height: number;
+      width: number;
+      length: number;
+      weight: number;
+    }
+  ];
+  availableDate: Date;
+  sendDate: Date;
+  receiveDate: Date;
+  type: { id: string; name: string };
+};
+
+const getTransport = async (transportId: string): Promise<Transport> => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/transports/transport?transportId=${transportId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return {} as Transport;
+  }
 };
 
 const getOffer = async (offerId: string): Promise<OfferWithCreator> => {
@@ -48,9 +94,11 @@ const formatDate = (date: Date) => {
 
 const OfferCard = async (props: Props) => {
   const offer: OfferWithCreator = await getOffer(props.params.offerId);
+  const transport: Transport = await getTransport(props.params.transportId);
+  const session = await getServerSession(authOptions);
   return (
     <Card>
-      <CardHeader className="p-5">
+      <CardHeader className="p-5 flex flex-row justify-between">
         <div className="flex flex-row space-x-4 items-center">
           <Link href={`/transport/${offer.transport.id}`}>
             <Button variant="ghost">
@@ -60,6 +108,12 @@ const OfferCard = async (props: Props) => {
           </Link>
           <CardTitle>Informacje o ofercie</CardTitle>
         </div>
+        {offer.creator.id === session?.user?.id && (
+          <div className="flex flex-row gap-4 items-center">
+            <Button variant="ghost">Edytuj</Button>
+            <Button variant="destructive">Usuń</Button>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -146,6 +200,11 @@ const OfferCard = async (props: Props) => {
           </Card>
         </div>
       </CardContent>
+      {transport.creator.id === session?.user?.id && (
+        <CardFooter className="justify-end">
+          <Button variant="default">Zaakceptuj ofertę</Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };

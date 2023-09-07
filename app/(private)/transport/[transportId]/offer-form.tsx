@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -30,6 +32,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { set } from "mongoose";
 import { axiosInstance } from "@/lib/axios";
+import { Transport } from "./page";
 
 const formSchema = z.object({
   message: z.string(),
@@ -85,7 +88,8 @@ const vatOptions = [
   { name: "23", label: "23%" },
 ];
 
-const OfferForm = ({ transport }: { transport: string }) => {
+const OfferForm = ({ transport }: { transport: Transport }) => {
+  const [offerOpen, setOfferOpen] = React.useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
@@ -128,26 +132,35 @@ const OfferForm = ({ transport }: { transport: string }) => {
       unloadTime: daysToUnload,
       contactNumber: number,
       creatorId: data?.user?.id,
-      transportId: transport,
+      transportId: transport.id,
     };
 
-    const response = await axiosInstance.post(`/api/transports/offer`, offer);
-    const resData = response.data;
-
-    if (resData.status === 201) {
-      form.reset();
-      toast({
-        title: "Oferta została dodana",
-        description: "Oferta została dodana",
-      });
-      router.refresh();
-    } else {
-      toast({
-        title: "Błąd",
-        description: "Coś poszło nie tak",
-        variant: "destructive",
-      });
-    }
+    await axiosInstance
+      .post(`/api/transports/offer`, offer)
+      .then((res) => {
+        if (res.data.message) {
+          form.reset();
+          toast({
+            title: "Oferta została dodana",
+            description: res.data.message,
+          });
+          setOfferOpen(false);
+          router.refresh();
+        } else {
+          toast({
+            title: "Błąd",
+            description: res.data.error,
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) =>
+        toast({
+          title: "Błąd",
+          description: "Coś poszło nie tak",
+          variant: "destructive",
+        })
+      );
   };
 
   const setBrutto = () => {
@@ -171,161 +184,184 @@ const OfferForm = ({ transport }: { transport: string }) => {
   }, [form.getValues("netto"), form.getValues("vat")]);
 
   return (
-    <div>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-          onMouseDown={() => setBrutto()}
+    <Dialog open={offerOpen} onOpenChange={setOfferOpen}>
+      <DialogTrigger asChild>
+        <Button
+          className="rounded-full hover:bg-amber-500 transition-all duration-500"
+          size="lg"
+          disabled={!transport.isAvailable}
         >
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Waluta</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={currencyOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      title="Waluta"
-                    />
-                  </FormControl>
-                  <FormDescription>Wybierz walutę</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="vat"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>VAT</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={vatOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      title="VAT"
-                    />
-                  </FormControl>
-                  <FormDescription>Wybierz wartość podatku VAT</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          Złóż ofertę
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="space-y-4">
+        <DialogHeader>
+          <DialogTitle>Nowa oferta</DialogTitle>
+          <DialogDescription>Złóż ofertę na przewóz</DialogDescription>
+        </DialogHeader>
+        <div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              onMouseDown={() => setBrutto()}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Waluta</FormLabel>
+                      <FormControl>
+                        <SelectBox
+                          data={currencyOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          title="Waluta"
+                        />
+                      </FormControl>
+                      <FormDescription>Wybierz walutę</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="vat"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>VAT</FormLabel>
+                      <FormControl>
+                        <SelectBox
+                          data={vatOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          title="VAT"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Wybierz wartość podatku VAT
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-          <FormField
-            control={form.control}
-            name="netto"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Kwota netto</FormLabel>
-                <FormControl>
-                  <Input {...field} type="number" />
-                </FormControl>
-                <FormDescription>Wpisz kwotę netto</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="brutto"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Kwota brutto</FormLabel>
-                <FormControl>
-                  <Input {...field} type="number" disabled />
-                </FormControl>
-                <FormDescription>Kwota brutto</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="loadDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Załadunek od</FormLabel>
-                  <FormControl>
-                    <DatePicker onChange={field.onChange} />
-                  </FormControl>
-                  <FormDescription>Wybierz datę załadunku</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="netto"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Kwota netto</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" />
+                    </FormControl>
+                    <FormDescription>Wpisz kwotę netto</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="brutto"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Kwota brutto</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" disabled />
+                    </FormControl>
+                    <FormDescription>Kwota brutto</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="loadDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Załadunek od</FormLabel>
+                      <FormControl>
+                        <DatePicker onChange={field.onChange} />
+                      </FormControl>
+                      <FormDescription>Wybierz datę załadunku</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="unloadDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Załadunek do</FormLabel>
-                  <FormControl>
-                    <DatePicker onChange={field.onChange} />
-                  </FormControl>
-                  <FormDescription>Wybierz datę rozaładunku</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="daysToUnload"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Dni rozładunku</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
-                  <FormDescription>Wpisz ilość dni rozładunku</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="number"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Numer telefonu</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="tel" />
-                  </FormControl>
-                  <FormDescription>Wpisz numer telefonu</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <FormField
-            control={form.control}
-            name="message"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Wiadamość</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormDescription>Wpisz treść wiadomości</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Wyślij</Button>
-        </form>
-      </Form>
-    </div>
+                <FormField
+                  control={form.control}
+                  name="unloadDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Załadunek do</FormLabel>
+                      <FormControl>
+                        <DatePicker onChange={field.onChange} />
+                      </FormControl>
+                      <FormDescription>
+                        Wybierz datę rozaładunku
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="daysToUnload"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Dni rozładunku</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="number" />
+                      </FormControl>
+                      <FormDescription>
+                        Wpisz ilość dni rozładunku
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="number"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Numer telefonu</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="tel" />
+                      </FormControl>
+                      <FormDescription>Wpisz numer telefonu</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Wiadamość</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormDescription>Wpisz treść wiadomości</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Wyślij</Button>
+            </form>
+          </Form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

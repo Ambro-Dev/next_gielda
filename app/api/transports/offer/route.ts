@@ -32,10 +32,7 @@ export const POST = async (req: NextRequest) => {
       transportId
     )
   ) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing required fields", status: 400 });
   }
 
   const existingOffer = await prisma.offer.findFirst({
@@ -46,12 +43,10 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (existingOffer) {
-    return NextResponse.json(
-      {
-        error: "Wysłałeś/aś już ofertę dla tego transportu, edytuj istniejącą",
-      },
-      { status: 400 }
-    );
+    return NextResponse.json({
+      error: "Wysłałeś/aś już ofertę dla tego transportu, edytuj istniejącą",
+      status: 400,
+    });
   }
 
   const offer = await prisma.offer.create({
