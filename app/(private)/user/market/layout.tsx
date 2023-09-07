@@ -29,8 +29,16 @@ const sidebarNavItems = [
     href: "/user/market/messages",
   },
   {
-    title: "Oferty",
+    title: "Otrzymane oferty",
     href: "/user/market/offers",
+  },
+  {
+    title: "Wysłane oferty",
+    href: "/user/market/offers/send",
+  },
+  {
+    title: "Zaakceptowane oferty",
+    href: "/user/market/offers/accepted",
   },
 ];
 

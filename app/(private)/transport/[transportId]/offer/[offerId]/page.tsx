@@ -16,6 +16,7 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import React from "react";
 import EditForm from "./edit-offer";
+import GoBack from "./go-back";
 
 type Props = {
   params: {
@@ -101,12 +102,7 @@ const OfferCard = async (props: Props) => {
     <Card>
       <CardHeader className="p-5 flex flex-row justify-between">
         <div className="flex flex-row space-x-4 items-center">
-          <Link href={`/transport/${offer.transport.id}`}>
-            <Button variant="ghost">
-              <ArrowLeft width={36} />
-              <span>Powrót</span>
-            </Button>
-          </Link>
+          <GoBack />
           <CardTitle>Informacje o ofercie</CardTitle>
         </div>
         {offer.creator.id === session?.user?.id && (
