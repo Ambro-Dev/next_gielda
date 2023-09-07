@@ -26,11 +26,22 @@ export const GET = async (req: NextRequest) => {
 
   const offers = await prisma.offer.findMany({
     where: {
-      transport: {
-        creatorId: userId,
-        isAvailable: true,
-      },
-      isAccepted: false,
+      OR: [
+        {
+          transport: {
+            creator: {
+              id: userId,
+            },
+          },
+          isAccepted: true,
+        },
+        {
+          creator: {
+            id: userId,
+          },
+          isAccepted: true,
+        },
+      ],
     },
     select: {
       id: true,

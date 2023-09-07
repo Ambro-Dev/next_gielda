@@ -39,7 +39,7 @@ const MarketOffers = async (props: Props) => {
   const offers = await getUserOffers(String(session?.user?.id));
   return (
     <div>
-      <OffersTable data={offers} />
+      <OffersTable data={offers} title="Lista ofert dla aktywnych zleceń" />
     </div>
   );
 };

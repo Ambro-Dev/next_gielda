@@ -20,6 +20,7 @@ export const GET = async (req: NextRequest) => {
       brutto: true,
       contactNumber: true,
       createdAt: true,
+      isAccepted: true,
       creator: {
         select: {
           id: true,
