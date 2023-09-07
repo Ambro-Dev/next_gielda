@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { ExtendedTransport } from "./page";
+import { ExtendedTransport } from "../page";
 import Map from "@/components/Map";
 import Directions from "@/components/Directions";
 import { Badge } from "@/components/ui/badge";
