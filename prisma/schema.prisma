@@ -176,6 +176,7 @@ model Offer {
   unloadDate    DateTime
   unloadTime    Int
   contactNumber String
+  isAccepted    Boolean   @default(false)
   updatedAt     DateTime  @updatedAt
   transportId   String    @db.ObjectId
   transport     Transport @relation(fields: [transportId], references: [id], onDelete: Cascade)

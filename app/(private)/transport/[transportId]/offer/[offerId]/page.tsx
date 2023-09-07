@@ -15,6 +15,7 @@ import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import React from "react";
+import EditForm from "./edit-offer";
 
 type Props = {
   params: {
@@ -23,7 +24,7 @@ type Props = {
   };
 };
 
-type OfferWithCreator = Offer & {
+export type OfferWithCreator = Offer & {
   creator: { id: string; username: string; email: string };
   transport: {
     id: string;
@@ -110,7 +111,7 @@ const OfferCard = async (props: Props) => {
         </div>
         {offer.creator.id === session?.user?.id && (
           <div className="flex flex-row gap-4 items-center">
-            <Button variant="ghost">Edytuj</Button>
+            <EditForm transport={transport} offer={offer} />
             <Button variant="destructive">Usuń</Button>
           </div>
         )}
