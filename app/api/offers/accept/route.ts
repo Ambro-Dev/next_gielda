@@ -27,6 +27,29 @@ export const PUT = async (req: NextRequest) => {
     });
   }
 
+  const transportAccepted = await prisma.transport.findUnique({
+    where: {
+      id: String(transportId),
+    },
+    select: {
+      isAccepted: true,
+    },
+  });
+
+  if (!transportAccepted) {
+    return NextResponse.json({
+      status: 404,
+      error: "Nie znaleziono transportu",
+    });
+  }
+
+  if (transportAccepted.isAccepted) {
+    return NextResponse.json({
+      status: 400,
+      error: "Transport został już zaakceptowany",
+    });
+  }
+
   const offer = await prisma.offer.update({
     where: {
       id: String(offerId),

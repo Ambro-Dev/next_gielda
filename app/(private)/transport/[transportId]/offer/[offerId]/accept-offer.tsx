@@ -6,6 +6,7 @@ import { axiosInstance } from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Transport } from "./page";
 
 type Props = {
   offer: {
@@ -22,6 +23,7 @@ type Props = {
     };
     createdAt: Date;
   };
+  transport: Transport;
 };
 
 const OfferAccept = (props: Props) => {
@@ -68,7 +70,11 @@ const OfferAccept = (props: Props) => {
   };
 
   return (
-    <Button variant="default" onClick={acceptOffer}>
+    <Button
+      variant="default"
+      onClick={acceptOffer}
+      disabled={props.transport.isAccepted}
+    >
       Zaakceptuj ofertę
     </Button>
   );

@@ -33,7 +33,7 @@ export type OfferWithCreator = Offer & {
   };
 };
 
-type Transport = {
+export type Transport = {
   id: string;
   category: { id: string; name: string };
   creator: { id: string; username: string };
@@ -108,7 +108,7 @@ const OfferCard = async (props: Props) => {
           <CardTitle>Informacje o ofercie</CardTitle>
         </div>
 
-        {!offer.isAccepted ? (
+        {!transport.isAccepted ? (
           <>
             {offer.creator.id === session?.user?.id && (
               <div className="flex flex-row gap-4 items-center">
@@ -118,12 +118,23 @@ const OfferCard = async (props: Props) => {
             )}
           </>
         ) : (
-          <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
-            <CheckCircle color="green" size={40} />
-            <CardDescription className="text-green-600">
-              Oferta zaakceptowana
-            </CardDescription>
-          </div>
+          <>
+            {offer.isAccepted ? (
+              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+                <CheckCircle color="green" size={40} />
+                <CardDescription className="text-green-600">
+                  Oferta zaakceptowana
+                </CardDescription>
+              </div>
+            ) : (
+              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+                <ArrowLeft size={40} color="red" />
+                <CardDescription className="text-red-600">
+                  Zaakceptowano inną ofertę
+                </CardDescription>
+              </div>
+            )}
+          </>
         )}
       </CardHeader>
 
@@ -213,7 +224,7 @@ const OfferCard = async (props: Props) => {
       </CardContent>
       {transport.creator.id === session?.user?.id && !offer.isAccepted && (
         <CardFooter className="justify-end">
-          <OfferAccept offer={offer} />
+          <OfferAccept offer={offer} transport={transport} />
         </CardFooter>
       )}
     </Card>

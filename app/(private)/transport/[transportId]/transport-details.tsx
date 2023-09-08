@@ -156,6 +156,7 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
                 variant="outline"
                 className="w-full"
                 onClick={() => router.push(`/transport/${transport.id}/edit`)}
+                disabled={transport.isAccepted}
               >
                 Edytuj ogłoszenie
               </Button>
