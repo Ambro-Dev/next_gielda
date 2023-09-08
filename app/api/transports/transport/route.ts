@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       },
       createdAt: true,
       availableDate: true,
+      isAccepted: true,
       isAvailable: true,
       vehicle: {
         select: {

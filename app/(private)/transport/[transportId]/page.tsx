@@ -15,6 +15,7 @@ export type Transport = {
   category: { id: string; name: string };
   creator: { id: string; username: string };
   createdAt: Date;
+  isAccepted: boolean;
   vehicle: { id: string; name: string };
   description: string;
   isAvailable: boolean;

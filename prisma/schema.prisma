@@ -121,6 +121,7 @@ model Transport {
   vehicleId     String         @db.ObjectId
   vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
   isAvailable   Boolean
+  isAccepted    Boolean        @default(false)
   sendDate      DateTime
   availableDate DateTime
   receiveDate   DateTime
