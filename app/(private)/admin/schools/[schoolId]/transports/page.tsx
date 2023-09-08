@@ -65,7 +65,7 @@ const SchoolTransports = async (props: Props) => {
     };
   });
 
-  return <TransportsTable columns={columns} data={transports} />;
+  return <TransportsTable columns={columns} transports={transports} />;
 };
 
 export default SchoolTransports;
