@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dialog";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";
-import RefreshPage from "@/app/lib/refreshPage";
 
 type Transport = {
   id: string;
@@ -38,20 +37,24 @@ type Transport = {
 
 const handleDelete = async (id: string) => {
   try {
-    const response = await axiosInstance.put(
-      "/api/transports/transport/delete",
-      {
+    await axiosInstance
+      .put("/api/transports/transport/delete", {
         transportId: id,
-      }
-    );
-    const data = await response.data;
-    if (data.message) {
-      toast({
-        title: "Sukces",
-        description: data.message,
+      })
+      .then((res) => {
+        if (res.data.message) {
+          toast({
+            title: "Sukces",
+            description: res.data.message,
+          });
+        } else {
+          toast({
+            title: "Błąd",
+            variant: "destructive",
+            description: res.data.error,
+          });
+        }
       });
-      RefreshPage();
-    }
   } catch (error) {
     toast({
       title: "Błąd",
@@ -186,7 +189,9 @@ export const columns: ColumnDef<Transport>[] = [
                 </DialogDescription>
               </DialogHeader>
               <div className="space-x-4">
-                <Button variant="ghost">Anuluj</Button>
+                <DialogTrigger asChild>
+                  <Button variant="ghost">Anuluj</Button>
+                </DialogTrigger>
                 <Button
                   variant="destructive"
                   onClick={() => handleDelete(transport.id)}

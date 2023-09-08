@@ -241,7 +241,10 @@ export default async function SchoolManagement() {
             <AddStudentForm schoolId={school.id} />
           </TabsContent>
           <TabsContent value="transports">
-            <TransportsTable columns={transportColumns} data={transports} />
+            <TransportsTable
+              columns={transportColumns}
+              transports={transports}
+            />
           </TabsContent>
         </Tabs>
       </div>

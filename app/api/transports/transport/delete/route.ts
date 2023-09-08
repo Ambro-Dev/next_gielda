@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
   });
 
   return NextResponse.json({
-    message: "Proces usuwania brzebiegł pomyślnie, transport usunięty",
+    message: "Proces usuwania przebiegł pomyślnie, transport usunięty",
     status: 200,
   });
 }
