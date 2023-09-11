@@ -33,35 +33,37 @@ import { useRouter } from "next/navigation";
 interface TransportsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   transports: TData[];
+  school?: string;
 }
 
 export function TransportsTable<TData, TValue>({
   columns,
   transports,
+  school,
 }: TransportsTableProps<TData, TValue>) {
   const router = useRouter();
 
   const handleDelete = async (id: string) => {
+    const data = {
+      adminId: id,
+      schoolId: school,
+    };
     try {
-      await axiosInstance
-        .put("/api/transports/delete", {
-          adminId: id,
-        })
-        .then((res) => {
-          if (res.data.message) {
-            toast({
-              title: "Sukces",
-              description: res.data.message,
-            });
-            router.refresh();
-          } else {
-            toast({
-              title: "Błąd",
-              variant: "destructive",
-              description: res.data.error,
-            });
-          }
-        });
+      await axiosInstance.put("/api/transports/delete", data).then((res) => {
+        if (res.data.message) {
+          toast({
+            title: "Sukces",
+            description: res.data.message,
+          });
+          router.refresh();
+        } else {
+          toast({
+            title: "Błąd",
+            variant: "destructive",
+            description: res.data.error,
+          });
+        }
+      });
     } catch (error) {
       console.error(error);
     }

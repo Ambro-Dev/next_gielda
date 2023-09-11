@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
+import React, { useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,6 +57,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { axiosInstance } from "@/lib/axios";
+import { School } from "@prisma/client";
 
 const menu: { title: string; href: string; description: string }[] = [
   {
@@ -78,11 +80,45 @@ const menu: { title: string; href: string; description: string }[] = [
   },
 ];
 
+const schoolData = async (userId: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/school?userId=${userId}`);
+    const data = response.data;
+    return data.school;
+  } catch (error) {}
+};
+
 const TopBar = () => {
   const router = useRouter();
   const { data, status } = useSession();
-
   const isAuth = status === "authenticated";
+  const [school, setSchool] = React.useState<School | null>(null);
+
+  useEffect(() => {
+    if (data?.user?.role === "student" || data?.user?.role === "school_admin") {
+      schoolData(String(data?.user?.id)).then((data) => setSchool(data));
+    }
+  }, [data?.user?.id]);
+
+  const untilExpire = () => {
+    if (school?.accessExpires) {
+      const date = new Date(school?.accessExpires);
+      const now = new Date();
+      const diff = date.getTime() - now.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      if (days > 0) return `${days} dni`;
+      if (days === 0 && hours > 0) return `${hours} godz.`;
+      if (days === 0 && hours === 0 && minutes > 0) return `${minutes} min.`;
+      if (days === 0 && hours === 0 && minutes === 0) return "Wygasło";
+    } else {
+      return "Nieokreślony";
+    }
+  };
+
   return (
     <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
@@ -262,6 +298,14 @@ const TopBar = () => {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </NavigationMenuItem>
+                          {school && (
+                            <NavigationMenuItem className="text-sm">
+                              Dostęp wygaśnie za:{" "}
+                              <span className="font-semibold text-red-500">
+                                {untilExpire()}
+                              </span>
+                            </NavigationMenuItem>
+                          )}
                         </>
                       )}
                     </NavigationMenuList>
@@ -353,6 +397,14 @@ const TopBar = () => {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
+                {school && (
+                  <NavigationMenuItem className="text-sm">
+                    Dostęp wygaśnie za:{" "}
+                    <span className="font-semibold text-red-500">
+                      {untilExpire()}
+                    </span>
+                  </NavigationMenuItem>
+                )}
                 <NavigationMenuItem className="hover:cursor-pointer">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

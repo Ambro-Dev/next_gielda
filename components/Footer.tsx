@@ -56,9 +56,9 @@ const Footer = (props: Props) => {
               <Separator className="bg-neutral-600 w-4/5" />
               <a
                 className="hover:text-amber-500 transition-all duration-500"
-                href="/regulamin"
+                href="/rodo"
               >
-                Regulamin
+                RODO
               </a>
             </div>
           </div>
