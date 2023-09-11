@@ -82,6 +82,12 @@ const NewSchoolForm = (props: Props) => {
           description: "Szkoła została dodana.",
         });
         router.push(`/admin/schools/${response.data.schoolId}`);
+      } else {
+        toast({
+          title: "Błąd",
+          description: response.data.error,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
@@ -167,7 +173,9 @@ const NewSchoolForm = (props: Props) => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline">Anuluj</Button>
+            <DialogTrigger asChild>
+              <Button variant="outline">Anuluj</Button>
+            </DialogTrigger>
             <Button type="submit">Dodaj</Button>
           </DialogFooter>
         </form>
