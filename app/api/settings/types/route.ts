@@ -114,8 +114,6 @@ export const PUT = async (req: NextRequest) => {
     return NextResponse.json({ error: "Błąd w zmianie nazwy", status: 422 });
   }
 
-  const types = await prisma.type.findMany();
-
   return NextResponse.json({
     message: "Zmiana nazwy typu zakończona sukcesem",
     status: 200,

@@ -16,7 +16,9 @@ import { RecentTransports } from "@/components/dashboard/recent-transports";
 import { School } from "@prisma/client";
 import { StudentsTable } from "../admin/schools/[schoolId]/students/students-table";
 import { columns } from "../admin/schools/[schoolId]/students/columns";
+import { columns as transportColumns } from "../admin/schools/[schoolId]/transports/colums";
 import { AddStudentForm } from "../admin/schools/[schoolId]/students/add-student-form";
+import { TransportsTable } from "../admin/schools/[schoolId]/transports/transports-table";
 
 type SchoolWithTransports = {
   school: {
@@ -57,6 +59,47 @@ type SchoolWithTransports = {
       objects: number;
     };
   }[];
+};
+
+type Transport = {
+  id: string;
+  description: string;
+  createdAt: Date;
+  vehicle: {
+    id: string;
+    name: string;
+  };
+  category: {
+    id: string;
+    name: string;
+  };
+  creator: {
+    id: string;
+    username: string;
+  };
+  type: {
+    id: string;
+    name: string;
+  };
+  _count: {
+    objects: number;
+  };
+};
+
+type Props = {
+  params: {
+    schoolId: string;
+  };
+};
+
+const getSchoolTransports = async (schoolId: string) => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/schools/school/transports?schoolId=${schoolId}`
+    );
+    const data = response.data;
+    return data.transports;
+  } catch (error) {}
 };
 
 const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
@@ -102,7 +145,24 @@ export default async function SchoolManagement() {
   const data = await getSchool(school.id);
   const students = await getStudents(school.id);
 
+  const transportsData = await getSchoolTransports(String(school.id));
+
   const timeToExpire = GetExpireTimeLeft(data.school.accessExpires);
+
+  const transports = await transportsData.map((transport: Transport) => {
+    const formatedDate = new Date(transport.createdAt).toLocaleDateString(
+      "pl-PL"
+    );
+    return {
+      id: transport.id,
+      vehicle: transport.vehicle.name,
+      type: transport.type.name,
+      category: transport.category.name,
+      creator: transport.creator.username,
+      objects: transport._count.objects,
+      createdAt: formatedDate,
+    };
+  });
 
   return (
     <Card>
@@ -181,7 +241,10 @@ export default async function SchoolManagement() {
             <AddStudentForm schoolId={school.id} />
           </TabsContent>
           <TabsContent value="transports">
-            <div>Transporty</div>
+            <TransportsTable
+              columns={transportColumns}
+              transports={transports}
+            />
           </TabsContent>
         </Tabs>
       </div>

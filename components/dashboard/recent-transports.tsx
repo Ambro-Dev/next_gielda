@@ -15,18 +15,21 @@ export function RecentTransports({ transports }: { transports: any[] }) {
                 {transport.vehicle.name}
               </Badge>
             </div>
-            <div className="ml-4 space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {transport.creator.username}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Dodano: {transport.createdAt.slice(0, 10)}
-              </p>
-            </div>
-            <div className="ml-auto font-medium">
-              Przedmioty: <span>{transport._count.objects}</span>
+            <div className="flex flex-col lg:flex-row items-center w-full justify-center">
+              <div className="flex lg:flex-none ml-4 space-y-1 lg:justify-start justify-center flex-col lg:items-start items-center">
+                <p className="text-sm font-medium leading-none">
+                  {transport.creator.username}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Dodano: {transport.createdAt.slice(0, 10)}
+                </p>
+              </div>
+              <div className="flex flex-1 font-medium w-full justify-center items-center">
+                <span>Przedmioty: {transport._count.objects}</span>
+              </div>
             </div>
           </div>
+
           <Separator />
         </>
       ))}

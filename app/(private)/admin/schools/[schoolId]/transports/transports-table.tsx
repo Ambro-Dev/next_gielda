@@ -23,23 +23,60 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { axiosInstance } from "@/lib/axios";
+import { toast } from "@/components/ui/use-toast";
+import RefreshPage from "@/app/lib/refreshPage";
+import { useSession } from "next-auth/react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 interface TransportsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  transports: TData[];
+  school?: string;
 }
 
 export function TransportsTable<TData, TValue>({
   columns,
-  data,
+  transports,
+  school,
 }: TransportsTableProps<TData, TValue>) {
+  const router = useRouter();
+
+  const handleDelete = async (id: string) => {
+    const data = {
+      adminId: id,
+      schoolId: school,
+    };
+    try {
+      await axiosInstance.put("/api/transports/delete", data).then((res) => {
+        if (res.data.message) {
+          toast({
+            title: "Sukces",
+            description: res.data.message,
+          });
+          router.refresh();
+        } else {
+          toast({
+            title: "Błąd",
+            variant: "destructive",
+            description: res.data.error,
+          });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const { data, status } = useSession();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
 
   const table = useReactTable({
-    data,
+    data: transports,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -55,7 +92,7 @@ export function TransportsTable<TData, TValue>({
 
   return (
     <div className="p-5">
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 justify-between">
         <Input
           placeholder="Filtruj transporty..."
           value={(table.getColumn("creator")?.getFilterValue() as string) ?? ""}
@@ -64,6 +101,13 @@ export function TransportsTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.resetColumnFilters()}
+        >
+          Resetuj filtry
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -115,23 +159,56 @@ export function TransportsTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Poprzednia strona
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Następna strona
-        </Button>
+      <div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Poprzednia strona
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Następna strona
+          </Button>
+        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="sm:w-auto w-full"
+            >
+              Usuń wszystkie ogłoszenia
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <div className="flex flex-col gap-4">
+              <span className="text-lg font-semibold">
+                Czy na pewno chcesz usunąć wszystkie ogłoszenia?
+              </span>
+              <div className="flex gap-4">
+                <DialogTrigger asChild>
+                  <Button variant="outline">Anuluj</Button>
+                </DialogTrigger>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(String(data?.user.id))}
+                  >
+                    Usuń
+                  </Button>
+                </DialogTrigger>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -32,10 +32,7 @@ export const POST = async (req: NextRequest) => {
       transportId
     )
   ) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing required fields", status: 400 });
   }
 
   const existingOffer = await prisma.offer.findFirst({
@@ -46,12 +43,10 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (existingOffer) {
-    return NextResponse.json(
-      {
-        error: "Wysłałeś/aś już ofertę dla tego transportu, edytuj istniejącą",
-      },
-      { status: 400 }
-    );
+    return NextResponse.json({
+      error: "Wysłałeś/aś już ofertę dla tego transportu, edytuj istniejącą",
+      status: 400,
+    });
   }
 
   const offer = await prisma.offer.create({
@@ -79,4 +74,72 @@ export const POST = async (req: NextRequest) => {
   });
 
   return NextResponse.json({ message: "Oferta wysłana", status: 201 });
+};
+
+export const PUT = async (req: NextRequest) => {
+  const body = await req.json();
+
+  const {
+    id,
+    currency,
+    vat,
+    netto,
+    brutto,
+    loadDate,
+    unloadDate,
+    unloadTime,
+    contactNumber,
+    creatorId,
+    message,
+  } = body;
+
+  if (
+    !(
+      id ||
+      currency ||
+      vat ||
+      netto ||
+      brutto ||
+      loadDate ||
+      unloadDate ||
+      unloadTime ||
+      contactNumber ||
+      creatorId
+    )
+  ) {
+    return NextResponse.json({ error: "Missing required fields", status: 400 });
+  }
+
+  const existingOffer = await prisma.offer.findFirst({
+    where: {
+      creatorId: creatorId,
+      id: id,
+    },
+  });
+
+  if (!existingOffer) {
+    return NextResponse.json({
+      error: "Brak oferty o podanym id",
+      status: 400,
+    });
+  }
+
+  const offer = await prisma.offer.update({
+    where: {
+      id: id,
+    },
+    data: {
+      currency,
+      vat,
+      netto,
+      brutto,
+      loadDate,
+      unloadDate,
+      unloadTime,
+      contactNumber,
+      message: message ? message : undefined,
+    },
+  });
+
+  return NextResponse.json({ message: "Oferta zaktualizowana", status: 201 });
 };

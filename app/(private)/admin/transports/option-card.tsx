@@ -74,13 +74,24 @@ const formSchema = z.object({
   }),
 });
 
+const formEditSchema = z.object({
+  name: z.string().min(1, {
+    message: "Podaj nazwę.",
+  }),
+});
+
 export const OptionCard = (params: OptionParams) => {
   const router = useRouter();
+  const [nowEditing, setNowEditing] = React.useState<{
+    id: string;
+    name: string;
+  }>({ id: "", name: "" }); // [id, setNowEditing]
   const { options, title, route, description, noData, dialog } = params;
   const { toast } = useToast();
 
   const [open, setOpen] = React.useState(false);
   const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);
+  const [showEditDialog, setShowEditDialog] = React.useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -89,13 +100,44 @@ export const OptionCard = (params: OptionParams) => {
     },
   });
 
+  const formEdit = useForm({
+    resolver: zodResolver(formEditSchema),
+    defaultValues: {
+      name: String(nowEditing.name),
+    },
+  });
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await axiosInstance.post(`/api/settings/${route}`, values);
+    const res = await axiosInstance.post(`/api/settings/${route}`, { values });
     const data = res.data;
     if (data.message) {
       form.reset();
       setShowNewSchoolDialog(false);
       setOpen(false);
+      router.refresh();
+      toast({
+        title: "Sukces",
+        description: data.message,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Błąd",
+        description: data.error,
+      });
+    }
+  };
+
+  const onEdit = async (values: z.infer<typeof formEditSchema>) => {
+    const res = await axiosInstance.put(`/api/settings/${route}`, {
+      id: nowEditing.id,
+      name: values.name,
+    });
+    const data = res.data;
+    if (data.message) {
+      formEdit.reset();
+      setNowEditing({ id: "", name: "" });
+      setShowEditDialog(false);
       router.refresh();
       toast({
         title: "Sukces",
@@ -135,32 +177,42 @@ export const OptionCard = (params: OptionParams) => {
   };
   return (
     <Card className="flex flex-col">
-      <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
-        <CardHeader className="p-5">
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-5 flex-grow">
-          {options?.length > 0 ? (
-            <div className="flex flex-col space-y-4">
-              {options.map((item) => (
-                <React.Fragment key={item.id}>
-                  <div className="text-sm flex justify-between items-center">
-                    {item.name}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Otwórz menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
+      <CardHeader className="p-5">
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-5 flex-grow">
+        {options?.length > 0 ? (
+          <div className="flex flex-col space-y-4">
+            {options.map((item) => (
+              <React.Fragment key={item.id}>
+                <div className="text-sm flex justify-between items-center">
+                  {item.name}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Otwórz menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <Dialog
+                      open={showEditDialog}
+                      onOpenChange={setShowEditDialog}
+                    >
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Akcje</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-4">
-                          <EditIcon className="w-4 h-4" />
-                          <span>Edytuj</span>
-                        </DropdownMenuItem>
+                        <DialogTrigger asChild>
+                          <DropdownMenuItem
+                            className="gap-4"
+                            onClick={() => {
+                              setNowEditing({ id: item.id, name: item.name });
+                            }}
+                          >
+                            <EditIcon className="w-4 h-4" />
+                            <span>Edytuj</span>
+                          </DropdownMenuItem>
+                        </DialogTrigger>
                         <DropdownMenuItem
                           className=" text-red-500 font-bold gap-4"
                           onClick={() => handleDelete(item.id)}
@@ -169,18 +221,75 @@ export const OptionCard = (params: OptionParams) => {
                           <span>Usuń</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <Separator className="my-2" />
-                </React.Fragment>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col space-y-4">
-              <div className="text-sm">{noData}</div>
-              <Separator className="my-2" />
-            </div>
-          )}
+                      <DialogContent>
+                        <Form {...formEdit}>
+                          <form
+                            onSubmit={formEdit.handleSubmit(onEdit)}
+                            className="space-y-4"
+                          >
+                            <DialogHeader>
+                              <DialogTitle>Edytuj</DialogTitle>
+                              <DialogDescription>
+                                Edytuj wprowadzoną nazwę.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-2 pb-4">
+                              <FormField
+                                control={formEdit.control}
+                                name="name"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                    <FormLabel>Nowa nazwa</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="text"
+                                        placeholder={item.name}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Podaj nową nazwę.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <DialogFooter>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  onClick={() =>
+                                    setNowEditing({ id: "", name: "" })
+                                  }
+                                >
+                                  Anuluj
+                                </Button>
+                              </DialogTrigger>
+                              <Button type="submit">Edytuj</Button>
+                            </DialogFooter>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  </DropdownMenu>
+                </div>
+                <Separator className="my-2" />
+              </React.Fragment>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-4">
+            <div className="text-sm">{noData}</div>
+            <Separator className="my-2" />
+          </div>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Dialog
+          open={showNewSchoolDialog}
+          onOpenChange={setShowNewSchoolDialog}
+        >
           <DialogContent>
             <Form {...form}>
               <form
@@ -221,8 +330,6 @@ export const OptionCard = (params: OptionParams) => {
               </form>
             </Form>
           </DialogContent>
-        </CardContent>
-        <CardFooter>
           <DialogTrigger asChild>
             <Button
               className="w-full"
@@ -234,8 +341,8 @@ export const OptionCard = (params: OptionParams) => {
               {dialog.button}
             </Button>
           </DialogTrigger>
-        </CardFooter>
-      </Dialog>
+        </Dialog>
+      </CardFooter>
     </Card>
   );
 };

@@ -85,7 +85,7 @@ const formSchema = z
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
     path: ["receiveDate"],
   })
-  .refine((data) => data.availableDate < data.sendDate, {
+  .refine((data) => data.availableDate <= data.sendDate, {
     message:
       "Data wysyłki musi być równa lub późniejsza niż data ważności ogłoszenia.",
     path: ["sendDate"],

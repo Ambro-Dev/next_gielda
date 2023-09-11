@@ -67,8 +67,12 @@ export function MainNav({
           Transporty
         </Link>
         <Link
-          href="/examples/dashboard"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          href={`/admin/schools/${schoolId}/settings`}
+          className={`${
+            pathname === `/admin/schools/${schoolId}/settings`
+              ? selected
+              : notSelected
+          } text-sm font-medium text-muted-foreground transition-colors hover:text-primary`}
         >
           Ustawienia
         </Link>

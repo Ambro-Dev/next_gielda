@@ -31,12 +31,12 @@ type Props = {
 
 const NewMessage = (props: Props) => {
   const { data, status } = useSession();
+  const [sending, setSending] = React.useState(false);
 
   const router = useRouter();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    mode: "onBlur",
     defaultValues: {
       message: "",
     },
@@ -44,6 +44,7 @@ const NewMessage = (props: Props) => {
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
+      setSending(true);
       const response = await axiosInstance.post(
         `/api/messages/conversation/message`,
         {
@@ -63,6 +64,7 @@ const NewMessage = (props: Props) => {
       console.log(error);
       throw new Error("Nie udało się wysłać wiadomości");
     }
+    setSending(false);
   };
 
   return (
@@ -89,8 +91,8 @@ const NewMessage = (props: Props) => {
             />
           </div>
 
-          <Button className="mb-2" type="submit">
-            Wyślij
+          <Button className="mb-2" type="submit" disabled={sending}>
+            {sending ? "Wysyłanie..." : "Wyślij"}
           </Button>
         </form>
       </Form>

@@ -35,6 +35,7 @@ export const GET = async (req: NextRequest) => {
       },
       description: true,
       isAvailable: true,
+      isAccepted: true,
       sendDate: true,
       receiveDate: true,
       createdAt: true,

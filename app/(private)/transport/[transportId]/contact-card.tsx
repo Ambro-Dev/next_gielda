@@ -24,6 +24,8 @@ import { Transport } from "./page";
 import { axiosInstance } from "@/lib/axios";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
 const getTransportOffers = async (transportId: string) => {
   try {
@@ -60,32 +62,44 @@ const TransportContactCard = async ({
             </div>
             {session?.user.id !== transport.creator.id && (
               <div className="flex flex-row w-full sm:justify-end gap-8">
-                <Dialog>
-                  <DialogTrigger asChild>
+                {session?.user ? (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="rounded-full hover:bg-amber-500 transition-all duration-500"
+                        size="lg"
+                      >
+                        Napisz wiadomość
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="space-y-4">
+                      <DialogHeader>
+                        <DialogTitle>Wiadomość</DialogTitle>
+                        <DialogDescription>
+                          Wpisz wiadomość, którą chcesz wysłać
+                        </DialogDescription>
+                      </DialogHeader>
+                      <MessageForm
+                        transportId={transport.id}
+                        transportOwnerId={transport.creator.id}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <Link href="/signin">
                     <Button
                       className="rounded-full hover:bg-amber-500 transition-all duration-500"
                       size="lg"
                     >
                       Napisz wiadomość
                     </Button>
-                  </DialogTrigger>
-
-                  <DialogContent className="space-y-4">
-                    <DialogHeader>
-                      <DialogTitle>Wiadomość</DialogTitle>
-                      <DialogDescription>
-                        Wpisz wiadomość, którą chcesz wysłać
-                      </DialogDescription>
-                    </DialogHeader>
-                    <MessageForm
-                      transportId={transport.id}
-                      transportOwnerId={transport.creator.id}
-                    />
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog>
-                  <DialogTrigger asChild>
+                  </Link>
+                )}
+                {session?.user ? (
+                  <OfferForm transport={transport} />
+                ) : (
+                  <Link href="/signin">
                     <Button
                       className="rounded-full hover:bg-amber-500 transition-all duration-500"
                       size="lg"
@@ -93,17 +107,8 @@ const TransportContactCard = async ({
                     >
                       Złóż ofertę
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="space-y-4">
-                    <DialogHeader>
-                      <DialogTitle>Nowa oferta</DialogTitle>
-                      <DialogDescription>
-                        Złóż ofertę na przewóz
-                      </DialogDescription>
-                    </DialogHeader>
-                    <OfferForm transport={transport.id} />
-                  </DialogContent>
-                </Dialog>
+                  </Link>
+                )}
               </div>
             )}
           </div>

@@ -1,29 +1,79 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios";
 import { Offer } from "@prisma/client";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 import React from "react";
+import EditForm from "./edit-offer";
+import GoBack from "./go-back";
+import OfferAccept from "./accept-offer";
 
 type Props = {
   params: {
     offerId: string;
+    transportId: string;
   };
 };
 
-type OfferWithCreator = Offer & {
+export type OfferWithCreator = Offer & {
   creator: { id: string; username: string; email: string };
   transport: {
     id: string;
   };
+};
+
+export type Transport = {
+  id: string;
+  category: { id: string; name: string };
+  creator: { id: string; username: string };
+  createdAt: Date;
+  vehicle: { id: string; name: string };
+  description: string;
+  isAvailable: boolean;
+  isAccepted: boolean;
+  directions: {
+    start: { lat: number; lng: number };
+    finish: { lat: number; lng: number };
+  };
+  objects: [
+    {
+      id: string;
+      name: string;
+      amount: number;
+      description: string;
+      height: number;
+      width: number;
+      length: number;
+      weight: number;
+    }
+  ];
+  availableDate: Date;
+  sendDate: Date;
+  receiveDate: Date;
+  type: { id: string; name: string };
+};
+
+const getTransport = async (transportId: string): Promise<Transport> => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/transports/transport?transportId=${transportId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return {} as Transport;
+  }
 };
 
 const getOffer = async (offerId: string): Promise<OfferWithCreator> => {
@@ -48,18 +98,44 @@ const formatDate = (date: Date) => {
 
 const OfferCard = async (props: Props) => {
   const offer: OfferWithCreator = await getOffer(props.params.offerId);
+  const transport: Transport = await getTransport(props.params.transportId);
+  const session = await getServerSession(authOptions);
   return (
     <Card>
-      <CardHeader className="p-5">
-        <div className="flex flex-row space-x-4 items-center">
-          <Link href={`/transport/${offer.transport.id}`}>
-            <Button variant="ghost">
-              <ArrowLeft width={36} />
-              <span>Powrót</span>
-            </Button>
-          </Link>
+      <CardHeader className="p-5 sm:flex sm:flex-row sm:justify-between grid grid-cols-2 gap-2">
+        <div className="flex flex-1 items-center col-span-2">
+          <GoBack />
           <CardTitle>Informacje o ofercie</CardTitle>
         </div>
+
+        {!transport.isAccepted ? (
+          <>
+            {offer.creator.id === session?.user?.id && (
+              <div className="flex flex-row gap-4 items-center">
+                <EditForm transport={transport} offer={offer} />
+                <Button variant="destructive">Usuń</Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {offer.isAccepted ? (
+              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+                <CheckCircle color="green" size={40} />
+                <CardDescription className="text-green-600">
+                  Oferta zaakceptowana
+                </CardDescription>
+              </div>
+            ) : (
+              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+                <ArrowLeft size={40} color="red" />
+                <CardDescription className="text-red-600">
+                  Zaakceptowano inną ofertę
+                </CardDescription>
+              </div>
+            )}
+          </>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -146,6 +222,11 @@ const OfferCard = async (props: Props) => {
           </Card>
         </div>
       </CardContent>
+      {transport.creator.id === session?.user?.id && !offer.isAccepted && (
+        <CardFooter className="justify-end">
+          <OfferAccept offer={offer} transport={transport} />
+        </CardFooter>
+      )}
     </Card>
   );
 };

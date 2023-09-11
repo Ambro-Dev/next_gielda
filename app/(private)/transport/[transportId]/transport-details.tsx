@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Transport } from "./page";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { LatLngLiteral } from "leaflet";
@@ -34,6 +33,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+import { Transport } from "./page";
 
 const formatDate = (date: Date) => {
   const newDate = new Date(date);
@@ -120,19 +120,31 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
               <Badge>{transport.category.name}</Badge>
               <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
-            {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 &&
-            transport.isAvailable ? (
-              <Badge variant="destructive">
-                Wygaśnie za:{" "}
-                {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
-                  ? `${GetExpireTimeLeft(transport.availableDate).daysLeft} dni`
-                  : `${
-                      GetExpireTimeLeft(transport.availableDate).hoursLeft
-                    } godz.`}{" "}
-              </Badge>
-            ) : (
-              <Badge variant="destructive">Wygasło</Badge>
-            )}
+            <>
+              {transport.isAccepted ? (
+                <Badge className="bg-green-700 hover:bg-green-700">
+                  Zaakceptowano
+                </Badge>
+              ) : (
+                <>
+                  {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 &&
+                  transport.isAvailable ? (
+                    <Badge variant="destructive">
+                      Wygaśnie za:{" "}
+                      {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+                        ? `${
+                            GetExpireTimeLeft(transport.availableDate).daysLeft
+                          } dni`
+                        : `${
+                            GetExpireTimeLeft(transport.availableDate).hoursLeft
+                          } godz.`}{" "}
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive">Wygasło</Badge>
+                  )}
+                </>
+              )}
+            </>
           </div>
           {data?.user.id === transport.creator.id && (
             <div
@@ -144,6 +156,7 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
                 variant="outline"
                 className="w-full"
                 onClick={() => router.push(`/transport/${transport.id}/edit`)}
+                disabled={transport.isAccepted}
               >
                 Edytuj ogłoszenie
               </Button>

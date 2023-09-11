@@ -39,6 +39,10 @@ export type ExtendedTransport = Transport & {
     id: string;
     name: string;
   };
+  creator: {
+    id: string;
+    username: string;
+  };
   vehicle: {
     id: string;
     name: string;
@@ -51,9 +55,10 @@ const Market = async (props: Props) => {
     String(session?.user?.id)
   );
 
-  const activeTransports = transports
-    ? transports.filter((transport) => transport.isAvailable === true)
-    : [];
+  const activeTransports =
+    transports && transports.length > 0
+      ? transports.filter((transport) => transport.isAvailable === true)
+      : [];
 
   return (
     <div className="w-full">

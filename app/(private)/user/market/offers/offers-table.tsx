@@ -14,10 +14,16 @@ import { Card } from "@/components/ui/card";
 import { ExtendedOffer } from "./page";
 import Link from "next/link";
 
-export function OffersTable({ data }: { data: ExtendedOffer[] }) {
+export function OffersTable({
+  data,
+  title,
+}: {
+  data: ExtendedOffer[];
+  title: string;
+}) {
   return (
     <Table>
-      <TableCaption>Lista ofert dla aktywnych zleceń</TableCaption>
+      <TableCaption>{title}</TableCaption>
       <TableBody>
         {data?.map((item) => (
           <TableRow key={item.id}>

@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import SelectBox from "./select-box";
+import SelectBox from "../../select-box";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/DatePicker";
 import { useSession } from "next-auth/react";
@@ -32,7 +32,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { set } from "mongoose";
 import { axiosInstance } from "@/lib/axios";
-import { Transport } from "./page";
+import { Transport } from "../../page";
+import { OfferWithCreator } from "./page";
 
 const formSchema = z.object({
   message: z.string(),
@@ -88,7 +89,13 @@ const vatOptions = [
   { name: "23", label: "23%" },
 ];
 
-const OfferForm = ({ transport }: { transport: Transport }) => {
+const EditForm = ({
+  transport,
+  offer,
+}: {
+  transport: Transport;
+  offer: OfferWithCreator;
+}) => {
   const [offerOpen, setOfferOpen] = React.useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -96,15 +103,15 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      message: "",
-      currency: "PLN",
-      vat: "23",
-      netto: 0,
-      brutto: 0,
-      daysToUnload: 0,
-      number: "",
-      loadDate: new Date(),
-      unloadDate: new Date(),
+      message: String(offer.message),
+      currency: String(offer.currency),
+      vat: String(offer.vat),
+      netto: Number(offer.netto),
+      brutto: Number(offer.brutto),
+      daysToUnload: offer.unloadTime,
+      number: String(offer.contactNumber.replace(/\s/g, "")),
+      loadDate: new Date(offer.loadDate),
+      unloadDate: new Date(offer.unloadDate),
     },
   });
 
@@ -121,7 +128,8 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
       number,
     } = values;
 
-    const offer = {
+    const offerEdit = {
+      id: offer.id,
       message: message ? message : undefined,
       currency,
       vat: Number(vat),
@@ -132,16 +140,15 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
       unloadTime: daysToUnload,
       contactNumber: number,
       creatorId: data?.user?.id,
-      transportId: transport.id,
     };
 
     await axiosInstance
-      .post(`/api/transports/offer`, offer)
+      .put(`/api/transports/offer`, offerEdit)
       .then((res) => {
         if (res.data.message) {
           form.reset();
           toast({
-            title: "Oferta została dodana",
+            title: "Oferta została zmieniona",
             description: res.data.message,
           });
           setOfferOpen(false);
@@ -186,18 +193,12 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   return (
     <Dialog open={offerOpen} onOpenChange={setOfferOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="rounded-full hover:bg-amber-500 transition-all duration-500"
-          size="lg"
-          disabled={!transport.isAvailable}
-        >
-          Złóż ofertę
-        </Button>
+        <Button variant="ghost">Edytuj</Button>
       </DialogTrigger>
       <DialogContent className="space-y-4">
         <DialogHeader>
-          <DialogTitle>Nowa oferta</DialogTitle>
-          <DialogDescription>Złóż ofertę na przewóz</DialogDescription>
+          <DialogTitle>Edytuj ofertę</DialogTitle>
+          <DialogDescription>Edytuj obecną ofertę</DialogDescription>
         </DialogHeader>
         <div>
           <Form {...form}>
@@ -285,7 +286,10 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Załadunek od</FormLabel>
                       <FormControl>
-                        <DatePicker onChange={field.onChange} />
+                        <DatePicker
+                          onChange={field.onChange}
+                          defaultValue={field.value}
+                        />
                       </FormControl>
                       <FormDescription>Wybierz datę załadunku</FormDescription>
                       <FormMessage />
@@ -300,7 +304,10 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Załadunek do</FormLabel>
                       <FormControl>
-                        <DatePicker onChange={field.onChange} />
+                        <DatePicker
+                          onChange={field.onChange}
+                          defaultValue={field.value}
+                        />
                       </FormControl>
                       <FormDescription>
                         Wybierz datę rozaładunku
@@ -356,7 +363,7 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Wyślij</Button>
+              <Button type="submit">Zaktualizuj</Button>
             </form>
           </Form>
         </div>
@@ -365,4 +372,4 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   );
 };
 
-export default OfferForm;
+export default EditForm;
