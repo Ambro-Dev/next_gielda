@@ -57,6 +57,27 @@ export const POST = async (req: NextRequest) => {
     return date;
   };
 
+  const adminIdinUse = await prisma.school.findFirst({
+    where: {
+      administrator: null,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  console.log(adminIdinUse);
+
+  if (adminIdinUse) {
+    return NextResponse.json({
+      error:
+        "Jedna ze szkół nie ma przypisanego administratora. W celu uniknięcia błędów dodaj go najpierw w panelu administratora szkoły o nazwie: " +
+        adminIdinUse.name,
+      status: 422,
+    });
+  }
+
   const school = await prisma.school.create({
     data: {
       name,
