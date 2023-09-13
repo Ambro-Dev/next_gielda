@@ -4,8 +4,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
-import MessengerChatBox from "@/components/MessengerChat";
-import { Analytics } from "@vercel/analytics/react";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -26,7 +24,6 @@ export default async function RootLayout({
     <NextAuthProvider>
       <html lang="pl">
         <body className={inter.className}>
-          <Analytics />
           <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
             <Toaster />
             <TopBar />
@@ -35,7 +32,6 @@ export default async function RootLayout({
                 {children}
               </div>
             </GoogleApiProvider>
-            <MessengerChatBox />
 
             <Footer />
           </main>

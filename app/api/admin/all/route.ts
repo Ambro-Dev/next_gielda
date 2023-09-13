@@ -10,12 +10,10 @@ export const GET = async (req: NextRequest) => {
   });
   const countTransports = await prisma.transport.count();
 
-  return NextResponse.json(
-    {
-      schools: countSchools,
-      students: countStudents,
-      transports: countTransports,
-    },
-    { status: 200 }
-  );
+  return NextResponse.json({
+    schools: countSchools,
+    students: countStudents,
+    transports: countTransports,
+    status: 200,
+  });
 };
