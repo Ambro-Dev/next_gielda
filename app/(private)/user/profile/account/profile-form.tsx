@@ -20,16 +20,30 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 
+const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+
 const profileFormSchema = z.object({
   username: z
     .string()
-    .min(2, {
-      message: "Nazwa użytkownika musi mieć co najmniej 2 znaki.",
+    .refine((val) => !val.includes(" "), {
+      message: "Nazwa użytkownika nie może zawierać spacji.",
     })
-    .max(30, {
-      message: "Nazwa użytkownika nie może mieć więcej niż 30 znaków.",
-    })
-    .optional(),
+    .pipe(
+      z
+        .string()
+        .regex(noPolishCharsOrSpecialChars, {
+          message:
+            "Nazwa użytkownika może zawierać tylko małe litery i cyfry, bez polskich znaków.",
+        })
+        .min(3, {
+          message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
+        })
+        .optional()
+    ),
+
   email: z
     .string({
       required_error: "Email jest wymagany.",

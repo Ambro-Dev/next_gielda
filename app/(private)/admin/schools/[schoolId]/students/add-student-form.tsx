@@ -30,17 +30,28 @@ import { useRouter } from "next/navigation";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
 
+const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+
 const formSchema = z.object({
   username: z
-    .string({
-      required_error: "Podaj nazwę użytkownika.",
+    .string()
+    .refine((val) => !val.includes(" "), {
+      message: "Nazwa użytkownika nie może zawierać spacji.",
     })
-    .min(5, {
-      message: "Nazwa użytkownika musi mieć minimum 5 znaków.",
-    })
-    .max(30, {
-      message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
-    }),
+    .pipe(
+      z
+        .string()
+        .regex(noPolishCharsOrSpecialChars, {
+          message:
+            "Nazwa użytkownika może zawierać tylko małe litery i cyfry, bez polskich znaków.",
+        })
+        .min(3, {
+          message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
+        })
+    ),
   email: z
     .string({
       required_error: "Adres email jest wymagany.",

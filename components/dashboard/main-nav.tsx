@@ -68,11 +68,11 @@ export function MainNav({
         </Link>
         <Link
           href={`/admin/schools/${schoolId}/settings`}
-          className={`${
+          className={
             pathname === `/admin/schools/${schoolId}/settings`
               ? selected
               : notSelected
-          } text-sm font-medium text-muted-foreground transition-colors hover:text-primary`}
+          }
         >
           Ustawienia
         </Link>
@@ -129,8 +129,12 @@ export function MainNav({
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/examples/dashboard"
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                  href={`/admin/schools/${schoolId}/settings`}
+                  className={
+                    pathname === `/admin/schools/${schoolId}/settings`
+                      ? selected
+                      : notSelected
+                  }
                 >
                   Ustawienia
                 </Link>
