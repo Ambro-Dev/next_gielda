@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import TransportsFilter from "@/components/TransportsFilter";
+import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
 
 export type Tags = {
   id: string;
@@ -98,11 +99,15 @@ export default async function Home() {
 
   return (
     <>
-      <TransportsFilter
-        categories={categories}
-        vehicles={vehicles}
-        transports={transports}
-      />
+      {transports ? (
+        <TransportsFilter
+          categories={categories}
+          vehicles={vehicles}
+          transports={transports}
+        />
+      ) : (
+        <TransportsSkeleton />
+      )}
     </>
   );
 }
