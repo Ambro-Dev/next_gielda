@@ -108,7 +108,7 @@ export const OptionCard = (params: OptionParams) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await axiosInstance.post(`/api/settings/${route}`, { values });
+    const res = await axiosInstance.post(`/api/settings/${route}`, values);
     const data = res.data;
     if (data.message) {
       form.reset();

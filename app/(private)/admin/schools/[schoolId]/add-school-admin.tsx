@@ -31,15 +31,24 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const noPolishCharsOrSpecialChars = /^[a-zA-Z0-9]+$/;
+
 const schema = z.object({
   username: z
     .string()
-    .min(3, {
-      message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
+    .refine((val) => !val.includes(" "), {
+      message: "Nazwa użytkownika nie może zawierać spacji.",
     })
-    .max(30, {
-      message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
-    }),
+    .pipe(
+      z
+        .string()
+        .min(3, {
+          message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
+        })
+    ),
   email: z
     .string({
       required_error: "Adres email jest wymagany.",
