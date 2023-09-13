@@ -19,10 +19,28 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Nazwa użytkownika musi mieć co najmniej 2 znaki.",
-  }),
+  username: z
+    .string()
+    .refine((val) => !val.includes(" "), {
+      message: "Nazwa użytkownika nie może zawierać spacji.",
+    })
+    .pipe(
+      z
+        .string()
+        .regex(noPolishCharsOrSpecialChars, {
+          message:
+            "Nazwa użytkownika może zawierać tylko małe litery i cyfry, bez polskich znaków.",
+        })
+        .min(3, {
+          message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
+        })
+    ),
   password: z.string().min(8, {
     message: "Hasło musi mieć co najmniej 8 znaków.",
   }),
