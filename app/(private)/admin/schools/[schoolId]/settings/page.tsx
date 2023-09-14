@@ -2,8 +2,8 @@ import { toast } from "@/components/ui/use-toast";
 import { axiosInstance } from "@/lib/axios";
 import { redirect } from "next/navigation";
 import React from "react";
-import SchoolInfoCard from "./SchoolInfoCard";
-import SchoolAdminCard from "./SchoolAdminCard";
+import SchoolInfoCard from "./components/SchoolInfoCard";
+import SchoolAdminCard from "./components/SchoolAdminCard";
 
 type Props = {
   params: {

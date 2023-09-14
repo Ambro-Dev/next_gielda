@@ -301,9 +301,14 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                   <DialogFooter>
                     <div className="flex w-full sm:flex-row flex-col justify-between gap-8 items-center">
                       <span>Dodanych przedmiotów: {objects.length}</span>
-                      <Button className="sm:w-auto w-full" type="submit">
-                        Zapisz przedmiot
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <DialogTrigger asChild>
+                          <Button>Wróć do formularza</Button>
+                        </DialogTrigger>
+                        <Button className="sm:w-auto w-full" type="submit">
+                          Zapisz przedmiot
+                        </Button>
+                      </div>
                     </div>
                   </DialogFooter>
                 </form>

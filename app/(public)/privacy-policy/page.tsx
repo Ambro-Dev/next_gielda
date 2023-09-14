@@ -28,7 +28,7 @@ const ProvacyPolicy = (props: Props) => {
               </p>{" "}
               <p>
                 Adres kontaktowy poczty elektronicznej operatora:
-                gielda@fenilo.pl
+                fenilo@fenilo.pl
               </p>
               <p>
                 Operator jest Administratorem Twoich danych osobowych w

@@ -10,7 +10,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { School as SchoolType } from "./page";
+import { School as SchoolType } from "../page";
+import UpdateSchoolAccess from "./UpdateSchoolAccess";
+import { BlockSchool } from "./BlockSchool";
 
 type Props = {
   school: SchoolType;
@@ -19,7 +21,7 @@ type Props = {
 const SchoolInfoCard = (props: Props) => {
   const schoolData = props.school;
   return (
-    <Card className="relative">
+    <Card className="relative shadow-md">
       <CardContent className="p-5 space-y-5">
         <div className="flex flex-col items-center">
           <School size={48} />
@@ -62,12 +64,11 @@ const SchoolInfoCard = (props: Props) => {
             )}
           </span>
         </div>
-        <Button className="w-full" variant="outline">
-          <Plus size={16} className="mr-2" />{" "}
-          {GetExpireTimeLeft(schoolData?.accessExpires).isExpired
-            ? "Odnów dostęp"
-            : "Przedłuż dostęp"}
-        </Button>
+        <UpdateSchoolAccess
+          accessExpires={schoolData?.accessExpires}
+          schoolId={schoolData.id}
+        />
+        <BlockSchool schoolId={schoolData.id} />
       </CardContent>
       <CardFooter>
         <p className="text-sm">
