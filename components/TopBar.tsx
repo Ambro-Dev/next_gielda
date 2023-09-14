@@ -98,7 +98,7 @@ const TopBar = () => {
     if (data?.user?.role === "student" || data?.user?.role === "school_admin") {
       schoolData(String(data?.user?.id)).then((data) => setSchool(data));
     }
-  }, [data?.user?.id]);
+  }, [data?.user?.id, data?.user?.role]);
 
   const untilExpire = () => {
     if (school?.accessExpires) {
@@ -132,7 +132,16 @@ const TopBar = () => {
             <SheetContent side={"left"}>
               <SheetHeader>
                 <SheetTitle>
-                  <Image src={logo} priority alt="fenilo-gielda" />
+                  <Link href="/" legacyBehavior passHref>
+                    <SheetClose asChild>
+                      <Image
+                        src={logo}
+                        priority
+                        alt="fenilo-gielda"
+                        className="hover:cursor-pointer"
+                      />
+                    </SheetClose>
+                  </Link>
                 </SheetTitle>
                 <Separator />
                 <div className="flex flex-col justify-center items-center gap-12 py-10">
@@ -322,13 +331,14 @@ const TopBar = () => {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-
-          <Image
-            src={logo}
-            priority
-            alt="gielda-fenilo"
-            className="h-full w-auto"
-          />
+          <Link href="/" legacyBehavior passHref>
+            <Image
+              src={logo}
+              priority
+              alt="gielda-fenilo"
+              className="h-full w-auto hover:cursor-pointer"
+            />
+          </Link>
         </div>
       </div>
       <Separator />
