@@ -36,9 +36,6 @@ export const POST = async (req: NextRequest) => {
 
   const { name } = body;
 
-  console.log(name);
-  console.log(body);
-
   if (!name)
     return NextResponse.json({
       error: "Brak nazwy dla pojazdu",

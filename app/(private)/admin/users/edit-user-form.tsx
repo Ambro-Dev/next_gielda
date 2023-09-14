@@ -37,11 +37,14 @@ import {
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
 
-const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
 
 const formSchema = z.object({
   username: z
     .string()
+    .refine((value) => !/\.\.+/.test(value), {
+      message: 'Nazwa użytkownika nie może zawierać ".."',
+    })
     .refine((val) => !val.includes(" "), {
       message: "Nazwa użytkownika nie może zawierać spacji.",
     })

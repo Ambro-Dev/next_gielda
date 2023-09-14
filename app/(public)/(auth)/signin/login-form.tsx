@@ -19,11 +19,14 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
 
 const formSchema = z.object({
   username: z
     .string()
+    .refine((value) => !/\.\.+/.test(value), {
+      message: 'Nazwa użytkownika nie może zawierać ".."',
+    })
     .refine((val) => !val.includes(" "), {
       message: "Nazwa użytkownika nie może zawierać spacji.",
     })
