@@ -31,11 +31,14 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
 
 const schema = z.object({
   username: z
     .string()
+    .refine((value) => !/\.\.+/.test(value), {
+      message: 'Nazwa użytkownika nie może zawierać ".."',
+    })
     .refine((val) => !val.includes(" "), {
       message: "Nazwa użytkownika nie może zawierać spacji.",
     })

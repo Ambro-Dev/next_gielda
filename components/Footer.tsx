@@ -17,7 +17,7 @@ const Footer = (props: Props) => {
             zapewniamy łatwy dostęp do akcesoriów niezbędnych w transporcie.
             Zaufaj nam - razem stworzymy lepszy transport.
           </p>
-          <Link href="https://www.facebook.com/groups/739523837210433">
+          <Link href="https://www.facebook.com/fenilopl">
             <svg
               className="h-6 w-6 group hover:cursor-pointer hover:scale-110 transition-all duration-500"
               viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ const Footer = (props: Props) => {
             </svg>
           </Link>
         </div>
-        <div className="flex flex-row gap-4 w-full">
+        <div className="flex sm:flex-row flex-col gap-4 w-full">
           <div className="flex flex-col gap-4 w-full ">
             <h3 className="text-white">Przydatne linki</h3>
             <Separator className="w-12 h-[2px] bg-amber-500" />
@@ -98,7 +98,7 @@ const Footer = (props: Props) => {
                 </div>
               </Link>
 
-              <Link href="mailto:gielda@fenilo.pl">
+              <Link href="mailto:fenilo@fenilo.pl">
                 <div className="flex flex-row gap-4 group hover:cursor-pointer text-white">
                   <svg
                     className="w-6 h-6 group-hover:scale-110 transition-all duration-500"
@@ -124,7 +124,7 @@ const Footer = (props: Props) => {
                     </g>
                   </svg>
                   <p className="group-hover:text-amber-500 transition-all duration-500 ">
-                    gielda@fenilo.pl
+                    fenilo@fenilo.pl
                   </p>
                 </div>
               </Link>

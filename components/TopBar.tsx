@@ -311,8 +311,12 @@ const TopBar = () => {
                     </NavigationMenuList>
                   </NavigationMenu>
                   <div className="flex flex-row justify-center items-center gap-4">
-                    <Search size={20} />
-                    <Facebook size={20} />
+                    <Link
+                      href="https://www.facebook.com/fenilopl"
+                      target="_blank"
+                    >
+                      <Facebook size={20} />
+                    </Link>
                   </div>
                 </div>
               </SheetHeader>
@@ -469,8 +473,9 @@ const TopBar = () => {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex flex-row justify-center items-center gap-4">
-          <Search size={20} />
-          <Facebook size={20} />
+          <Link href="https://www.facebook.com/fenilopl" target="_blank">
+            <Facebook size={20} />
+          </Link>
         </div>
       </div>
     </div>

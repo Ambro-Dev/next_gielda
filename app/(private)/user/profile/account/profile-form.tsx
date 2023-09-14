@@ -20,11 +20,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 
-const noPolishCharsOrSpecialChars = /^[a-z0-9]+$/;
+const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
 
 const profileFormSchema = z.object({
   username: z
     .string()
+    .refine((value) => !/\.\.+/.test(value), {
+      message: 'Nazwa użytkownika nie może zawierać ".."',
+    })
     .refine((val) => !val.includes(" "), {
       message: "Nazwa użytkownika nie może zawierać spacji.",
     })

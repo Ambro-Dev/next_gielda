@@ -27,15 +27,10 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
+import { Edit } from "lucide-react";
 
 const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
 
@@ -69,46 +64,37 @@ const formSchema = z.object({
     .email({
       message: "Podaj poprawny adres email.",
     }),
-  role: z.string().min(1, {
-    message: "Wybierz jedną z ról.",
-  }),
 });
 
 type User = {
   username: string;
   email: string;
-  role: string;
 } | null;
 
-export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
+export const EditSchoolAdmin = ({ user }: { user: User & { id: string } }) => {
   const [createdUser, setCreatedUser] = React.useState<User>(null);
   const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
-  const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);
+  const [showEditAdmin, setShowEditAdmin] = React.useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: user?.username || "",
       email: user?.email || "",
-      role: user?.role || "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (
-      user?.role === values.role &&
-      user?.username === values.username &&
-      user?.email === values.email
-    ) {
+    if (user?.username === values.username && user?.email === values.email) {
       toast({
         title: "Informacja",
         description: "Nie wprowadzono żadnych zmian.",
       });
       return;
     }
-    const res = await axiosInstance.put(`/api/auth/users/update`, {
+    const res = await axiosInstance.put(`/api/schools/settings/update-admin`, {
       ...values,
       userId: user?.id,
     });
@@ -121,7 +107,7 @@ export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
         description: data.message,
       });
       router.refresh();
-      setShowNewSchoolDialog(false);
+      setShowEditAdmin(false);
     } else {
       toast({
         variant: "destructive",
@@ -132,14 +118,10 @@ export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
   };
 
   return (
-    <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
+    <Dialog open={showEditAdmin} onOpenChange={setShowEditAdmin}>
       <DialogTrigger asChild>
-        <Button
-          className="text-sm font-semibold w-full text-left"
-          variant="ghost"
-          size="sm"
-        >
-          <span className="-ml-4">Edytuj użytkownika</span>
+        <Button className="w-full" variant="outline">
+          <Edit size={16} className="mr-2" /> Edytuj dane
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -183,44 +165,11 @@ export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Rola</FormLabel>
-                      <FormControl>
-                        <Select
-                          defaultValue={field.value}
-                          onValueChange={(e) => field.onChange(e)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a plan" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">
-                              <span className="text-muted-foreground">
-                                Admin
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="user">
-                              <span className="text-muted-foreground">
-                                Użytkownik
-                              </span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription>Edytuj rolę użytkownika</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
               <DialogFooter>
                 <Button
                   variant="outline"
-                  onClick={() => setShowNewSchoolDialog(false)}
+                  onClick={() => setShowEditAdmin(false)}
                 >
                   Anuluj
                 </Button>
@@ -228,7 +177,6 @@ export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
                   type="submit"
                   disabled={
                     !(
-                      !(user?.role === form.getValues("role")) ||
                       !(user?.username === form.getValues("username")) ||
                       !(user?.email === form.getValues("email"))
                     )
@@ -269,22 +217,13 @@ export const EditUserForm = ({ user }: { user: User & { id: string } }) => {
                     className="bg-gray-100"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Rola</Label>
-                  <Input
-                    type="text"
-                    value={createdUser.role}
-                    readOnly
-                    className="bg-gray-100"
-                  />
-                </div>
               </div>
             </div>
             <div className="flex flex-col">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setShowNewSchoolDialog(false);
+                  setShowEditAdmin(false);
                   setOpen(false);
                   setCreatedUser(null);
                   router.refresh();
