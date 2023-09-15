@@ -24,6 +24,8 @@ export const GET = async (req: NextRequest) => {
           id: true,
           username: true,
           email: true,
+          name: true,
+          surname: true,
         },
       },
       accessExpires: true,

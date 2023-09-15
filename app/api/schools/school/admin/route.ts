@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
 
-  const { username, email, schoolId } = body;
+  const { username, email, schoolId, name, surname } = body;
 
-  if (!username || !email || !schoolId) {
+  if (!username || !email || !schoolId || !name || !surname) {
     return NextResponse.json({ error: "Brakuje wymaganych pól", status: 400 });
   }
 
@@ -65,6 +65,8 @@ export const POST = async (req: NextRequest) => {
           id: schoolId,
         },
       },
+      name,
+      surname,
     },
   });
 
@@ -80,6 +82,8 @@ export const POST = async (req: NextRequest) => {
     user: {
       username: user.username,
       password: password,
+      name: user.name,
+      surname: user.surname,
     },
     status: 200,
   });

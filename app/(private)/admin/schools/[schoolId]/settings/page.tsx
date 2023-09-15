@@ -19,6 +19,8 @@ export type School = {
     email: string;
     username: string;
     createdAt: Date;
+    name: string;
+    surname: string;
   };
   createdAt: Date;
   updatedAt: Date;
