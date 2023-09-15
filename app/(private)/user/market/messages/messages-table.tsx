@@ -47,6 +47,12 @@ export function MessagesTable({ data }: { data: ExtendedConversation[] }) {
                       </Link>
                     </div>
                   </Card>
+                  <Link
+                    href={`/transport/${item.transport.id}`}
+                    className="sm:self-end hover:underline"
+                  >
+                    Przejdź do ogłoszenia
+                  </Link>
                 </div>
               </div>
             </TableCell>
