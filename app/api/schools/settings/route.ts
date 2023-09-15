@@ -21,6 +21,8 @@ export const GET = async (req: NextRequest) => {
           email: true,
           username: true,
           createdAt: true,
+          name: true,
+          surname: true,
         },
       },
       createdAt: true,

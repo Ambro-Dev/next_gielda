@@ -36,6 +36,8 @@ type SchoolWithTransports = {
       id: string;
       username: string;
       email: string;
+      name: string;
+      surname: string;
     };
     accessExpires: Date;
   };
@@ -120,9 +122,14 @@ export default async function SchoolPage({ params }: PageProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">
+                      <div className="text-xl font-bold">
                         {data.school.administrator.username}
                       </div>
+                      <p className="text-xs text-muted-foreground">
+                        {(data.school.administrator.name || "") +
+                          " " +
+                          (data.school.administrator.surname || "")}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {data.school.administrator.email}
                       </p>

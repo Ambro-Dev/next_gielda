@@ -4,7 +4,7 @@ import prisma from "@/lib/prismadb";
 export const PUT = async (req: NextRequest) => {
   const body = await req.json();
 
-  const { username, email, userId } = body;
+  const { username, email, userId, name, surname } = body;
 
   if (!userId) {
     return NextResponse.json({
@@ -33,7 +33,12 @@ export const PUT = async (req: NextRequest) => {
     });
   }
 
-  if (email === user.email && username === user.username) {
+  if (
+    email === user.email &&
+    username === user.username &&
+    name === user.name &&
+    surname === user.surname
+  ) {
     return NextResponse.json({
       error: "Nie wprowadzono żadnych zmian",
       status: 400,
@@ -77,6 +82,8 @@ export const PUT = async (req: NextRequest) => {
     data: {
       username: username,
       email: email,
+      name: name,
+      surname: surname,
     },
   });
 

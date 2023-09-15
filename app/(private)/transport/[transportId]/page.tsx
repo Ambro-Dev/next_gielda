@@ -3,6 +3,7 @@ import TransportMap from "./transport-map";
 import TransportDetails from "./transport-details";
 import TransportContactCard from "./contact-card";
 import { axiosInstance } from "@/lib/axios";
+import GoBack from "@/components/ui/go-back";
 
 type PageParams = {
   params: {
@@ -56,13 +57,14 @@ const getTransport = async (transportId: string): Promise<Transport> => {
 const TransportInfo = async ({ params }: PageParams) => {
   const transport: Transport = await getTransport(params.transportId);
   return (
-    <div className="flex w-full h-full flex-col gap-4 px-3 my-5">
+    <div className="relative flex w-full h-full flex-col gap-4 px-3 my-5">
       <TransportMap
         start={transport.directions.start}
         finish={transport.directions.finish}
       />
       <TransportDetails transport={transport} />
       <TransportContactCard transport={transport} />
+      <GoBack clasName="absolute top-2 left-5 bg-white/80" />
     </div>
   );
 };

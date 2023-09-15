@@ -7,7 +7,7 @@ import NewMessage from "./new-meesage";
 import { axiosInstance } from "@/lib/axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 
 type Props = {
   params: {
@@ -60,14 +60,19 @@ const ConversationPage = async (props: Props) => {
 
   return (
     <div className="flex flex-col space-y-8">
-      <div className="px-5 flex space-x-4 flex-row items-center">
+      <div className="px-5 flex gap-4 flex-wrap items-center justify-around">
         <Link href="/user/market/messages">
           <Button variant="ghost">
             <ArrowLeft size={24} />
             <span className="pl-2">Wszystkie rozmowy</span>
           </Button>
         </Link>
-        <h3 className="text-xl font-bold">Rozmowa z {otherUser?.username}</h3>
+        <h3 className="text-lg font-bold">Rozmowa z {otherUser?.username}</h3>
+        <Link href={`/transport/${conversation.transport.id}`}>
+          <Button variant="ghost">
+            Przejdź do ogłoszenia <Package size={24} className="ml-2" />
+          </Button>
+        </Link>
       </div>
       <Chat messages={conversation.messages} />
       <NewMessage conversation={conversation} />

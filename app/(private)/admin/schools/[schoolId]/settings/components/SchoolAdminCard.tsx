@@ -16,6 +16,8 @@ type Props = {
     email: string;
     username: string;
     createdAt: Date;
+    name: string;
+    surname: string;
   };
 };
 
@@ -26,7 +28,12 @@ const SchoolAdminCard = (props: Props) => {
       <CardContent className="p-5">
         <div className="flex flex-col items-center">
           <Image src={admin} width={48} height={48} alt="admin-image" />
-          <p className="text-xl font-semibold">{administrator?.username}</p>
+          <p className="text-xl font-semibold flex flex-wrap">
+            {administrator?.username}
+          </p>
+          <p className="text-sm">
+            {(administrator?.name || "") + " " + (administrator?.surname || "")}
+          </p>
           <p className="text-sm">{administrator?.email}</p>
         </div>
       </CardContent>

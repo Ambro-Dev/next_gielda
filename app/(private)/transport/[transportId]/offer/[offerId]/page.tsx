@@ -16,7 +16,7 @@ import { getServerSession } from "next-auth";
 import Link from "next/link";
 import React from "react";
 import EditForm from "./edit-offer";
-import GoBack from "./go-back";
+import GoBack from "../../../../../../components/ui/go-back";
 import OfferAccept from "./accept-offer";
 import Message from "./message";
 import NewMessage from "./new-message";
