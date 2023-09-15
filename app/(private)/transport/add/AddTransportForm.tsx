@@ -273,7 +273,7 @@ export function AddTransportForm({
                 </FormControl>
                 <FormDescription>
                   Krótki opis, który pomoże przewoźnikowi w przedstawieniu jak
-                  najbardziej szcegółowej oferty.
+                  najbardziej szczegółowej oferty.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

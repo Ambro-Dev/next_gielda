@@ -166,7 +166,7 @@ export default async function SchoolManagement() {
 
   return (
     <Card>
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-wrap space-y-4 p-8 pt-6">
         <Tabs defaultValue="overview" className="space-y-4">
           <div className="grid lg:grid-cols-4 grid-cols-2 gap-4">
             <div className="col-span-2">

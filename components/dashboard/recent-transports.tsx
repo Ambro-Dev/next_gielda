@@ -24,7 +24,7 @@ export function RecentTransports({ transports }: { transports: any[] }) {
                   Dodano: {transport.createdAt.slice(0, 10)}
                 </p>
               </div>
-              <div className="flex flex-1 font-medium w-full justify-center items-center">
+              <div className="flex flex-wrap font-medium w-full justify-center items-center">
                 <span>Przedmioty: {transport._count.objects}</span>
               </div>
             </div>

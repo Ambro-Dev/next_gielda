@@ -67,8 +67,6 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
-  console.log(adminIdinUse);
-
   if (adminIdinUse) {
     return NextResponse.json({
       error:

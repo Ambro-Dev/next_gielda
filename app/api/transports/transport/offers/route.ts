@@ -26,7 +26,6 @@ export const GET = async (req: NextRequest) => {
       unloadDate: true,
       unloadTime: true,
       contactNumber: true,
-      message: true,
       creator: {
         select: {
           id: true,
