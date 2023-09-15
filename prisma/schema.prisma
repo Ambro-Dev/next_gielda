@@ -61,15 +61,17 @@ model User {
 
   role Role @default(user)
 
-  accounts        Account[]
-  sessions        Session[]
-  school          School?
-  transports      Transport[]
-  student         Student?
-  messages        Message[]
-  offers          Offer[]
-  conversationIDs String[]       @db.ObjectId
-  conversations   Conversation[] @relation(fields: [conversationIDs], references: [id])
+  accounts         Account[]
+  sessions         Session[]
+  school           School?
+  transports       Transport[]
+  student          Student?
+  messages         Message[]
+  offersMessages   OfferMessages[] @relation(name: "sender")
+  receivedMessages OfferMessages[] @relation(name: "receiver")
+  offers           Offer[]
+  conversationIDs  String[]        @db.ObjectId
+  conversations    Conversation[]  @relation(fields: [conversationIDs], references: [id])
 }
 
 model VerificationToken {
@@ -167,8 +169,8 @@ enum Currency {
 }
 
 model Offer {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime  @default(now())
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime        @default(now())
   currency      Currency
   vat           Int
   netto         Int
@@ -177,13 +179,27 @@ model Offer {
   unloadDate    DateTime
   unloadTime    Int
   contactNumber String
-  isAccepted    Boolean   @default(false)
-  updatedAt     DateTime  @updatedAt
-  transportId   String    @db.ObjectId
-  transport     Transport @relation(fields: [transportId], references: [id], onDelete: Cascade)
-  creatorId     String    @db.ObjectId
-  creator       User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  message       String?   @db.String
+  isAccepted    Boolean         @default(false)
+  updatedAt     DateTime        @updatedAt
+  transportId   String          @db.ObjectId
+  transport     Transport       @relation(fields: [transportId], references: [id], onDelete: Cascade)
+  creatorId     String          @db.ObjectId
+  creator       User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  messages      OfferMessages[]
+}
+
+model OfferMessages {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  text       String
+  offerId    String   @db.ObjectId
+  offer      Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  senderId   String   @db.ObjectId
+  sender     User     @relation(name: "sender", fields: [senderId], references: [id])
+  receiverId String   @db.ObjectId
+  receiver   User     @relation(name: "receiver", fields: [receiverId], references: [id])
+  isRead     Boolean  @default(false)
 }
 
 model Directions {

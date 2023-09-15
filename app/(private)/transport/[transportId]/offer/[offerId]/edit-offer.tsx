@@ -36,7 +36,6 @@ import { Transport } from "../../page";
 import { OfferWithCreator } from "./page";
 
 const formSchema = z.object({
-  message: z.string(),
   currency: z.string({
     required_error: "Nieprawidłowa waluta",
   }),
@@ -103,7 +102,6 @@ const EditForm = ({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      message: String(offer.message),
       currency: String(offer.currency),
       vat: String(offer.vat),
       netto: Number(offer.netto),
@@ -117,7 +115,6 @@ const EditForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const {
-      message,
       currency,
       vat,
       netto,
@@ -130,7 +127,6 @@ const EditForm = ({
 
     const offerEdit = {
       id: offer.id,
-      message: message ? message : undefined,
       currency,
       vat: Number(vat),
       netto,
@@ -349,20 +345,6 @@ const EditForm = ({
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="message"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Wiadamość</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormDescription>Wpisz treść wiadomości</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <Button type="submit">Zaktualizuj</Button>
             </form>
           </Form>

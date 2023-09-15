@@ -18,6 +18,10 @@ import React from "react";
 import EditForm from "./edit-offer";
 import GoBack from "./go-back";
 import OfferAccept from "./accept-offer";
+import Message from "./message";
+import NewMessage from "./new-message";
+import { redirect } from "next/navigation";
+import { off } from "process";
 
 type Props = {
   params: {
@@ -31,6 +35,21 @@ export type OfferWithCreator = Offer & {
   transport: {
     id: string;
   };
+  messages: {
+    id: string;
+    text: string;
+    createdAt: Date;
+    sender: {
+      id: string;
+      username: string;
+      email: string;
+    };
+    receiver: {
+      id: string;
+      username: string;
+      email: string;
+    };
+  }[];
 };
 
 export type Transport = {
@@ -58,6 +77,7 @@ export type Transport = {
       weight: number;
     }
   ];
+
   availableDate: Date;
   sendDate: Date;
   receiveDate: Date;
@@ -100,12 +120,25 @@ const OfferCard = async (props: Props) => {
   const offer: OfferWithCreator = await getOffer(props.params.offerId);
   const transport: Transport = await getTransport(props.params.transportId);
   const session = await getServerSession(authOptions);
+  const receiver =
+    offer.creator.id === session?.user?.id
+      ? transport.creator.id
+      : offer.creator.id;
+
+  if (
+    offer.creator.id !== session?.user?.id &&
+    transport.creator.id !== session?.user?.id
+  ) {
+    redirect(`/transport/${transport.id}`);
+  }
   return (
-    <Card>
-      <CardHeader className="p-5 sm:flex sm:flex-row sm:justify-between grid grid-cols-2 gap-2">
-        <div className="flex flex-1 items-center col-span-2">
+    <Card className="mb-5">
+      <CardHeader className="sm:p-5 pb-5 sm:flex sm:flex-row sm:justify-between grid grid-cols-2 gap-2">
+        <div className="flex flex-wrap items-center col-span-2">
           <GoBack />
-          <CardTitle>Informacje o ofercie</CardTitle>
+          <CardTitle className="sm:text-2xl text-xl">
+            Informacje o ofercie
+          </CardTitle>
         </div>
 
         {!transport.isAccepted ? (
@@ -120,14 +153,14 @@ const OfferCard = async (props: Props) => {
         ) : (
           <>
             {offer.isAccepted ? (
-              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+              <div className="flex flex-wrap col-span-2 justify-end items-center gap-4">
                 <CheckCircle color="green" size={40} />
                 <CardDescription className="text-green-600">
                   Oferta zaakceptowana
                 </CardDescription>
               </div>
             ) : (
-              <div className="flex flex-1 col-span-2 justify-end items-center gap-4">
+              <div className="flex flex-wrap col-span-2 justify-end items-center gap-4">
                 <ArrowLeft size={40} color="red" />
                 <CardDescription className="text-red-600">
                   Zaakceptowano inną ofertę
@@ -138,7 +171,7 @@ const OfferCard = async (props: Props) => {
         )}
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex flex-col gap-4 sm:p-5 p-2">
         <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
           <Card className="grid space-y-4">
             <CardHeader className="p-3">
@@ -146,17 +179,17 @@ const OfferCard = async (props: Props) => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
-                <Label className="flex-1 space-x-2">
+                <Label className="flex flex-wrap gap-2">
                   <span>Nazwa użytkownika:</span>
                   <span className="font-semibold">
                     {offer.creator.username}
                   </span>
                 </Label>
-                <Label className="flex-1 space-x-2">
-                  <span>Numer telefonu</span>
+                <Label className="flex flex-wrap gap-2">
+                  <span>Numer telefonu:</span>
                   <span className="font-semibold">{offer.contactNumber}</span>
                 </Label>
-                <Label className="flex-1 space-x-2">
+                <Label className="flex flex-wrap gap-2">
                   <span>Email:</span>
                   <span className="font-semibold">{offer.creator.email}</span>
                 </Label>
@@ -170,25 +203,25 @@ const OfferCard = async (props: Props) => {
             <CardContent>
               <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                 <div className="grid space-y-4">
-                  <Label className="flex-1 space-x-2">
+                  <Label className="flex flex-wrap gap-2">
                     <span>Data dodania:</span>
                     <span className="font-semibold">
                       {formatDate(offer.createdAt)}
                     </span>
                   </Label>
-                  <Label className="flex-1 space-x-2">
+                  <Label className="flex flex-wrap gap-2">
                     <span>Data załadunku:</span>
                     <span className="font-semibold text-amber-500">
                       {formatDate(offer.loadDate)}
                     </span>
                   </Label>
-                  <Label className="flex-1 space-x-2">
+                  <Label className="flex flex-wrap gap-2">
                     <span>Data rozaładunku:</span>
                     <span className="font-semibold text-amber-500">
                       {formatDate(offer.unloadDate)}
                     </span>
                   </Label>
-                  <Label className="flex-1 space-x-2">
+                  <Label className="flex flex-wrap gap-2">
                     <span>Termin dostawy:</span>
                     <span className="font-semibold ">
                       w ciągu {offer.unloadTime} dni
@@ -197,21 +230,21 @@ const OfferCard = async (props: Props) => {
                 </div>
                 <div className="grid ">
                   <div className="flex flex-col space-y-2">
-                    <Label className="flex-1 space-x-2">
+                    <Label className="flex flex-wrap gap-2">
                       <span className="text-2xl">{offer.brutto}</span>
                       <span className="font-semibold text-xl">
                         {offer.currency}
                       </span>
                       <span>brutto</span>
                     </Label>
-                    <Label className="flex-1 space-x-2">
+                    <Label className="flex flex-wrap gap-2">
                       <span className="font-semibold text-lg">
                         {offer.netto}
                       </span>
                       <span className=" text-md">{offer.currency}</span>
                       <span>netto</span>
                     </Label>
-                    <Label className="flex-1 space-x-2">
+                    <Label className="flex flex-wrap gap-2">
                       <span className="font-semibold text-lg">VAT:</span>
                       <span className="text-md">{offer.vat}%</span>
                     </Label>
@@ -221,12 +254,29 @@ const OfferCard = async (props: Props) => {
             </CardContent>
           </Card>
         </div>
+        {transport.creator.id === session?.user?.id && !offer.isAccepted && (
+          <CardFooter className="justify-end">
+            <OfferAccept offer={offer} transport={transport} />
+          </CardFooter>
+        )}
+        <Card>
+          <CardHeader className="p-3">
+            <CardTitle className="text-lg">Wiadomości</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 sm:p-4 p-2">
+            <div className="flex flex-col space-y-4 w-full max-h-[700px] overflow-auto">
+              {offer.messages.map((message) => (
+                <Message
+                  key={message.id}
+                  message={message}
+                  user={String(session?.user.id)}
+                />
+              ))}
+            </div>
+            <NewMessage offerId={offer.id} receiverId={receiver} />
+          </CardContent>
+        </Card>
       </CardContent>
-      {transport.creator.id === session?.user?.id && !offer.isAccepted && (
-        <CardFooter className="justify-end">
-          <OfferAccept offer={offer} transport={transport} />
-        </CardFooter>
-      )}
     </Card>
   );
 };

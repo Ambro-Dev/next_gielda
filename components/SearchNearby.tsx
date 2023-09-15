@@ -37,7 +37,6 @@ const SearchNearby = (props: Props) => {
   useEffect(() => {
     setFromString(searchParams.get("from"));
     setToString(searchParams.get("to"));
-    console.log(searchParams.toString());
   }, [searchParams]);
 
   useEffect(() => {
@@ -60,9 +59,6 @@ const SearchNearby = (props: Props) => {
 
   const handleFromChange = (from: LatLng) => {
     setFrom(from);
-    console.log(fromString);
-    console.log(`${from.lat},${from.lng}`);
-    console.log(fromString === `${from.lat},${from.lng}`);
     if (fromString === `${from.lat},${from.lng}`) return;
     else
       setSearchString(

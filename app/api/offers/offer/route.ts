@@ -34,7 +34,27 @@ export const GET = async (req: NextRequest) => {
         },
       },
       currency: true,
-      message: true,
+      messages: {
+        select: {
+          id: true,
+          text: true,
+          createdAt: true,
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+        },
+      },
       netto: true,
       loadDate: true,
       unloadDate: true,

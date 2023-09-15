@@ -49,6 +49,19 @@ export const POST = async (req: NextRequest) => {
     });
   }
 
+  const existingTransport = await prisma.transport.findFirst({
+    where: {
+      id: transportId,
+    },
+  });
+
+  if (!existingTransport) {
+    return NextResponse.json({
+      error: "Brak transportu o podanym id",
+      status: 400,
+    });
+  }
+
   const offer = await prisma.offer.create({
     data: {
       currency,
@@ -59,7 +72,21 @@ export const POST = async (req: NextRequest) => {
       unloadDate,
       unloadTime,
       contactNumber,
-      message: message ? message : undefined,
+      messages: {
+        create: {
+          text: message,
+          sender: {
+            connect: {
+              id: creatorId,
+            },
+          },
+          receiver: {
+            connect: {
+              id: existingTransport.creatorId,
+            },
+          },
+        },
+      },
       creator: {
         connect: {
           id: creatorId,
@@ -90,7 +117,6 @@ export const PUT = async (req: NextRequest) => {
     unloadTime,
     contactNumber,
     creatorId,
-    message,
   } = body;
 
   if (
@@ -137,7 +163,6 @@ export const PUT = async (req: NextRequest) => {
       unloadDate,
       unloadTime,
       contactNumber,
-      message: message ? message : undefined,
     },
   });
 
