@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect } from "react";
+import React, { use, useEffect, useMemo } from "react";
 import Lottie from "lottie-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ReadonlyURLSearchParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -43,7 +47,14 @@ const TransportsFilter = (props: Props) => {
   const router = useRouter();
   const { categories, vehicles, transports } = props;
 
-  const searchParams = useSearchParams();
+  const search = useMemo(() => {
+    return new URLSearchParams({
+      from: "",
+      to: "",
+    });
+  }, []);
+
+  const searchParams = useSearchParams() || search;
 
   const [searchString, setSearchString] = React.useState<string>(
     searchParams.toString()
