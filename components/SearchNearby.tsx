@@ -18,7 +18,12 @@ type Props = {};
 const SearchNearby = (props: Props) => {
   const router = useRouter();
 
-  const searchParams = useSearchParams();
+  const searchParams =
+    useSearchParams() ||
+    new URLSearchParams({
+      from: "",
+      to: "",
+    });
 
   const [searchString, setSearchString] = useState<string>(
     searchParams.toString()

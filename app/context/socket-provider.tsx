@@ -57,10 +57,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const params = useParams();
 
-  const audio = new Audio(
-    "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
-  );
-
   const { data, status } = useSession();
 
   const userId = data?.user?.id;
@@ -88,7 +84,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       )
         return;
       if (message?.offer?.id && message?.offer?.id === params?.offerId) return;
-
+      const audio = new Audio(
+        "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
+      );
       audio.play();
       toast({
         title: `Nowa wiadomość od ${message?.sender?.username}, ${new Date(
