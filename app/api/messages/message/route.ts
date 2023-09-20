@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import { Conversation } from "@prisma/client";
+import { NextApiResponseServerIO } from "@/types";
 
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest, res: NextApiResponseServerIO) => {
   const body = await req.json();
 
   const { message, senderId, receiverId, transportId } = body;
@@ -102,6 +103,10 @@ export const POST = async (req: NextRequest) => {
       { status: 404 }
     );
   }
+  const conversationKey = `conversation:${conversation.id}:messages`;
+  const recieverKey = `user:${receiverId}:messages`;
+
+  res?.socket?.server?.io?.emit(recieverKey, newMessage);
 
   return NextResponse.json({
     message: newMessage,

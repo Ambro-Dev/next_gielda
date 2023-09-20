@@ -59,6 +59,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { School } from "@prisma/client";
+import { SocketIndicator } from "./ui/socket-indicator";
 
 const menu: { title: string; href: string; description: string }[] = [
   {
@@ -205,9 +206,9 @@ const TopBar = () => {
                           <NavigationMenuLink
                             className={navigationMenuTriggerStyle()}
                           >
-                            <SheetClose asChild>
+                            <SheetTrigger asChild>
                               <p>Giełda transportowa</p>
-                            </SheetClose>
+                            </SheetTrigger>
                           </NavigationMenuLink>
                         </Link>
                       </NavigationMenuItem>
@@ -217,7 +218,7 @@ const TopBar = () => {
                             <NavigationMenuLink
                               className={navigationMenuTriggerStyle()}
                             >
-                              Zaloguj się
+                              <SheetClose asChild>Zaloguj się</SheetClose>
                             </NavigationMenuLink>
                           </Link>
                         </NavigationMenuItem>
@@ -228,9 +229,9 @@ const TopBar = () => {
                               <NavigationMenuLink
                                 className={navigationMenuTriggerStyle()}
                               >
-                                <SheetClose asChild>
+                                <SheetTrigger asChild>
                                   <span>Moja giełda</span>
-                                </SheetClose>
+                                </SheetTrigger>
                               </NavigationMenuLink>
                             </Link>
                           </NavigationMenuItem>
@@ -244,8 +245,8 @@ const TopBar = () => {
                                 </Avatar>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="w-56">
-                                <DropdownMenuLabel>
-                                  Moje konto
+                                <DropdownMenuLabel className="flex flex-wrap justify-between">
+                                  Moje konto <SocketIndicator />
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuGroup>
@@ -429,7 +430,9 @@ const TopBar = () => {
                       </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
-                      <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                      <DropdownMenuLabel className="flex flex-wrap justify-between">
+                        Moje konto <SocketIndicator />
+                      </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
                         <DropdownMenuItem

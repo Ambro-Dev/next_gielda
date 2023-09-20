@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { SocketProvider } from "./context/socket-provider";
+import { QueryProvider } from "./context/query-privider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,17 +26,21 @@ export default async function RootLayout({
     <NextAuthProvider>
       <html lang="pl">
         <body className={inter.className}>
-          <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
-            <Toaster />
-            <TopBar />
-            <GoogleApiProvider>
-              <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
-                {children}
-              </div>
-            </GoogleApiProvider>
+          <SocketProvider>
+            <QueryProvider>
+              <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
+                <Toaster />
+                <TopBar />
+                <GoogleApiProvider>
+                  <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+                    {children}
+                  </div>
+                </GoogleApiProvider>
 
-            <Footer />
-          </main>
+                <Footer />
+              </main>
+            </QueryProvider>
+          </SocketProvider>
         </body>
       </html>
     </NextAuthProvider>

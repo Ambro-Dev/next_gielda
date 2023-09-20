@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { NextApiResponseServerIO } from "@/types";
 
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest, res: NextApiResponseServerIO) => {
   const body = await req.json();
 
   const { message, userId, conversationId, transportId } = body;
@@ -56,6 +57,8 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
+  const receiver = conversation.userIDs.find((id) => id !== userId);
+
   if (!newMessage) {
     return NextResponse.json(
       { error: "Nie udało się wysłać wiadomości" },
@@ -63,5 +66,7 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  return NextResponse.json({ meesage: "Wiadomość wysłana", status: 200 });
+  res?.socket?.server?.io?.emit("message", newMessage);
+
+  return NextResponse.json({ message: "Wiadomość wysłana", status: 200 });
 };

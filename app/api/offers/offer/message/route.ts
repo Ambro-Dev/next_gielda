@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import { Conversation } from "@prisma/client";
+import { NextApiResponseServerIO } from "@/types";
 
-export const PUT = async (req: NextRequest) => {
+export const PUT = async (req: NextRequest, res: NextApiResponseServerIO) => {
   const body = await req.json();
 
   const { message, senderId, receiverId, offerId } = body;
@@ -84,6 +84,11 @@ export const PUT = async (req: NextRequest) => {
       createdAt: true,
     },
   });
+
+  const offerKey = `offer:${offerId}:messages`;
+  const receiverKey = `user:${receiverId}:messages`;
+
+  res?.socket?.server?.io?.emit(receiverKey, newMessage);
 
   return NextResponse.json({
     message: newMessage,
