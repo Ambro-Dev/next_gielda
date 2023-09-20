@@ -52,6 +52,22 @@ export type OfferWithCreator = Offer & {
   }[];
 };
 
+type Message = {
+  id: string;
+  text: string;
+  createdAt: Date;
+  sender: {
+    id: string;
+    username: string;
+    email: string;
+  };
+  receiver: {
+    id: string;
+    username: string;
+    email: string;
+  };
+};
+
 export type Transport = {
   id: string;
   category: { id: string; name: string };
@@ -265,7 +281,7 @@ const OfferCard = async (props: Props) => {
           </CardHeader>
           <CardContent className="space-y-4 sm:p-4 p-2">
             <div className="flex flex-col space-y-4 w-full max-h-[700px] overflow-auto">
-              {offer.messages.map((message) => (
+              {offer.messages.map((message: Message) => (
                 <Message
                   key={message.id}
                   message={message}
