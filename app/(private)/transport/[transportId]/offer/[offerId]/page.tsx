@@ -22,6 +22,7 @@ import Message from "./message";
 import NewMessage from "./new-message";
 import { redirect } from "next/navigation";
 import { off } from "process";
+import Messages from "./messages";
 
 type Props = {
   params: {
@@ -281,7 +282,7 @@ const OfferCard = async (props: Props) => {
           </CardHeader>
           <CardContent className="space-y-4 sm:p-4 p-2">
             <div className="flex flex-col space-y-4 w-full max-h-[700px] overflow-auto">
-              {offer.messages.map((message: Message) => (
+              {offer.messages.map((message) => (
                 <Message
                   key={message.id}
                   message={message}

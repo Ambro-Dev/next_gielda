@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
+import { useSocket } from "@/app/context/socket-provider";
 
 const schema = z.object({
   message: z.string().min(1, "Wiadomość nie może być pusta"),
@@ -33,7 +34,7 @@ const NewMessage = (props: Props) => {
   const { offerId, receiverId } = props;
   const { data, status } = useSession();
   const [sending, setSending] = React.useState(false);
-
+  const { socket } = useSocket();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof schema>>({
@@ -43,18 +44,29 @@ const NewMessage = (props: Props) => {
     },
   });
 
+  React.useEffect(() => {
+    if (!socket) return;
+
+    socket.on(`offer:${props.offerId}:message`, (data: any) => {
+      router.refresh();
+    });
+
+    return () => {
+      socket.off(`offer:${props.offerId}:message`);
+    };
+  }, [socket]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
       setSending(true);
-      const response = await axiosInstance.put(`/api/offers/offer/message`, {
+      const response = await axiosInstance.post(`/api/socket/messages`, {
+        offerId: offerId,
         message: values.message,
-        offerId,
         senderId: data?.user?.id,
-        receiverId,
+        receiverId: receiverId,
       });
 
-      const resData = response.data;
-      if (resData.status === 200) {
+      if (response.status === 201) {
         form.reset();
         router.refresh();
       }
