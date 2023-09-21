@@ -110,6 +110,36 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
+    socketInstance.on(`user:${userId}:offer`, (message: MessageWithUser) => {
+      if (message?.sender?.id === userId) return;
+      if (
+        message?.conversation?.id &&
+        message?.conversation?.id === params?.conversationId
+      )
+        return;
+      if (message?.offer?.id && message?.offer?.id === params?.offerId) return;
+      const audio = new Audio(
+        "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
+      );
+      audio.play();
+      toast({
+        title: `Nowa oferta od ${message?.sender?.username}, ${new Date(
+          message?.createdAt
+        ).toLocaleTimeString()}`,
+        description: message?.text,
+        action: (
+          <Link
+            href={`/transport/${message?.transport?.id}/offer/${message?.offer?.id}`}
+          >
+            <Button variant="outline">
+              Otwórz
+              <MoveRight className="ml-2" size={16} />
+            </Button>
+          </Link>
+        ),
+      });
+    });
+
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
     });

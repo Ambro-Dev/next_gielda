@@ -215,11 +215,13 @@ const TopBar = () => {
                       {!isAuth ? (
                         <NavigationMenuItem>
                           <Link href="/signin" legacyBehavior passHref>
-                            <NavigationMenuLink
-                              className={navigationMenuTriggerStyle()}
-                            >
-                              <SheetClose asChild>Zaloguj się</SheetClose>
-                            </NavigationMenuLink>
+                            <SheetClose asChild>
+                              <NavigationMenuLink
+                                className={navigationMenuTriggerStyle()}
+                              >
+                                Zaloguj się
+                              </NavigationMenuLink>
+                            </SheetClose>
                           </Link>
                         </NavigationMenuItem>
                       ) : (
