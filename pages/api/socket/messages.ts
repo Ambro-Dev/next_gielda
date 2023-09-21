@@ -91,6 +91,28 @@ export default async function handler(
     if (offerId) {
       const offer = await prisma.offer.findUnique({
         where: { id: offerId },
+        select: {
+          id: true,
+          creator: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+          transport: {
+            select: {
+              id: true,
+              creator: {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!offer) {
@@ -131,8 +153,11 @@ export default async function handler(
           username: receiver?.username,
           email: receiver?.email,
         },
-        offer: { id: offer.id },
-        transport: { id: offer.transportId },
+        offer: { id: offer.id, creator: { id: offer.creator.id } },
+        transport: {
+          id: offer.transport.id,
+          creator: { id: offer.transport.creator.id },
+        },
       };
 
       res?.socket?.server?.io.emit(

@@ -16,6 +16,7 @@ import React, {
 } from "react";
 
 import { io as ClinetIO } from "socket.io-client";
+import { useMessages } from "./message-provider";
 
 type SocketContextType = {
   socket: any | null;
@@ -45,9 +46,11 @@ type MessageWithUser = Message & {
   };
   offer?: {
     id: string;
+    creator: { id: string };
   };
   transport?: {
     id: string;
+    creator: { id: string };
   };
 };
 
@@ -75,6 +78,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [socket, setSocket] = useState<any>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const params = useParams();
+  const { setMessages, setOffers, setOfferMessages } = useMessages();
 
   const { data, status } = useSession();
 
@@ -97,6 +101,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socketInstance.on(`user:${userId}:message`, (message: MessageWithUser) => {
       if (message?.sender?.id === userId) return;
+
       if (
         message?.conversation?.id &&
         message?.conversation?.id === params?.conversationId
@@ -106,6 +111,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       const audio = new Audio(
         "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
       );
+
+      if (message?.conversation?.id) {
+        setMessages((prev) => [...prev, message]);
+      } else if (message?.offer?.id) {
+        setOfferMessages((prev) => [...prev, message]);
+      }
       audio.play();
       toast({
         title: `Nowa wiadomość od ${message?.sender?.username}, ${new Date(
@@ -131,6 +142,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socketInstance.on(`user:${userId}:offer`, (offer: OfferWithUser) => {
       if (offer?.sender?.id === userId) return;
+      setOffers((prev) => [...prev, offer]);
       if (offer?.id && offer?.id === params?.offerId) return;
       const audio = new Audio(
         "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"

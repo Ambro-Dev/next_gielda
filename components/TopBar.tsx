@@ -2,11 +2,7 @@
 
 import Image from "next/image";
 import logo from "../public/gielda-fenilo.webp";
-import {
-  NavigationMenuContent,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -17,7 +13,6 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -35,12 +30,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -49,10 +39,8 @@ import {
   Settings,
   LogOut,
   MessageSquare,
-  StickyNote,
   PenBox,
   Menu,
-  Search,
   Facebook,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -60,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { axiosInstance } from "@/lib/axios";
 import { School } from "@prisma/client";
 import { SocketIndicator } from "./ui/socket-indicator";
+import { useMessages } from "@/app/context/message-provider";
 
 const menu: { title: string; href: string; description: string }[] = [
   {
@@ -94,6 +83,7 @@ const TopBar = () => {
   const { data, status } = useSession();
   const isAuth = status === "authenticated";
   const [school, setSchool] = React.useState<School | null>(null);
+  const { offers, messages, offerMessages } = useMessages();
 
   useEffect(() => {
     if (data?.user?.role === "student" || data?.user?.role === "school_admin") {
@@ -126,9 +116,16 @@ const TopBar = () => {
         <div className="flex justify-start flex-row items-center w-full h-16  py-1">
           <Sheet>
             <SheetTrigger asChild>
-              <button className="w-10 h-10 mr-4 lg:hidden">
-                <Menu size={36} />
-              </button>
+              <div className="relative lg:hidden">
+                {offers.length + messages.length + offerMessages.length > 0 && (
+                  <div className="absolute z-10 top-0 right-3 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                    {offers.length + messages.length + offerMessages.length}
+                  </div>
+                )}
+                <button className="w-10 h-10 mr-4">
+                  <Menu size={36} />
+                </button>
+              </div>
             </SheetTrigger>
             <SheetContent side={"left"}>
               <SheetHeader>
@@ -240,11 +237,23 @@ const TopBar = () => {
                           <NavigationMenuItem className="hover:cursor-pointer">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Avatar>
-                                  <AvatarFallback className="capitalize">
-                                    {data?.user.username.substring(0, 1)}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <div className="relative">
+                                  {offers.length +
+                                    messages.length +
+                                    offerMessages.length >
+                                    0 && (
+                                    <div className="absolute z-10 -top-2 -right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                      {offers.length +
+                                        messages.length +
+                                        offerMessages.length}
+                                    </div>
+                                  )}
+                                  <Avatar>
+                                    <AvatarFallback className="capitalize">
+                                      {data?.user.username.substring(0, 1)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </div>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="w-56">
                                 <DropdownMenuLabel className="flex flex-wrap justify-between">
@@ -275,23 +284,34 @@ const TopBar = () => {
                                     </SheetClose>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    className="hover:cursor-pointer relative hover:bg-amber-400"
                                     onClick={() =>
                                       router.replace("/user/market/messages")
                                     }
                                   >
                                     <MessageSquare className="mr-2 h-4 w-4" />
+                                    {messages.length > 0 && (
+                                      <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                        {messages.length}
+                                      </div>
+                                    )}
                                     <SheetClose asChild>
                                       <span>Wiadomości</span>
                                     </SheetClose>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    className="hover:cursor-pointer hover:bg-amber-400"
+                                    className="hover:cursor-pointer relative hover:bg-amber-400"
                                     onClick={() =>
                                       router.replace("/user/market/offers")
                                     }
                                   >
                                     <PenBox className="mr-2 h-4 w-4" />
+                                    {offers.length + offerMessages.length >
+                                      0 && (
+                                      <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                        {offers.length + offerMessages.length}
+                                      </div>
+                                    )}
                                     <SheetClose asChild>
                                       <span>Oferty</span>
                                     </SheetClose>
@@ -425,11 +445,24 @@ const TopBar = () => {
                 <NavigationMenuItem className="hover:cursor-pointer">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Avatar>
-                        <AvatarFallback className="capitalize">
-                          {data?.user.username.substring(0, 1)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        {offers.length +
+                          messages.length +
+                          offerMessages.length >
+                          0 && (
+                          <div className="absolute z-10 -top-2 -right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                            {offers.length +
+                              messages.length +
+                              offerMessages.length}
+                          </div>
+                        )}
+
+                        <Avatar>
+                          <AvatarFallback className="capitalize">
+                            {data?.user.username.substring(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuLabel className="flex flex-wrap justify-between">
@@ -456,19 +489,29 @@ const TopBar = () => {
                           <span>Ustawienia</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="hover:cursor-pointer hover:bg-amber-400"
+                          className="hover:cursor-pointer relative hover:bg-amber-400"
                           onClick={() =>
                             router.replace("/user/market/messages")
                           }
                         >
                           <MessageSquare className="mr-2 h-4 w-4" />
+                          {messages.length > 0 && (
+                            <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                              {messages.length}
+                            </div>
+                          )}
                           <span>Wiadomości</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="hover:cursor-pointer hover:bg-amber-400"
+                          className="hover:cursor-pointer relative hover:bg-amber-400"
                           onClick={() => router.replace("/user/market/offers")}
                         >
                           <PenBox className="mr-2 h-4 w-4" />
+                          {offers.length + offerMessages.length > 0 && (
+                            <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                              {offers.length + offerMessages.length}
+                            </div>
+                          )}
                           <span>Oferty</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
