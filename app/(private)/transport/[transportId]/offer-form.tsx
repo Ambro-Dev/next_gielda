@@ -136,9 +136,9 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
     };
 
     await axiosInstance
-      .post(`/api/transports/offer`, offer)
+      .post(`/api/socket/offers`, offer)
       .then((res) => {
-        if (res.data.message) {
+        if (res.status === 201) {
           form.reset();
           toast({
             title: "Oferta została dodana",

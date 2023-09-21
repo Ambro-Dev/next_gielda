@@ -51,6 +51,25 @@ type MessageWithUser = Message & {
   };
 };
 
+type OfferWithUser = {
+  id: string;
+  createdAt: string;
+  text: string;
+  sender: {
+    id: string;
+    username: string;
+    email: string;
+  };
+  receiver: {
+    id: string;
+    username: string;
+    email: string;
+  };
+  transport: {
+    id: string;
+  };
+};
+
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
   const [socket, setSocket] = useState<any>(null);
@@ -110,27 +129,20 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
-    socketInstance.on(`user:${userId}:offer`, (message: MessageWithUser) => {
-      if (message?.sender?.id === userId) return;
-      if (
-        message?.conversation?.id &&
-        message?.conversation?.id === params?.conversationId
-      )
-        return;
-      if (message?.offer?.id && message?.offer?.id === params?.offerId) return;
+    socketInstance.on(`user:${userId}:offer`, (offer: OfferWithUser) => {
+      if (offer?.sender?.id === userId) return;
+      if (offer?.id && offer?.id === params?.offerId) return;
       const audio = new Audio(
         "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
       );
       audio.play();
       toast({
-        title: `Nowa oferta od ${message?.sender?.username}, ${new Date(
-          message?.createdAt
+        title: `Nowa oferta od ${offer?.sender?.username}, ${new Date(
+          offer?.createdAt
         ).toLocaleTimeString()}`,
-        description: message?.text,
+        description: offer?.text,
         action: (
-          <Link
-            href={`/transport/${message?.transport?.id}/offer/${message?.offer?.id}`}
-          >
+          <Link href={`/transport/${offer?.transport?.id}/offer/${offer?.id}`}>
             <Button variant="outline">
               Otwórz
               <MoveRight className="ml-2" size={16} />
