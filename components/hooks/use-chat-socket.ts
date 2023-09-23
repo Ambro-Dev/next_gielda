@@ -26,9 +26,7 @@ export const useChatSocket = ({ offerId, conversationId }: ChatSocketProps) => {
   useEffect(() => {
     if (!socket || !userId) return;
 
-    socket.on(`user:${userId}:messages`, (message: MessageWithUser) => {
-      console.log("user-message", message);
-    });
+    socket.on(`user:${userId}:messages`, (message: MessageWithUser) => {});
 
     return () => {
       socket.off(`user:${userId}:messages`);

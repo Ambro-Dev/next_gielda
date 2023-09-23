@@ -166,7 +166,7 @@ const AddSchoolAdmin = ({ schoolId }: { schoolId: string }) => {
                 <Label>Imię i nazwisko</Label>
                 <Input
                   type="text"
-                  value={createdUser.username + " " + createdUser.surname}
+                  value={createdUser.name + " " + createdUser.surname}
                   readOnly
                   className="bg-gray-100"
                 />

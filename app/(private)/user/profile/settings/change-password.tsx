@@ -88,7 +88,7 @@ const ChangePassword = ({ userId, open, setOpen }: Props) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast({
         title: "Błąd",
         description: "Coś poszło nie tak, spróbuj ponownie później.",

@@ -15,7 +15,7 @@ const getUserTransports = async (userId: string) => {
     const data = response.data;
     return data.transports;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };

@@ -67,7 +67,7 @@ userSchema.methods.comparePassword = async function (password) {
   try {
     return await compare(password, this.password);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 };

@@ -54,7 +54,7 @@ export const ResetAdminPassword = ({ userId }: { userId: string }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return {};
     }
   };

@@ -14,7 +14,7 @@ async function getUsers(): Promise<User[]> {
     const json = res.data;
     return json;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 }

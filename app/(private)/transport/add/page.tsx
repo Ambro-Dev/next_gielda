@@ -26,7 +26,7 @@ const getCategories = async () => {
     const data = res.data;
     return data.categories;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -37,7 +37,7 @@ const getVehicles = async () => {
     const data = res.data;
     return data.vehicles;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -48,7 +48,7 @@ const getTypes = async () => {
     const data = res.data;
     return data.types;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -59,7 +59,7 @@ const getSchool = async (userId: String) => {
     const data = res.data;
     return data.school;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return "";
   }
 };

@@ -6,6 +6,7 @@ export const GET = async (req: NextRequest) => {
   if (!schoolId || schoolId === "" || schoolId === "undefined") {
     return NextResponse.json({ error: "Missing schoolId" }, { status: 400 });
   }
+
   const school = await prisma.school.findUnique({
     where: {
       id: schoolId,

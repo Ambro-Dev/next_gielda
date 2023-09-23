@@ -14,7 +14,7 @@ const getUserOffers = async (userId: string) => {
     const data = response.data;
     return data.offers;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };

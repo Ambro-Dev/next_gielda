@@ -18,7 +18,7 @@ async function getStudents(schoolId: string) {
     const data = res.data;
     return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 }
@@ -27,7 +27,11 @@ const Students = async (props: PageProps) => {
   const data = await getStudents(props.params.schoolId);
   return (
     <div>
-      <StudentsTable columns={columns} data={data} />
+      <StudentsTable
+        columns={columns}
+        data={data}
+        schoolId={props.params.schoolId}
+      />
       <div className="w-full px-10 pb-10">
         <AddStudentForm schoolId={props.params.schoolId} />
       </div>

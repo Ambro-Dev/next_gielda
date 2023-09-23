@@ -77,7 +77,7 @@ const MapWithDirections = ({ start, finish }: Props) => {
         setCurrentPosition({ lat: latitude, lng: longitude });
       },
       (error) => {
-        console.log(error);
+        console.error(error);
       }
     );
   }, [localization]);

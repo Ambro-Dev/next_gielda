@@ -42,7 +42,7 @@ const getCategories = async (): Promise<Tags[]> => {
 
     return res.data.categories;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -52,7 +52,7 @@ const getVehicles = async (): Promise<Tags[]> => {
     const res = await axiosInstance.get("/api/settings/vehicles");
     return res.data.vehicles;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -65,7 +65,7 @@ const checkUserInfo = async (userId: string): Promise<number> => {
       return 402;
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return 200;
 };
@@ -75,7 +75,7 @@ const getTransports = async (): Promise<Transport[]> => {
     const res = await axiosInstance.get("/api/transports");
     return res.data.transports;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };

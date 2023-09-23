@@ -51,6 +51,7 @@ model User {
   emailVerified  DateTime?
   name           String?
   surname        String?
+  phone          String?
   image          String?
   bio            String?
   hashedPassword String
@@ -97,6 +98,7 @@ model School {
   administrator   User?       @relation(fields: [administratorId], references: [id], onDelete: Cascade)
   isActive        Boolean     @default(true)
   accessExpires   DateTime
+  identifier      String      @unique
   students        Student[]
   transports      Transport[]
 }
@@ -105,6 +107,7 @@ model Student {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String?
   surname   String?
+  phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   schoolId  String   @db.ObjectId

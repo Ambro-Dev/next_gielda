@@ -134,7 +134,7 @@ async function getStudents(schoolId: string) {
     const data = res.data;
     return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 }

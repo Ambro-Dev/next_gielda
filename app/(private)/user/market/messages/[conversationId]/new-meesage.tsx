@@ -70,7 +70,7 @@ const NewMessage = (props: Props) => {
         router.refresh();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new Error("Nie udało się wysłać wiadomości");
     }
     setSending(false);
