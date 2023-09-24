@@ -38,7 +38,9 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ message: "Invalid token" }, { status: 403 });
   }
 
-  if (user.hashedPassword === password) {
+  const compare = await bcrypt.compare(password, user.hashedPassword);
+
+  if (compare) {
     return NextResponse.json(
       { message: "Nowe hasło musi być inne niż stare hasło" },
       { status: 400 }

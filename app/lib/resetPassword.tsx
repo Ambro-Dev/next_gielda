@@ -11,7 +11,7 @@ type Props = {
 function html(params: { username: string; link: string }) {
   const { username, link } = params;
 
-  const brandColor = "#f18c34";
+  const brandColor = "#5886e8";
   const color = {
     background: "#f9f9f9",
     text: "#444",

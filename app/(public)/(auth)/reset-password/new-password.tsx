@@ -18,11 +18,11 @@ import { redirect, useSearchParams } from "next/navigation";
 import React from "react";
 import { Eye, EyeOff, LoaderIcon } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
-import { toast } from "@/components/ui/use-toast";
 import Lottie from "lottie-react";
 
-import success from "@/assets/animations/success.json";
+import success_json from "@/assets/animations/success.json";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
 
 type Props = {};
 
@@ -86,9 +86,21 @@ const NewPassword = (props: Props) => {
         title: "Sukces",
         description: "Hasło zostało zmienione.",
       });
+      form.reset();
       setSuccess(true);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.response.status === 400) {
+        form.setError("password", {
+          type: "manual",
+          message: error.response.data.message,
+        });
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Coś poszło nie tak.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -96,7 +108,11 @@ const NewPassword = (props: Props) => {
     <>
       {success ? (
         <div className="flex flex-col justify-center items-center">
-          <Lottie animationData={success} className="w-1/2 h-1/2" />
+          <Lottie
+            animationData={success_json}
+            className="w-1/2 h-1/2"
+            loop={false}
+          />
           <Button variant="outline" className="w-full">
             <Link href="/signin">Zaloguj się</Link>
           </Button>
