@@ -27,23 +27,22 @@ export default async function RootLayout({
     <NextAuthProvider>
       <html lang="pl">
         <body className={inter.className}>
-          <MessageProvider>
-            <SocketProvider>
-              <QueryProvider>
+          <GoogleApiProvider>
+            <MessageProvider>
+              <SocketProvider>
                 <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
                   <Toaster />
                   <TopBar />
-                  <GoogleApiProvider>
-                    <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
-                      {children}
-                    </div>
-                  </GoogleApiProvider>
+
+                  <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+                    {children}
+                  </div>
 
                   <Footer />
                 </main>
-              </QueryProvider>
-            </SocketProvider>
-          </MessageProvider>
+              </SocketProvider>
+            </MessageProvider>
+          </GoogleApiProvider>
         </body>
       </html>
     </NextAuthProvider>
