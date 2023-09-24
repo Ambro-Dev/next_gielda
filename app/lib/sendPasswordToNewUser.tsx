@@ -12,11 +12,11 @@ type Props = {
 function html(params: { username: string; password: string; name: string }) {
   const { username, password, name } = params;
 
-  const host = "http://localhost:3000/signin";
+  const host = `${process.env.NEXTAUTH_URL}/signin`;
 
   const escapedHost = host.replace(/\./g, "&#8203;.");
 
-  const brandColor = "#f18c34";
+  const brandColor = "#5886e8";
   const color = {
     background: "#f9f9f9",
     text: "#444",

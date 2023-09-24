@@ -106,7 +106,11 @@ const ResetPassword = (props: Props) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Resetuj hasło</Button>
+            <Button type="submit" disabled={resetForm.formState.isSubmitting}>
+              {resetForm.formState.isSubmitting
+                ? "Wysyłanie..."
+                : "Resetuj hasło"}
+            </Button>
           </form>
         </Form>
       )}
