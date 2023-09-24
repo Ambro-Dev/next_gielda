@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
   const token = req.nextUrl.searchParams.get("token");
+  console.log(token);
 
   if (!token) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

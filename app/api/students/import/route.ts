@@ -132,6 +132,13 @@ export const POST = async (req: NextRequest) => {
       });
 
       if (createdStudent) {
+        await sendPasswordToNewUser({
+          email: student.user.create.email,
+          username,
+          password,
+          name: student.name,
+        });
+
         return {
           name_surname: `${student.name} ${student.surname}`,
           password: password,
@@ -139,13 +146,6 @@ export const POST = async (req: NextRequest) => {
           email: student.user.create.email,
           created: true,
         };
-
-        /* await sendPasswordToNewUser({
-          email: student.user.create.email,
-          username,
-          password,
-          name: student.name,
-        }); */
       } else {
         return {
           name_surname: `${student.name} ${student.surname}`,

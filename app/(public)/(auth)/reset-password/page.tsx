@@ -18,6 +18,7 @@ const checkToken = async (token: string) => {
     console.log(response);
     return true;
   } catch (error) {
+    console.error(error);
     notFound();
   }
 };
