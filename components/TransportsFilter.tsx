@@ -157,42 +157,48 @@ const TransportsFilter = (props: Props) => {
                 Kategorie ogłoszeń
               </h4>
               {categories &&
-                categories.map((category) => (
-                  <React.Fragment key={category.id}>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        onCheckedChange={() =>
-                          handleCategoryChange(category.id)
-                        }
-                        checked={selectedCategories.includes(category.id)}
-                      />
-                      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                        {category.name} {`(${category._count.transports})`}
-                      </label>
-                    </div>
-                    <Separator className="my-2" />
-                  </React.Fragment>
-                ))}
+                categories
+                  .filter((category) => category._count.transports > 0)
+                  .map((category) => (
+                    <React.Fragment key={category.id}>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          onCheckedChange={() =>
+                            handleCategoryChange(category.id)
+                          }
+                          checked={selectedCategories.includes(category.id)}
+                        />
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
+                          {category.name} {`(${category._count.transports})`}
+                        </label>
+                      </div>
+                      <Separator className="my-2" />
+                    </React.Fragment>
+                  ))}
             </div>
             <div className="p-4 flex lg:flex-col flex-row ">
               <h4 className="mb-4 text-sm font-semibold leading-none">
                 Typy pojazdów
               </h4>
               {vehicles &&
-                vehicles.map((vehicle) => (
-                  <React.Fragment key={vehicle.id}>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        onCheckedChange={() => handleVehicleChange(vehicle.id)}
-                        checked={selectedVehicles.includes(vehicle.id)}
-                      />
-                      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                        {vehicle.name} {`(${vehicle._count.transports})`}
-                      </label>
-                    </div>
-                    <Separator className="my-2" />
-                  </React.Fragment>
-                ))}
+                vehicles
+                  .filter((vehicle) => vehicle._count.transports > 0)
+                  .map((vehicle) => (
+                    <React.Fragment key={vehicle.id}>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          onCheckedChange={() =>
+                            handleVehicleChange(vehicle.id)
+                          }
+                          checked={selectedVehicles.includes(vehicle.id)}
+                        />
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
+                          {vehicle.name} {`(${vehicle._count.transports})`}
+                        </label>
+                      </div>
+                      <Separator className="my-2" />
+                    </React.Fragment>
+                  ))}
             </div>
             <Button className="flex mx-auto w-40 my-5" onClick={handleSearch}>
               Szukaj
