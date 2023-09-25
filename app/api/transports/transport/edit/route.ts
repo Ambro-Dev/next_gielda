@@ -17,6 +17,11 @@ export const PUT = async (req: NextRequest) => {
     objects,
     creator,
     directions,
+    duration,
+    distance,
+    start_address,
+    end_address,
+    polyline,
   } = body;
 
   const existingTransport = await prisma.transport.findUnique({
@@ -46,6 +51,11 @@ export const PUT = async (req: NextRequest) => {
       sendDate,
       sendTime,
       receiveTime,
+      duration,
+      distance,
+      start_address,
+      end_address,
+      polyline,
       isAvailable: true,
       vehicleId: vehicle,
       categoryId: category,
