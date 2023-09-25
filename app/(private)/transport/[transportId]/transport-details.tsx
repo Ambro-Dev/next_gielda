@@ -127,16 +127,16 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
                 </Badge>
               ) : (
                 <>
-                  {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 &&
+                  {GetExpireTimeLeft(transport.sendDate).hoursLeft > 0 &&
                   transport.isAvailable ? (
                     <Badge variant="destructive">
                       Wygaśnie za:{" "}
-                      {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+                      {GetExpireTimeLeft(transport.sendDate).daysLeft > 0
                         ? `${
-                            GetExpireTimeLeft(transport.availableDate).daysLeft
+                            GetExpireTimeLeft(transport.sendDate).daysLeft
                           } dni`
                         : `${
-                            GetExpireTimeLeft(transport.availableDate).hoursLeft
+                            GetExpireTimeLeft(transport.sendDate).hoursLeft
                           } godz.`}{" "}
                     </Badge>
                   ) : (

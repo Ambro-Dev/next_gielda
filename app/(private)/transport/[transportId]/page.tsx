@@ -36,7 +36,8 @@ export type Transport = {
       weight: number;
     }
   ];
-  availableDate: Date;
+  sendTime: string;
+  receiveTime: string;
   sendDate: Date;
   receiveDate: Date;
   type: { id: string; name: string };

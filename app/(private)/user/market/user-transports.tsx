@@ -111,12 +111,10 @@ export function UserTransports({
                   <div className="flex flex-col md:gap-4 items-center justify-center">
                     <Badge variant="destructive">
                       Wygaśnie za:{" "}
-                      {GetExpireTimeLeft(item.availableDate).daysLeft > 0
-                        ? `${
-                            GetExpireTimeLeft(item.availableDate).daysLeft
-                          } dni`
+                      {GetExpireTimeLeft(item.sendDate).daysLeft > 0
+                        ? `${GetExpireTimeLeft(item.sendDate).daysLeft} dni`
                         : `${
-                            GetExpireTimeLeft(item.availableDate).hoursLeft
+                            GetExpireTimeLeft(item.sendDate).hoursLeft
                           } godzin`}{" "}
                     </Badge>
                     <div className="md:px-10 px-5">

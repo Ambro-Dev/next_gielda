@@ -78,7 +78,8 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          availableDate: true,
+          sendDate: true,
+          sendTime: true,
           type: {
             select: {
               id: true,

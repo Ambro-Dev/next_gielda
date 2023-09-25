@@ -7,12 +7,13 @@ export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const {
     sendDate,
+    sendTime,
     vehicle,
     category,
     type,
     school,
     receiveDate,
-    availableDate,
+    receiveTime,
     description,
     objects,
     creator,
@@ -30,8 +31,9 @@ export const POST = async (req: NextRequest) => {
         },
       },
       receiveDate,
+      receiveTime,
+      sendTime,
       sendDate,
-      availableDate,
       isAvailable: true,
       vehicleId: vehicle,
       categoryId: category,
@@ -66,7 +68,8 @@ export const POST = async (req: NextRequest) => {
       },
       receiveDate,
       sendDate,
-      availableDate,
+      receiveTime,
+      sendTime,
       isAvailable: true,
       vehicleId: vehicle,
       categoryId: category,
@@ -93,7 +96,7 @@ export const POST = async (req: NextRequest) => {
 export const GET = async (req: NextRequest) => {
   await prisma.transport.updateMany({
     where: {
-      availableDate: {
+      sendDate: {
         lt: new Date(),
       },
     },

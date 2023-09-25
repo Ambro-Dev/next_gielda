@@ -80,7 +80,9 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          availableDate: true,
+          sendTime: true,
+          receiveTime: true,
+          sendDate: true,
           type: {
             select: {
               id: true,
