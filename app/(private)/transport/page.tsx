@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import TransportsFilter from "@/components/TransportsFilter";
 import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
-import { Step, directionsResult } from "@prisma/client";
+import { Transport as PrismaTransport } from "@prisma/client";
 
 export type Tags = {
   id: string;
@@ -17,7 +17,7 @@ export type Tags = {
   };
 };
 
-export type Transport = {
+export type Transport = PrismaTransport & {
   id: string;
   sendDate: Date;
   receiveDate: Date;
@@ -33,7 +33,6 @@ export type Transport = {
       lng: number;
     };
   };
-  directionsResult: directionsResult;
   creator: { id: string; username: string };
 };
 

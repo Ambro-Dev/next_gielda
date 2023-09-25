@@ -15,7 +15,7 @@ import React, {
   useEffect,
 } from "react";
 
-import { GoogleMap, DirectionsRenderer, Marker } from "@react-google-maps/api";
+import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import Image from "next/image";
 
 import distance_icon from "@/assets/icons/distance.png";
@@ -29,16 +29,42 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Transport } from "@/app/(private)/transport/page";
 
+type LatLngLiteral = google.maps.LatLngLiteral;
+
 type MapOptions = google.maps.MapOptions;
 
 const CardWithMap = ({ transport }: { transport: Transport }) => {
   const date = new Date(transport.sendDate);
+  const [center, setCenter] = useState<String | null>(null);
+  const [zoom, setZoom] = useState<number | null>(null);
   const formatedDate = date.toLocaleDateString("pl-PL", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+
+  const getCenter = (): String => {
+    const start = transport.directions.start;
+    const finish = transport.directions.finish;
+    const lat = (start.lat + finish.lat) / 2;
+    const lng = (start.lng + finish.lng) / 2;
+
+    return `${lat},${lng}`;
+  };
+
+  const getZoomLevel = (): number => {
+    const start = transport.directions.start;
+    const finish = transport.directions.finish;
+    const lat = Math.abs(start.lat - finish.lat);
+    const lng = Math.abs(start.lng - finish.lng);
+    return Math.max(lat, lng);
+  };
+
+  useEffect(() => {
+    setCenter(getCenter());
+    setZoom(getZoomLevel());
+  }, [transport]);
 
   const mapRef = useRef<GoogleMap>();
 
@@ -66,18 +92,17 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
   };
   return (
     <Card className="flex flex-col transition-all duration-500 hover:scale-[102%] hover:shadow-md">
-      <CardHeader className="h-80">
-        <GoogleMap
-          zoom={11}
-          mapContainerClassName="map-container"
-          options={options}
-          onLoad={onLoad}
-          center={transport.directions.start}
-          mapContainerStyle={containerStyle}
-        >
-          <Marker position={transport.directions.start} />
-          <Marker position={transport.directions.finish} />
-        </GoogleMap>
+      <CardHeader className="h-80 relative">
+        {center && zoom && (
+          <Image
+            src={`https://maps.googleapis.com/maps/api/staticmap?language=pl&size=500x350&scale=2&visible=77+${transport.start_address}%7C${transport.end_address}&markers=color:red%7Clabel:A%7C${transport.directions.start.lat},${transport.directions.start.lng}&markers=color:red%7Clabel:B%7C${transport.directions.finish.lat},${transport.directions.finish.lng}&path=weight:5%7Ccolor:0x0000ff80%7Cenc:${transport.polyline}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`}
+            fill
+            className="object-cover p-[2px] rounded-md pb-5"
+            alt="map"
+            sizes="100%"
+            priority
+          />
+        )}
       </CardHeader>
       <div className="grow">
         <CardContent>
@@ -112,13 +137,13 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 height={24}
               />
               <span className="text-sm font-bold">
-                {transport.directionsResult?.distance?.text}
+                {transport.distance?.text}
               </span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={time_icon} alt="time" width={24} height={24} />
               <span className="text-sm font-bold">
-                {transport.directionsResult?.duration?.text}
+                {transport.duration?.text}
               </span>
             </div>
           </div>
@@ -132,7 +157,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 priority
               />
               <span className="text-sm font-bold text-center">
-                {transport.directionsResult?.start_address}
+                {transport.start_address}
               </span>
             </div>
             <div className="flex items-center justify-center my-auto w-2/12">
@@ -148,7 +173,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 priority
               />
               <span className="text-sm font-bold text-center">
-                {transport.directionsResult?.end_address}
+                {transport.end_address}
               </span>
             </div>
           </div>

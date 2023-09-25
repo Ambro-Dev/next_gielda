@@ -127,6 +127,7 @@ export function AddTransportForm({
 
   const [directionsLeg, setDirectionsLeg] =
     React.useState<google.maps.DirectionsLeg>();
+  const [directions, setDirections] = React.useState<DirectionsResult>();
 
   const [startDestination, setStartDestination] =
     React.useState<Destination | null>(null);
@@ -151,6 +152,7 @@ export function AddTransportForm({
       },
       (result, status) => {
         if (status === "OK" && result) {
+          setDirections(result);
           setDirectionsLeg(result.routes[0].legs[0]);
         }
       }
@@ -180,10 +182,16 @@ export function AddTransportForm({
         start: startDestination,
         finish: endDestination,
       },
-      directionsResult: directionsLeg,
+      distance: directionsLeg?.distance,
+      duration: directionsLeg?.duration,
+      start_address: directionsLeg?.start_address,
+      end_address: directionsLeg?.end_address,
+      polyline: directions?.routes[0].overview_polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
+
+    console.log(directionsLeg);
 
     try {
       const response = await axiosInstance.post(

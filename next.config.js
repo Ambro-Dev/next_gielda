@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: "api.mapbox.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+        port: "",
+      },
     ],
     domains: ["uploadthing.com"],
   },
