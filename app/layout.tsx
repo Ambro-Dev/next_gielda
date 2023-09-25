@@ -7,7 +7,6 @@ import { NextAuthProvider } from "./context/authProvider";
 import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "./context/socket-provider";
-import { QueryProvider } from "./context/query-privider";
 import MessageProvider from "./context/message-provider";
 
 const inter = Inter({ subsets: ["latin"] });
