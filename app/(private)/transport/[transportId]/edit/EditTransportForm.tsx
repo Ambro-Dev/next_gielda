@@ -121,14 +121,12 @@ type Settings = {
 export function EditTransportForm({
   school,
   categories,
-  types,
   vehicles,
   user,
   transport,
 }: {
   school: School;
   categories: Settings[];
-  types: Settings[];
   vehicles: Settings[];
   user: string;
   transport: Transport & {
@@ -164,7 +162,6 @@ export function EditTransportForm({
     defaultValues: {
       description: transport.description,
       category: transport.category.id,
-      type: transport.type.id,
       vehicle: transport.vehicle.id,
       sendTime: transport.sendTime,
       sendDate: new Date(transport.sendDate),
@@ -264,27 +261,6 @@ export function EditTransportForm({
                   <FormDescription>
                     Wybierz typ pojazdu transportowego
                   </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Typ ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={types}
-                      onChange={field.onChange}
-                      title="Typ ogłoszenia"
-                      defaultValue={
-                        types.find((item) => item.id === field.value)?.name
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>Osoba prywatna czy firma?</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

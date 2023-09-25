@@ -9,7 +9,6 @@ export const PUT = async (req: NextRequest) => {
     vehicle,
     id,
     category,
-    type,
     school,
     receiveDate,
     sendTime,
@@ -51,7 +50,6 @@ export const PUT = async (req: NextRequest) => {
       vehicleId: vehicle,
       categoryId: category,
       creatorId: creator,
-      typeId: type,
       schoolId: school ? school : undefined,
       directions: {
         update: directions,

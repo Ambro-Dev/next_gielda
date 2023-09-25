@@ -15,7 +15,7 @@ import React, {
   useEffect,
 } from "react";
 
-import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
+import { GoogleMap, DirectionsRenderer, Marker } from "@react-google-maps/api";
 import Image from "next/image";
 
 import distance_icon from "@/assets/icons/distance.png";
@@ -29,8 +29,6 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Transport } from "@/app/(private)/transport/page";
 
-type LatLngLiteral = google.maps.LatLngLiteral;
-type DirectionsResult = google.maps.DirectionsResult;
 type MapOptions = google.maps.MapOptions;
 
 const CardWithMap = ({ transport }: { transport: Transport }) => {
@@ -44,12 +42,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
 
   const mapRef = useRef<GoogleMap>();
 
-  const [directionsLeg, setDirectionsLeg] =
-    useState<google.maps.DirectionsLeg>();
-
   const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-  const [directions, setDirections] = useState<DirectionsResult>();
 
   const options = useMemo<MapOptions>(
     () => ({
@@ -66,31 +59,6 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
     []
   );
 
-  useEffect(() => {
-    if (!transport.directions.start || !transport.directions.finish) return;
-    fetchDirections(transport.directions.start);
-  }, [transport.directions.start, transport.directions.finish]);
-
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!transport.directions.finish || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: transport.directions.finish,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-          setDirectionsLeg(result.routes[0].legs[0]);
-        }
-      }
-    );
-  };
-
   const containerStyle = {
     width: "100%",
     height: "300px",
@@ -104,24 +72,11 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
           mapContainerClassName="map-container"
           options={options}
           onLoad={onLoad}
+          center={transport.directions.start}
           mapContainerStyle={containerStyle}
         >
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                polylineOptions: {
-                  strokeColor: "#1976D2",
-                  strokeWeight: 5,
-                  clickable: false,
-                },
-                markerOptions: {
-                  zIndex: 100,
-                  cursor: "default",
-                },
-              }}
-            />
-          )}
+          <Marker position={transport.directions.start} />
+          <Marker position={transport.directions.finish} />
         </GoogleMap>
       </CardHeader>
       <div className="grow">
@@ -129,7 +84,6 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
           <div className="flex mb-6 flex-row items-center justify-around w-full gap-2">
             <div className="flex flex-row items-center gap-2">
               <Badge>{transport.category.name}</Badge>
-              <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
             <div className="flex flex-row items-center justify-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
@@ -158,13 +112,13 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 height={24}
               />
               <span className="text-sm font-bold">
-                {directionsLeg?.distance?.text}
+                {transport.directionsResult?.distance?.text}
               </span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <Image src={time_icon} alt="time" width={24} height={24} />
               <span className="text-sm font-bold">
-                {directionsLeg?.duration?.text}
+                {transport.directionsResult?.duration?.text}
               </span>
             </div>
           </div>
@@ -178,7 +132,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 priority
               />
               <span className="text-sm font-bold text-center">
-                {directionsLeg?.start_address}
+                {transport.directionsResult?.start_address}
               </span>
             </div>
             <div className="flex items-center justify-center my-auto w-2/12">
@@ -194,7 +148,7 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
                 priority
               />
               <span className="text-sm font-bold text-center">
-                {directionsLeg?.end_address}
+                {transport.directionsResult?.end_address}
               </span>
             </div>
           </div>

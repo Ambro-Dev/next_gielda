@@ -51,10 +51,6 @@ type SchoolWithTransports = {
       id: string;
       username: string;
     };
-    type: {
-      id: string;
-      name: string;
-    };
     _count: {
       objects: number;
     };
@@ -76,10 +72,6 @@ type Transport = {
   creator: {
     id: string;
     username: string;
-  };
-  type: {
-    id: string;
-    name: string;
   };
   _count: {
     objects: number;
@@ -156,7 +148,6 @@ export default async function SchoolManagement() {
     return {
       id: transport.id,
       vehicle: transport.vehicle.name,
-      type: transport.type.name,
       category: transport.category.name,
       creator: transport.creator.username,
       objects: transport._count.objects,

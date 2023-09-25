@@ -35,10 +35,6 @@ export type ExtendedTransport = Transport & {
     id: string;
     name: string;
   };
-  type: {
-    id: string;
-    name: string;
-  };
   creator: {
     id: string;
     username: string;

@@ -118,7 +118,6 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
           <div className="flex pb-6 px-5 sm:flex-row flex-col items-center justify-start gap-4 w-full">
             <div className="flex gap-4">
               <Badge>{transport.category.name}</Badge>
-              <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
             <>
               {transport.isAccepted ? (

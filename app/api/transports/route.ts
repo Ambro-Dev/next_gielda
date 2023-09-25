@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/lib/prismadb";
-import { Object } from "@prisma/client";
+import { Object, Step } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
@@ -10,7 +10,6 @@ export const POST = async (req: NextRequest) => {
     sendTime,
     vehicle,
     category,
-    type,
     school,
     receiveDate,
     receiveTime,
@@ -18,6 +17,7 @@ export const POST = async (req: NextRequest) => {
     objects,
     creator,
     directions,
+    directionsResult,
   } = body;
 
   const existingTransport = await prisma.transport.findFirst({
@@ -38,7 +38,6 @@ export const POST = async (req: NextRequest) => {
       vehicleId: vehicle,
       categoryId: category,
       creatorId: creator,
-      typeId: type,
       schoolId: school ? school : undefined,
       directions: {
         start: {
@@ -69,12 +68,12 @@ export const POST = async (req: NextRequest) => {
       receiveDate,
       sendDate,
       receiveTime,
+      directionsResult,
       sendTime,
       isAvailable: true,
       vehicleId: vehicle,
       categoryId: category,
       creatorId: creator,
-      typeId: type,
       schoolId: school ? school : undefined,
       directions: {
         create: directions,
@@ -125,12 +124,6 @@ export const GET = async (req: NextRequest) => {
           name: true,
         },
       },
-      type: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
       directions: {
         select: {
           finish: {
@@ -147,6 +140,8 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
+      sendTime: true,
+      directionsResult: true,
       creator: {
         select: {
           id: true,

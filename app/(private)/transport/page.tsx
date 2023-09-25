@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import TransportsFilter from "@/components/TransportsFilter";
 import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
+import { Step, directionsResult } from "@prisma/client";
 
 export type Tags = {
   id: string;
@@ -22,7 +23,6 @@ export type Transport = {
   receiveDate: Date;
   vehicle: { id: string; name: string };
   category: { id: string; name: string };
-  type: { id: string; name: string };
   directions: {
     finish: {
       lat: number;
@@ -33,6 +33,7 @@ export type Transport = {
       lng: number;
     };
   };
+  directionsResult: directionsResult;
   creator: { id: string; username: string };
 };
 

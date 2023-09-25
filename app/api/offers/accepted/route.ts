@@ -92,12 +92,6 @@ export const GET = async (req: NextRequest) => {
           sendTime: true,
           sendDate: true,
           receiveTime: true,
-          type: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
           vehicle: {
             select: {
               id: true,

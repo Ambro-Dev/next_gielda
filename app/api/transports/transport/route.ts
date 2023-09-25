@@ -69,12 +69,6 @@ export async function GET(req: NextRequest) {
       },
       sendDate: true,
       receiveDate: true,
-      type: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
     },
   });
 

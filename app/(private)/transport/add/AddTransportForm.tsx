@@ -27,12 +27,9 @@ import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { CategoryComboBox } from "@/components/CategoryComboBox";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+type DirectionsResult = google.maps.DirectionsResult;
 
 const formSchema = z
   .object({
@@ -44,13 +41,6 @@ const formSchema = z
         message: "Wybierz kategorię.",
       }),
     vehicle: z
-      .string({
-        required_error: "Wybierz typ pojazdu.",
-      })
-      .min(1, {
-        message: "Wybierz typ pojazdu.",
-      }),
-    type: z
       .string({
         required_error: "Wybierz typ pojazdu.",
       })
@@ -120,26 +110,54 @@ type Settings = {
   name: string;
 };
 
+type LatLngLiteral = google.maps.LatLngLiteral;
+
 export function AddTransportForm({
   school,
   categories,
-  types,
   vehicles,
 }: {
   school: School;
   categories: Settings[];
-  types: Settings[];
   vehicles: Settings[];
 }) {
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
 
-  const [objects, setObjects] = React.useState<Objects[]>([]);
+  const [directionsLeg, setDirectionsLeg] =
+    React.useState<google.maps.DirectionsLeg>();
+
   const [startDestination, setStartDestination] =
     React.useState<Destination | null>(null);
   const [endDestination, setEndDestination] =
     React.useState<Destination | null>(null);
+
+  React.useEffect(() => {
+    if (!startDestination || !endDestination) return;
+    fetchDirections(startDestination as LatLngLiteral);
+  }, [startDestination, endDestination]);
+
+  const fetchDirections = async (start: LatLngLiteral) => {
+    if (!endDestination || !start) return;
+
+    const service = new google.maps.DirectionsService();
+
+    service.route(
+      {
+        origin: start,
+        destination: endDestination,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === "OK" && result) {
+          setDirectionsLeg(result.routes[0].legs[0]);
+        }
+      }
+    );
+  };
+
+  const [objects, setObjects] = React.useState<Objects[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -162,6 +180,7 @@ export function AddTransportForm({
         start: startDestination,
         finish: endDestination,
       },
+      directionsResult: directionsLeg,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
@@ -234,24 +253,6 @@ export function AddTransportForm({
                   <FormDescription>
                     Wybierz typ pojazdu transportowego
                   </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Typ ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={types}
-                      onChange={field.onChange}
-                      title="Typ ogłoszenia"
-                    />
-                  </FormControl>
-                  <FormDescription>Osoba prywatna czy firma?</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -357,8 +358,16 @@ export function AddTransportForm({
           type="button"
           onClick={form.handleSubmit(onSubmit)}
           className="w-full"
+          disabled={form.formState.isSubmitting}
         >
-          Dodaj
+          {form.formState.isSubmitting ? (
+            <div className="flex flex-row items-center justify-center">
+              <Loader2 className="animate-spin" />
+              <span className="ml-2">Dodawanie...</span>
+            </div>
+          ) : (
+            "Dodaj ogłoszenie"
+          )}
         </Button>
       </div>
     </div>

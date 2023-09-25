@@ -36,12 +36,6 @@ export const GET = async (req: NextRequest) => {
               username: true,
             },
           },
-          type: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
           _count: {
             select: {
               objects: true,

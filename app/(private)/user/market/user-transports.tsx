@@ -104,7 +104,6 @@ export function UserTransports({
 
                 <div className="flex md:flex-col flex-row itmes-center md:gap-6 gap-3">
                   <Badge className="justify-center">{item.category.name}</Badge>
-                  <Badge className="justify-center">{item.type.name}</Badge>
                   <Badge className="justify-center">{item.vehicle.name}</Badge>
                 </div>
                 <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">

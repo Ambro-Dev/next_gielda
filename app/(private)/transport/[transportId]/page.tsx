@@ -40,7 +40,6 @@ export type Transport = {
   receiveTime: string;
   sendDate: Date;
   receiveDate: Date;
-  type: { id: string; name: string };
 };
 
 const getTransport = async (transportId: string): Promise<Transport> => {

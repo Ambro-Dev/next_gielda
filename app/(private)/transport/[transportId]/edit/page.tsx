@@ -49,17 +49,6 @@ const getVehicles = async () => {
   }
 };
 
-const getTypes = async () => {
-  try {
-    const res = await axiosInstance.get(`/api/settings/types`);
-    const data = res.data;
-    return data.types;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
 const getSchool = async (userId: String) => {
   try {
     const res = await axiosInstance.get(`/api/schools/school?userId=${userId}`);
@@ -91,7 +80,6 @@ const EditTransport = async (props: Props) => {
 
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
-  const typesData = getTypes();
   const school = await getSchool(String(session?.user.id));
   const transport = await getTransport(String(props.params.transportId));
 
@@ -99,10 +87,9 @@ const EditTransport = async (props: Props) => {
   if (transport.creator.id !== session?.user.id)
     redirect(`/transport/${transport.id}`);
 
-  const [vehicles, categories, types] = await Promise.all<Settings[]>([
+  const [vehicles, categories] = await Promise.all<Settings[]>([
     vehiclesData,
     categoriesData,
-    typesData,
   ]);
 
   const vehiclesNames = vehicles.map((vehicle) => ({
@@ -113,7 +100,6 @@ const EditTransport = async (props: Props) => {
     id: category.id,
     name: category.name,
   }));
-  const typesNames = types.map((type) => ({ id: type.id, name: type.name }));
 
   return (
     <div className="flex w-full h-full pt-5 pb-10">
@@ -124,7 +110,6 @@ const EditTransport = async (props: Props) => {
             school={school}
             transport={transport}
             vehicles={vehiclesNames}
-            types={typesNames}
             categories={categoriesNames}
           />
         </CardContent>

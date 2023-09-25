@@ -101,6 +101,44 @@ type LatLng {
   lng Float
 }
 
+type DirectionsValue {
+  text  String
+  value Int
+}
+
+type Polyline {
+  points String
+}
+
+type directionsResult {
+  distance            DirectionsValue?
+  duration            DirectionsValue?
+  end_address         String?
+  end_location        LatLng?
+  start_address       String?
+  start_location      LatLng?
+  steps               Step[]
+  traffic_speed_entry String[]
+  via_waypoint        String[]
+  via_waypoints       String[]
+}
+
+type Step {
+  distance         DirectionsValue?
+  duration         DirectionsValue?
+  end_location     LatLng?
+  polyline         Polyline?
+  start_location   LatLng?
+  travel_mode      String?
+  encoded_lat_lngs String?
+  path             LatLng[]
+  lat_lngs         LatLng[]
+  instructions     String?
+  maneuver         String?
+  start_point      LatLng?
+  end_point        LatLng?
+}
+
 model School {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
   name            String
@@ -130,30 +168,29 @@ model Student {
 }
 
 model Transport {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  categoryId    String         @db.ObjectId
-  category      Category       @relation(fields: [categoryId], references: [id])
-  vehicleId     String         @db.ObjectId
-  vehicle       Vehicle        @relation(fields: [vehicleId], references: [id])
-  isAvailable   Boolean
-  isAccepted    Boolean        @default(false)
-  sendDate      DateTime
-  sendTime      String
-  receiveDate   DateTime
-  receiveTime   String
-  directions    Directions?
-  description   String
-  creatorId     String         @db.ObjectId
-  creator       User           @relation(fields: [creatorId], references: [id])
-  typeId        String         @db.ObjectId
-  type          Type           @relation(fields: [typeId], references: [id])
-  objects       Object[]
-  schoolId      String?        @db.ObjectId
-  school        School?        @relation(fields: [schoolId], references: [id])
-  offers        Offer[]
-  conversations Conversation[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  categoryId       String            @db.ObjectId
+  category         Category          @relation(fields: [categoryId], references: [id])
+  vehicleId        String            @db.ObjectId
+  vehicle          Vehicle           @relation(fields: [vehicleId], references: [id])
+  isAvailable      Boolean
+  isAccepted       Boolean           @default(false)
+  sendDate         DateTime
+  sendTime         String
+  receiveDate      DateTime
+  directionsResult directionsResult?
+  receiveTime      String
+  directions       Directions?
+  description      String
+  creatorId        String            @db.ObjectId
+  creator          User              @relation(fields: [creatorId], references: [id])
+  objects          Object[]
+  schoolId         String?           @db.ObjectId
+  school           School?           @relation(fields: [schoolId], references: [id])
+  offers           Offer[]
+  conversations    Conversation[]
 }
 
 model Conversation {
@@ -253,14 +290,6 @@ model Category {
 }
 
 model Vehicle {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  name       String      @unique
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  transports Transport[]
-}
-
-model Type {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
   name       String      @unique
   createdAt  DateTime    @default(now())

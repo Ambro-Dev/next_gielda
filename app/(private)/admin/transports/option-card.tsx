@@ -69,15 +69,27 @@ type OptionParams = {
 };
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: "Podaj nazwę.",
-  }),
+  name: z
+    .string()
+    .min(1, {
+      message: "Podaj nazwę.",
+    })
+    .regex(/^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$/, {
+      message: "Nazwa może zawierać tylko litery i cyfry.",
+    })
+    .transform((val) => val.trim()),
 });
 
 const formEditSchema = z.object({
-  name: z.string().min(1, {
-    message: "Podaj nazwę.",
-  }),
+  name: z
+    .string()
+    .min(1, {
+      message: "Podaj nazwę.",
+    })
+    .regex(/^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$/, {
+      message: "Nazwa może zawierać tylko litery i cyfry.",
+    })
+    .transform((val) => val.trim()),
 });
 
 export const OptionCard = (params: OptionParams) => {
@@ -181,12 +193,12 @@ export const OptionCard = (params: OptionParams) => {
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="pt-5 flex-grow">
+      <CardContent className="flex-grow">
         {options?.length > 0 ? (
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4 max-h-[500px] overflow-auto py-5">
             {options.map((item) => (
               <React.Fragment key={item.id}>
-                <div className="text-sm flex justify-between items-center">
+                <div className="text-sm flex justify-between items-center px-5 ">
                   {item.name}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

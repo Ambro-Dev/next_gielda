@@ -58,10 +58,6 @@ type SchoolWithTransports = {
       id: string;
       username: string;
     };
-    type: {
-      id: string;
-      name: string;
-    };
     _count: {
       objects: number;
     };
