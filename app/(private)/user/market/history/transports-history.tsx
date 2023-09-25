@@ -53,7 +53,6 @@ export function TransportsHistory({ data }: { data: ExtendedTransport[] }) {
 
                 <div className="flex md:flex-col flex-row itmes-center md:gap-6 gap-3">
                   <Badge className="justify-center">{item.category.name}</Badge>
-                  <Badge className="justify-center">{item.type.name}</Badge>
                   <Badge className="justify-center">{item.vehicle.name}</Badge>
                 </div>
                 <div className="grid lg:grid-cols-4 grid-cols-1 gap-4 items-center justify-center">

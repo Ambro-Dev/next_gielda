@@ -38,7 +38,12 @@ const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
     setValue,
     suggestions: { status, data },
     clearSuggestions,
-  } = usePlacesAutocomplete();
+  } = usePlacesAutocomplete({
+    debounce: 300,
+    requestOptions: {
+      types: ["geocode"],
+    },
+  });
 
   const handleSelect = async (val: string) => {
     setValue(val, false);

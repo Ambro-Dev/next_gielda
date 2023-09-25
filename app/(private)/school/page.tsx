@@ -51,10 +51,6 @@ type SchoolWithTransports = {
       id: string;
       username: string;
     };
-    type: {
-      id: string;
-      name: string;
-    };
     _count: {
       objects: number;
     };
@@ -76,10 +72,6 @@ type Transport = {
   creator: {
     id: string;
     username: string;
-  };
-  type: {
-    id: string;
-    name: string;
   };
   _count: {
     objects: number;
@@ -134,7 +126,7 @@ async function getStudents(schoolId: string) {
     const data = res.data;
     return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 }
@@ -156,7 +148,6 @@ export default async function SchoolManagement() {
     return {
       id: transport.id,
       vehicle: transport.vehicle.name,
-      type: transport.type.name,
       category: transport.category.name,
       creator: transport.creator.username,
       objects: transport._count.objects,
@@ -237,7 +228,11 @@ export default async function SchoolManagement() {
             </div>
           </TabsContent>
           <TabsContent value="users">
-            <StudentsTable columns={columns} data={students} />
+            <StudentsTable
+              columns={columns}
+              data={students}
+              schoolId={school.id}
+            />
             <AddStudentForm schoolId={school.id} />
           </TabsContent>
           <TabsContent value="transports">

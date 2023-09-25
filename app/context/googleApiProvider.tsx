@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadScriptProps, useLoadScript } from "@react-google-maps/api";
+import Loading from "../loading";
 
 const libraries: LoadScriptProps["libraries"] = ["places"];
 
@@ -16,7 +17,11 @@ export const GoogleApiProvider = ({
 
   if (!isLoaded)
     return (
-      <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full"></div>
+      <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
+        <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+          <Loading />
+        </div>
+      </main>
     );
   return <>{children}</>;
 };

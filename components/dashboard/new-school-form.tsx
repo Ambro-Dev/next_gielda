@@ -42,7 +42,9 @@ type Props = {};
 
 const schema = z.object({
   name: z
-    .string()
+    .string({
+      required_error: "Podaj nazwę szkoły.",
+    })
     .min(3, {
       message: "Nazwa szkoły musi mieć minimum 3 znaki.",
     })
@@ -61,8 +63,6 @@ const NewSchoolForm = (props: Props) => {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: "onBlur",
-    reValidateMode: "onBlur",
     defaultValues: {
       name: "",
       plan: "",

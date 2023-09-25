@@ -28,7 +28,8 @@ export async function GET(req: NextRequest) {
         },
       },
       createdAt: true,
-      availableDate: true,
+      sendTime: true,
+      receiveTime: true,
       isAccepted: true,
       isAvailable: true,
       vehicle: {
@@ -68,12 +69,6 @@ export async function GET(req: NextRequest) {
       },
       sendDate: true,
       receiveDate: true,
-      type: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
     },
   });
 

@@ -46,13 +46,9 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          availableDate: true,
-          type: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+          sendTime: true,
+          sendDate: true,
+          receiveTime: true,
           vehicle: {
             select: {
               id: true,

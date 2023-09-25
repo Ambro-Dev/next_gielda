@@ -17,6 +17,7 @@ import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 import AddSchoolAdmin from "./add-school-admin";
+import { notFound } from "next/navigation";
 
 interface PageProps {
   params: {
@@ -57,10 +58,6 @@ type SchoolWithTransports = {
       id: string;
       username: string;
     };
-    type: {
-      id: string;
-      name: string;
-    };
     _count: {
       objects: number;
     };
@@ -75,7 +72,7 @@ const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
     return res.data;
   } catch (error) {
     console.error(error);
-    return {} as SchoolWithTransports;
+    notFound();
   }
 };
 

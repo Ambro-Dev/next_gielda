@@ -12,7 +12,7 @@ const getUserInfo = async (
     const data = response.data;
     return data.user;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { name: "", surname: "" };
   }
 };

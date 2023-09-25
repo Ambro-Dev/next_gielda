@@ -45,9 +45,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const { username, schoolId, email } = await body;
+  const { username, schoolId, email, name, surname } = await body;
 
-  if (!username || !schoolId || !email) {
+  if (!username || !schoolId || !email || !name || !surname) {
     return NextResponse.json({ error: "Brakuje wymaganych pól", status: 400 });
   }
 
@@ -91,6 +91,8 @@ export async function POST(req: NextRequest) {
           email: email,
         },
       },
+      name: name,
+      surname: surname,
     },
   });
 

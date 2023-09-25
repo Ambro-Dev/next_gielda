@@ -24,14 +24,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
+import ImportStudents from "./ImportStudents";
+
 interface StudentsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  schoolId: string;
 }
 
 export function StudentsTable<TData, TValue>({
   columns,
   data,
+  schoolId,
 }: StudentsTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -55,7 +59,7 @@ export function StudentsTable<TData, TValue>({
 
   return (
     <div className="p-5">
-      <div className="flex items-center py-4">
+      <div className="flex flex-row justify-between items-center py-4">
         <Input
           placeholder="Filtruj użytkowników..."
           value={
@@ -66,6 +70,8 @@ export function StudentsTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+
+        <ImportStudents schoolId={schoolId} />
       </div>
       <div className="rounded-md border">
         <Table>

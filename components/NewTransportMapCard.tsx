@@ -73,7 +73,10 @@ const NewTransportMapCard = ({
                   <FormControl>
                     <TransportMapSelector setPlace={field.onChange} />
                   </FormControl>
-                  <FormDescription>Wybierz miejsce wysyłki</FormDescription>
+                  <FormDescription>
+                    Wybierz miejsce wysyłki (Forma wyszukiwania{" "}
+                    <b>ulica, miasto, kraj</b>)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -87,7 +90,10 @@ const NewTransportMapCard = ({
                   <FormControl>
                     <TransportMapSelector setPlace={field.onChange} />
                   </FormControl>
-                  <FormDescription>Wybierz miejsce odbioru</FormDescription>
+                  <FormDescription>
+                    Wybierz miejsce odbioru (Forma wyszukiwania{" "}
+                    <b>ulica, miasto, kraj</b>)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

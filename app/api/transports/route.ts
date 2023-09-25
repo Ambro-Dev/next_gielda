@@ -7,16 +7,21 @@ export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const {
     sendDate,
+    sendTime,
     vehicle,
     category,
-    type,
     school,
     receiveDate,
-    availableDate,
+    receiveTime,
     description,
     objects,
     creator,
     directions,
+    duration,
+    distance,
+    start_address,
+    end_address,
+    polyline,
   } = body;
 
   const existingTransport = await prisma.transport.findFirst({
@@ -30,13 +35,18 @@ export const POST = async (req: NextRequest) => {
         },
       },
       receiveDate,
+      receiveTime,
+      sendTime,
       sendDate,
-      availableDate,
+      polyline,
+      distance,
+      duration,
+      start_address,
+      end_address,
       isAvailable: true,
       vehicleId: vehicle,
       categoryId: category,
       creatorId: creator,
-      typeId: type,
       schoolId: school ? school : undefined,
       directions: {
         start: {
@@ -66,12 +76,18 @@ export const POST = async (req: NextRequest) => {
       },
       receiveDate,
       sendDate,
-      availableDate,
+      receiveTime,
+
+      sendTime,
       isAvailable: true,
       vehicleId: vehicle,
+      distance,
+      duration,
+      start_address,
+      end_address,
+      polyline,
       categoryId: category,
       creatorId: creator,
-      typeId: type,
       schoolId: school ? school : undefined,
       directions: {
         create: directions,
@@ -93,7 +109,7 @@ export const POST = async (req: NextRequest) => {
 export const GET = async (req: NextRequest) => {
   await prisma.transport.updateMany({
     where: {
-      availableDate: {
+      sendDate: {
         lt: new Date(),
       },
     },
@@ -122,12 +138,6 @@ export const GET = async (req: NextRequest) => {
           name: true,
         },
       },
-      type: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
       directions: {
         select: {
           finish: {
@@ -144,6 +154,13 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
+      sendTime: true,
+      receiveTime: true,
+      distance: true,
+      duration: true,
+      start_address: true,
+      end_address: true,
+      polyline: true,
       creator: {
         select: {
           id: true,

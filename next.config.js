@@ -7,7 +7,25 @@ const nextConfig = {
         hostname: "img.icons8.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "api.mapbox.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+        port: "",
+      },
     ],
+    domains: ["uploadthing.com"],
+  },
+  webpack: (config) => {
+    config.externals.push({
+      "utf-8-validate": "commonjs utf-8-validate",
+      bufferutil: "commonjs bufferutil",
+    });
+    return config;
   },
 };
 

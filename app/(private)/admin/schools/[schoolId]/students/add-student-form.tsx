@@ -55,6 +55,46 @@ const formSchema = z.object({
           message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
         })
     ),
+  name: z
+    .string({
+      required_error: "Imię jest wymagane.",
+    })
+    .refine((value) => !/\.+/.test(value), {
+      message: 'Imię nie może zawierać "."',
+    })
+    .refine((val) => !val.includes(" "), {
+      message: "Imię nie może zawierać spacji.",
+    })
+    .pipe(
+      z
+        .string()
+        .min(3, {
+          message: "Imię musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Imię może mieć maksymalnie 30 znaków.",
+        })
+    ),
+  surname: z
+    .string({
+      required_error: "Nazwisko jest wymagane.",
+    })
+    .refine((value) => !/\.+/.test(value), {
+      message: 'Nazwisko nie może zawierać "."',
+    })
+    .refine((val) => !val.includes(" "), {
+      message: "Nazwisko nie może zawierać spacji.",
+    })
+    .pipe(
+      z
+        .string()
+        .min(3, {
+          message: "Nazwisko musi mieć minimum 3 znaki.",
+        })
+        .max(30, {
+          message: "Nazwisko może mieć maksymalnie 30 znaków.",
+        })
+    ),
   email: z
     .string({
       required_error: "Adres email jest wymagany.",
@@ -83,6 +123,8 @@ export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
     defaultValues: {
       username: "",
       email: "",
+      name: "",
+      surname: "",
     },
   });
 
@@ -132,6 +174,36 @@ export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
                         <Input {...field} type="text" />
                       </FormControl>
                       <FormDescription>Podaj nazwę użytkownika</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Imię</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="text" />
+                      </FormControl>
+                      <FormDescription>Podaj imię użytkownika</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="surname"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Nazwisko</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="text" />
+                      </FormControl>
+                      <FormDescription>
+                        Podaj nazwisko użytkownika
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

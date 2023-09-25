@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import TransportsFilter from "@/components/TransportsFilter";
 import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
+import { Transport as PrismaTransport } from "@prisma/client";
 
 export type Tags = {
   id: string;
@@ -16,13 +17,12 @@ export type Tags = {
   };
 };
 
-export type Transport = {
+export type Transport = PrismaTransport & {
   id: string;
   sendDate: Date;
   receiveDate: Date;
   vehicle: { id: string; name: string };
   category: { id: string; name: string };
-  type: { id: string; name: string };
   directions: {
     finish: {
       lat: number;
@@ -42,7 +42,7 @@ const getCategories = async (): Promise<Tags[]> => {
 
     return res.data.categories;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -52,7 +52,7 @@ const getVehicles = async (): Promise<Tags[]> => {
     const res = await axiosInstance.get("/api/settings/vehicles");
     return res.data.vehicles;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -65,7 +65,7 @@ const checkUserInfo = async (userId: string): Promise<number> => {
       return 402;
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return 200;
 };
@@ -75,7 +75,7 @@ const getTransports = async (): Promise<Transport[]> => {
     const res = await axiosInstance.get("/api/transports");
     return res.data.transports;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };

@@ -14,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ComboBox } from "@/components/ComboBox";
@@ -22,11 +21,15 @@ import SelectBox from "@/components/SelectBox";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "../../../../components/DatePicker";
 import TransportObjectsCard from "../../../../components/TransportObjectsCard";
-import TransportMapSelector from "../../../../components/TransportMapSelector";
 import NewTransportMapCard from "../../../../components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
+import { CategoryComboBox } from "@/components/CategoryComboBox";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
+
+type DirectionsResult = google.maps.DirectionsResult;
 
 const formSchema = z
   .object({
@@ -44,20 +47,6 @@ const formSchema = z
       .min(1, {
         message: "Wybierz typ pojazdu.",
       }),
-    type: z
-      .string({
-        required_error: "Wybierz typ pojazdu.",
-      })
-      .min(1, {
-        message: "Wybierz typ pojazdu.",
-      }),
-    availableDate: z
-      .date({
-        required_error: "Poda do kiedy ogłoszenie jest ważne.",
-      })
-      .min(new Date(), {
-        message: "Nieprawidłowa data.",
-      }),
     description: z
       .string({
         required_error: "Podaj opis.",
@@ -72,20 +61,25 @@ const formSchema = z
       .min(new Date(), {
         message: "Nieprawidłowa data wysyłki.",
       }),
+    sendTime: z
+      .string({
+        required_error: "Podaj godzinę wysyłki.",
+      })
+      .min(1, {
+        message: "Podaj godzinę wysyłki.",
+      }),
     receiveDate: z
       .date({ required_error: "Podaj datę dostawy." })
       .min(new Date(), {
         message: "Nieprawidłowa data dostawy.",
       }),
+    receiveTime: z.string({ required_error: "Podaj godzinę dostawy." }).min(1, {
+      message: "Podaj godzinę dostawy.",
+    }),
   })
   .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
     path: ["receiveDate"],
-  })
-  .refine((data) => data.availableDate <= data.sendDate, {
-    message:
-      "Data wysyłki musi być równa lub późniejsza niż data ważności ogłoszenia.",
-    path: ["sendDate"],
   });
 
 type Objects = {
@@ -116,31 +110,63 @@ type Settings = {
   name: string;
 };
 
+type LatLngLiteral = google.maps.LatLngLiteral;
+
 export function AddTransportForm({
   school,
   categories,
-  types,
   vehicles,
 }: {
   school: School;
   categories: Settings[];
-  types: Settings[];
   vehicles: Settings[];
 }) {
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
 
-  const [objects, setObjects] = React.useState<Objects[]>([]);
+  const [directionsLeg, setDirectionsLeg] =
+    React.useState<google.maps.DirectionsLeg>();
+  const [directions, setDirections] = React.useState<DirectionsResult>();
+
   const [startDestination, setStartDestination] =
     React.useState<Destination | null>(null);
   const [endDestination, setEndDestination] =
     React.useState<Destination | null>(null);
 
+  React.useEffect(() => {
+    if (!startDestination || !endDestination) return;
+    fetchDirections(startDestination as LatLngLiteral);
+  }, [startDestination, endDestination]);
+
+  const fetchDirections = async (start: LatLngLiteral) => {
+    if (!endDestination || !start) return;
+
+    const service = new google.maps.DirectionsService();
+
+    service.route(
+      {
+        origin: start,
+        destination: endDestination,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === "OK" && result) {
+          setDirections(result);
+          setDirectionsLeg(result.routes[0].legs[0]);
+        }
+      }
+    );
+  };
+
+  const [objects, setObjects] = React.useState<Objects[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
+      sendTime: "10:00",
+      receiveTime: "12:00",
     },
   });
 
@@ -156,9 +182,16 @@ export function AddTransportForm({
         start: startDestination,
         finish: endDestination,
       },
+      distance: directionsLeg?.distance,
+      duration: directionsLeg?.duration,
+      start_address: directionsLeg?.start_address,
+      end_address: directionsLeg?.end_address,
+      polyline: directions?.routes[0].overview_polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
+
+    console.log(directionsLeg);
 
     try {
       const response = await axiosInstance.post(
@@ -203,7 +236,10 @@ export function AddTransportForm({
                 <FormItem className="flex flex-col">
                   <FormLabel>Kategoria*</FormLabel>
                   <FormControl>
-                    <ComboBox data={categories} onChange={field.onChange} />
+                    <CategoryComboBox
+                      data={categories}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormDescription>
                     Wybierz kategorię transportu
@@ -212,50 +248,19 @@ export function AddTransportForm({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="vehicle"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Typ pojazdu transportwoego*</FormLabel>
+                  <FormLabel>Typ pojazdu transportowego*</FormLabel>
                   <FormControl>
                     <ComboBox data={vehicles} onChange={field.onChange} />
                   </FormControl>
                   <FormDescription>
                     Wybierz typ pojazdu transportowego
                   </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Typ ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={types}
-                      onChange={field.onChange}
-                      title="Typ ogłoszenia"
-                    />
-                  </FormControl>
-                  <FormDescription>Osoba prywatna czy firma?</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="availableDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Ważność ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <DatePicker onChange={field.onChange} />
-                  </FormControl>
-                  <FormDescription>Ważność ogłoszenia do</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -279,7 +284,7 @@ export function AddTransportForm({
               </FormItem>
             )}
           />
-          <div className="lg:w-1/2 w-full grid-cols-1 grid sm:grid-cols-2 gap-8">
+          <div className="w-full grid-cols-1 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <FormField
               control={form.control}
               name="sendDate"
@@ -298,6 +303,22 @@ export function AddTransportForm({
             />
             <FormField
               control={form.control}
+              name="sendTime"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Godzina wysyłki*</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" />
+                  </FormControl>
+                  <FormDescription>
+                    Wybierz godzinę wysyłki towaru
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="receiveDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -307,6 +328,22 @@ export function AddTransportForm({
                   </FormControl>
                   <FormDescription>
                     Kiedy towar ma zostać dostarczony
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="receiveTime"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Godzina dostawy*</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" />
+                  </FormControl>
+                  <FormDescription>
+                    Wybierz godzinę dostawy towaru
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -329,8 +366,16 @@ export function AddTransportForm({
           type="button"
           onClick={form.handleSubmit(onSubmit)}
           className="w-full"
+          disabled={form.formState.isSubmitting}
         >
-          Dodaj
+          {form.formState.isSubmitting ? (
+            <div className="flex flex-row items-center justify-center">
+              <Loader2 className="animate-spin" />
+              <span className="ml-2">Dodawanie...</span>
+            </div>
+          ) : (
+            "Dodaj ogłoszenie"
+          )}
         </Button>
       </div>
     </div>

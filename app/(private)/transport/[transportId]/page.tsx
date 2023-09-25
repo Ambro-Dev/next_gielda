@@ -4,6 +4,7 @@ import TransportDetails from "./transport-details";
 import TransportContactCard from "./contact-card";
 import { axiosInstance } from "@/lib/axios";
 import GoBack from "@/components/ui/go-back";
+import { notFound } from "next/navigation";
 
 type PageParams = {
   params: {
@@ -36,10 +37,10 @@ export type Transport = {
       weight: number;
     }
   ];
-  availableDate: Date;
+  sendTime: string;
+  receiveTime: string;
   sendDate: Date;
   receiveDate: Date;
-  type: { id: string; name: string };
 };
 
 const getTransport = async (transportId: string): Promise<Transport> => {
@@ -50,7 +51,7 @@ const getTransport = async (transportId: string): Promise<Transport> => {
     return response.data;
   } catch (error) {
     console.error(error);
-    return {} as Transport;
+    notFound();
   }
 };
 

@@ -19,7 +19,7 @@ const getVehicles = async () => {
     const data = res.data;
     return data.vehicles;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -30,18 +30,7 @@ const getCategories = async () => {
     const data = res.data;
     return data.categories;
   } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
-
-const getTypes = async () => {
-  try {
-    const res = await axiosInstance.get(`/api/settings/types`);
-    const data = res.data;
-    return data.types;
-  } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -49,12 +38,10 @@ const getTypes = async () => {
 export default async function DashboardPage() {
   const vehiclesData = getVehicles();
   const categoriesData = getCategories();
-  const typesData = getTypes();
 
-  const [vehicles, categories, types] = await Promise.all([
+  const [vehicles, categories] = await Promise.all([
     vehiclesData,
     categoriesData,
-    typesData,
   ]);
 
   const data = [
@@ -86,26 +73,12 @@ export default async function DashboardPage() {
         formDescription: "Nazwa nowej kategorii.",
       },
     },
-    {
-      options: types,
-      route: "types",
-      title: "Typy",
-      description: "Dodaj, edytuj lub usuń typy.",
-      noData: "Brak typów.",
-      dialog: {
-        title: "Dodaj typ",
-        description: "Dodaj nowy typ.",
-        button: "Dodaj",
-        formName: "Nazwa typu",
-        formDescription: "Nazwa nowego typu.",
-      },
-    },
   ];
 
   return (
     <>
       <h3 className="font-bold pt-5 pl-10 text-2xl">Opcje transportów</h3>
-      <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-8 p-5">
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-8 p-5">
         {data.map((item) => (
           <React.Fragment key={item.title}>
             <OptionCard {...item} />

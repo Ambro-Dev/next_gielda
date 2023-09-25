@@ -30,6 +30,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Transport } from "../page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrentTransportMap from "./CurrentMap";
+import { CategoryComboBox } from "@/components/CategoryComboBox";
 
 const formSchema = z
   .object({
@@ -54,13 +55,6 @@ const formSchema = z
       .min(1, {
         message: "Wybierz typ pojazdu.",
       }),
-    availableDate: z
-      .date({
-        required_error: "Poda do kiedy ogłoszenie jest ważne.",
-      })
-      .min(new Date(), {
-        message: "Nieprawidłowa data.",
-      }),
     description: z
       .string({
         required_error: "Podaj opis.",
@@ -75,20 +69,25 @@ const formSchema = z
       .min(new Date(), {
         message: "Nieprawidłowa data wysyłki.",
       }),
+    sendTime: z
+      .string({
+        required_error: "Podaj godzinę wysyłki.",
+      })
+      .min(1, {
+        message: "Podaj godzinę wysyłki.",
+      }),
     receiveDate: z
       .date({ required_error: "Podaj datę dostawy." })
       .min(new Date(), {
         message: "Nieprawidłowa data dostawy.",
       }),
+    receiveTime: z.string({ required_error: "Podaj godzinę dostawy." }).min(1, {
+      message: "Podaj godzinę dostawy.",
+    }),
   })
   .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
     path: ["receiveDate"],
-  })
-  .refine((data) => data.availableDate <= data.sendDate, {
-    message:
-      "Data wysyłki musi być równa lub późniejsza niż data ważności ogłoszenia.",
-    path: ["sendDate"],
   });
 
 type Objects = {
@@ -122,17 +121,18 @@ type Settings = {
 export function EditTransportForm({
   school,
   categories,
-  types,
   vehicles,
   user,
   transport,
 }: {
   school: School;
   categories: Settings[];
-  types: Settings[];
   vehicles: Settings[];
   user: string;
-  transport: Transport;
+  transport: Transport & {
+    sendTime: string;
+    receiveTime: string;
+  };
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -162,11 +162,11 @@ export function EditTransportForm({
     defaultValues: {
       description: transport.description,
       category: transport.category.id,
-      type: transport.type.id,
       vehicle: transport.vehicle.id,
-      availableDate: new Date(transport.availableDate),
+      sendTime: transport.sendTime,
       sendDate: new Date(transport.sendDate),
       receiveDate: new Date(transport.receiveDate),
+      receiveTime: transport.receiveTime,
     },
   });
 
@@ -232,7 +232,7 @@ export function EditTransportForm({
                 <FormItem className="flex flex-col">
                   <FormLabel>Kategoria*</FormLabel>
                   <FormControl>
-                    <ComboBox
+                    <CategoryComboBox
                       data={categories}
                       onChange={field.onChange}
                       defaulValue={field.value}
@@ -265,44 +265,6 @@ export function EditTransportForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Typ ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <SelectBox
-                      data={types}
-                      onChange={field.onChange}
-                      title="Typ ogłoszenia"
-                      defaultValue={
-                        types.find((item) => item.id === field.value)?.name
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>Osoba prywatna czy firma?</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="availableDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Ważność ogłoszenia*</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      onChange={field.onChange}
-                      defaultValue={field.value}
-                    />
-                  </FormControl>
-                  <FormDescription>Ważność ogłoszenia do</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
 
           <FormField
@@ -322,7 +284,7 @@ export function EditTransportForm({
               </FormItem>
             )}
           />
-          <div className="lg:w-1/2 w-full grid-cols-1 grid sm:grid-cols-2 gap-8">
+          <div className="w-full grid-cols-1 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <FormField
               control={form.control}
               name="sendDate"
@@ -344,6 +306,22 @@ export function EditTransportForm({
             />
             <FormField
               control={form.control}
+              name="sendTime"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Godzina wysyłki*</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" />
+                  </FormControl>
+                  <FormDescription>
+                    Wybierz godzinę wysyłki towaru
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="receiveDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -356,6 +334,22 @@ export function EditTransportForm({
                   </FormControl>
                   <FormDescription>
                     Kiedy towar ma zostać dostarczony
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="receiveTime"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Godzina dostawy*</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" />
+                  </FormControl>
+                  <FormDescription>
+                    Wybierz godzinę dostawy towaru
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

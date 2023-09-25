@@ -50,7 +50,7 @@ export const ResetPassword = ({ userId }: { userId: string }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return {};
     }
   };

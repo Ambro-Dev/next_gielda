@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import generator from "generate-password";
 
 export const GET = async (req: NextRequest) => {
   const schools = await prisma.school.findMany({
@@ -76,10 +77,34 @@ export const POST = async (req: NextRequest) => {
     });
   }
 
+  const identyfierGenerator = () => {
+    const identifier = generator.generate({
+      length: 6,
+      numbers: true,
+      symbols: false,
+      uppercase: true,
+      lowercase: false,
+    });
+
+    return identifier;
+  };
+
+  let identifier = identyfierGenerator();
+  const identifierExists = await prisma.school.findFirst({
+    where: {
+      identifier,
+    },
+  });
+
+  while (identifierExists) {
+    identifier = identyfierGenerator();
+  }
+
   const school = await prisma.school.create({
     data: {
       name,
       accessExpires: expireDate(),
+      identifier,
     },
   });
 

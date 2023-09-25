@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
+import { useSocket } from "@/app/context/socket-provider";
 
 const schema = z.object({
   message: z.string().min(1, "Wiadomość nie może być pusta"),
@@ -32,6 +33,7 @@ type Props = {
 const NewMessage = (props: Props) => {
   const { data, status } = useSession();
   const [sending, setSending] = React.useState(false);
+  const { socket } = useSocket();
 
   const router = useRouter();
 
@@ -42,26 +44,33 @@ const NewMessage = (props: Props) => {
     },
   });
 
+  React.useEffect(() => {
+    if (!socket) return;
+
+    socket.on(`conversation:${props.conversation.id}:message`, (data: any) => {
+      router.refresh();
+    });
+
+    return () => {
+      socket.off(`conversation:${props.conversation.id}:message`);
+    };
+  }, [socket]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
       setSending(true);
-      const response = await axiosInstance.post(
-        `/api/messages/conversation/message`,
-        {
-          conversationId: props.conversation.id,
-          message: values.message,
-          userId: data?.user?.id,
-          transportId: props.conversation.transport.id,
-        }
-      );
+      const response = await axiosInstance.post(`/api/socket/messages`, {
+        conversationId: props.conversation.id,
+        message: values.message,
+        senderId: data?.user?.id,
+      });
 
-      const resData = response.data;
-      if (resData.status === 200) {
+      if (response.status === 201) {
         form.reset();
         router.refresh();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new Error("Nie udało się wysłać wiadomości");
     }
     setSending(false);

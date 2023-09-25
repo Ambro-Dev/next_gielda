@@ -54,7 +54,7 @@ export const blockUser = async (id: string) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {};
   }
 };
@@ -78,7 +78,7 @@ export const unblockUser = async (id: string) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {};
   }
 };

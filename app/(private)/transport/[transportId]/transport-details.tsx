@@ -118,7 +118,6 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
           <div className="flex pb-6 px-5 sm:flex-row flex-col items-center justify-start gap-4 w-full">
             <div className="flex gap-4">
               <Badge>{transport.category.name}</Badge>
-              <Badge className="uppercase">{transport.type.name}</Badge>
             </div>
             <>
               {transport.isAccepted ? (
@@ -127,16 +126,16 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
                 </Badge>
               ) : (
                 <>
-                  {GetExpireTimeLeft(transport.availableDate).hoursLeft > 0 &&
+                  {GetExpireTimeLeft(transport.sendDate).hoursLeft > 0 &&
                   transport.isAvailable ? (
                     <Badge variant="destructive">
                       Wygaśnie za:{" "}
-                      {GetExpireTimeLeft(transport.availableDate).daysLeft > 0
+                      {GetExpireTimeLeft(transport.sendDate).daysLeft > 0
                         ? `${
-                            GetExpireTimeLeft(transport.availableDate).daysLeft
+                            GetExpireTimeLeft(transport.sendDate).daysLeft
                           } dni`
                         : `${
-                            GetExpireTimeLeft(transport.availableDate).hoursLeft
+                            GetExpireTimeLeft(transport.sendDate).hoursLeft
                           } godz.`}{" "}
                     </Badge>
                   ) : (
