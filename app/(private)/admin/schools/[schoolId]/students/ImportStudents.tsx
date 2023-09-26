@@ -9,7 +9,7 @@ import { ImportTable } from "./Import-table";
 import { importTableColumns } from "./import-table-columns";
 import { resultColumns } from "./components/results-columns";
 import { Label } from "@/components/ui/label";
-import { File, Sheet, X } from "lucide-react";
+import { File, Loader2, Sheet, X } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -66,6 +66,7 @@ const schema = z.object({
 });
 
 const ImportStudents = (props: Props) => {
+  const [submitting, setSubmitting] = React.useState<boolean>(false);
   const [importedList, setImportedList] = React.useState<Student[]>([]);
   const [disabled, setDisabled] = React.useState<boolean>(false);
   const [downloaded, setDownloaded] = React.useState<boolean>(false);
@@ -171,6 +172,7 @@ const ImportStudents = (props: Props) => {
 
   const handleImport = async () => {
     try {
+      setSubmitting(true);
       const response = await axiosInstance.post("api/students/import", {
         school: props.schoolId,
         students: importedList,
@@ -178,6 +180,8 @@ const ImportStudents = (props: Props) => {
       setResults(response.data.results);
     } catch (error) {
       console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -323,7 +327,16 @@ const ImportStudents = (props: Props) => {
               data={importedList}
               className="overflow-auto sm:px-5 px-0"
             />
-            <Button onClick={handleImport}>Importuj</Button>
+            <Button onClick={handleImport} disabled={submitting}>
+              {submitting ? (
+                <div className="flex flex-row items-center justify-center">
+                  <Loader2 className="animate-spin mr-2" />
+                  Importowanie...
+                </div>
+              ) : (
+                "Importuj"
+              )}
+            </Button>
           </>
         )}
       </DialogContent>

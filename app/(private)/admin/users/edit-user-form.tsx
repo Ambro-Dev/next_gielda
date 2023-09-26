@@ -37,7 +37,7 @@ import {
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
 
-const noPolishCharsOrSpecialChars = /^[a-z0-9.]+$/;
+const noPolishCharsOrSpecialChars = /^[a-zA-Z0-9.]+$/;
 
 const formSchema = z.object({
   username: z
@@ -53,7 +53,7 @@ const formSchema = z.object({
         .string()
         .regex(noPolishCharsOrSpecialChars, {
           message:
-            "Nazwa użytkownika może zawierać tylko małe litery i cyfry, bez polskich znaków.",
+            "Nazwa użytkownika może zawierać tylko małe, wielkie litery i cyfry, bez polskich znaków.",
         })
         .min(3, {
           message: "Nazwa użytkownika musi mieć minimum 3 znaki.",
