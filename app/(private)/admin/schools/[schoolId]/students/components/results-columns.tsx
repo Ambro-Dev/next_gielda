@@ -30,7 +30,7 @@ export const resultColumns: ColumnDef<Student>[] = [
         </Button>
       );
     },
-    accessorKey: "usurname",
+    accessorKey: "username",
   },
   {
     header: ({ column }) => {
