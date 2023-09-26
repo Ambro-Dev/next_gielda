@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { useMessages } from "@/app/context/message-provider";
 import { useSession } from "next-auth/react";
+import { Badge } from "@/components/ui/badge";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
@@ -42,25 +43,25 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
             pathname === item.href
               ? "bg-muted hover:bg-muted"
               : "hover:bg-transparent hover:underline",
-            "justify-start relative"
+            "justify-start md:justify-between relative gap-4"
           )}
         >
           {item.title}
           {item.href.endsWith("offers") &&
             offers.length + myOffersMessages.length > 0 && (
-              <div className="ml-5 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+              <Badge variant="destructive" className="hover:no-underline px-2">
                 {offers.length + myOffersMessages.length}
-              </div>
+              </Badge>
             )}
           {item.href.endsWith("send") && sendOffersMessages.length > 0 && (
-            <div className="ml-5 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+            <Badge variant="destructive" className="hover:no-underline px-2">
               {sendOffersMessages.length}
-            </div>
+            </Badge>
           )}
           {item.href.endsWith("messages") && messages.length > 0 && (
-            <div className="ml-5 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+            <Badge variant="destructive" className="hover:no-underline px-2">
               {messages.length}
-            </div>
+            </Badge>
           )}
         </Link>
       ))}

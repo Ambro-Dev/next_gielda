@@ -180,12 +180,33 @@ export default async function handler(
       });
 
       if (existingConversation) {
-        return res.status(409).json({
-          existingConversation,
-          error:
-            "Prowadzisz już konwersację z tym użytkownikiem na temat tego transportu",
-          conversationId: existingConversation.id,
+        const newMessage = await prisma.message.create({
+          data: {
+            text: message,
+            sender: {
+              connect: {
+                id: senderId,
+              },
+            },
+            conversation: {
+              connect: {
+                id: existingConversation.id,
+              },
+            },
+          },
         });
+
+        if (!newMessage) {
+          return res
+            .status(404)
+            .json({ error: "Nie udało się wysłać wiadomości" });
+        }
+
+        const recieverKey = `user:${receiverId}:messages`;
+
+        res?.socket?.server?.io?.emit(recieverKey, newMessage);
+
+        return res.status(201).json({ message: newMessage });
       }
 
       const conversation = await prisma.conversation.create({

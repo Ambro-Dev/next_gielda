@@ -26,6 +26,11 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 
+import ReactToPrint from "react-to-print";
+import { useReactToPrint } from "react-to-print";
+import { Component } from "lucide-react";
+import { ComponentToPrint } from "./component-to-print";
+
 interface StudentsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -37,6 +42,14 @@ export function ResultsTable<TData, TValue>({
   data,
   className,
 }: StudentsTableProps<TData, TValue>) {
+  const componentRef = React.useRef<React.ReactInstance | null>(null);
+
+  const created = data.filter((item: any) => item.created === true);
+
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -59,7 +72,7 @@ export function ResultsTable<TData, TValue>({
 
   return (
     <div className={cn("p-5", className)}>
-      <div className="flex flex-row justify-between items-center py-4">
+      <div className="flex flex-row justify-between items-center py-4 gap-3">
         <Input
           placeholder="Filtruj użytkowników..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -68,6 +81,11 @@ export function ResultsTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <div className="hidden">
+          <ComponentToPrint ref={componentRef} data={created} />
+        </div>
+
+        <Button onClick={handlePrint}>Drukuj listę</Button>
       </div>
       <div className="rounded-md border">
         <Table>

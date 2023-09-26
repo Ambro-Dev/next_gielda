@@ -74,6 +74,7 @@
     "react-leaflet": "^4.2.1",
     "react-messenger-chat-plugin": "^3.0.3",
     "react-time-picker": "^6.5.0",
+    "react-to-print": "^2.14.13",
     "recharts": "^2.7.2",
     "sharp": "^0.32.5",
     "socket.io": "^4.7.2",

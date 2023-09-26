@@ -22,6 +22,14 @@ import { axiosInstance } from "@/lib/axios";
 import { ToastAction } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Props = {
   transportId: string;
@@ -36,6 +44,7 @@ const formSchema = z.object({
 
 const MessageForm = (props: Props) => {
   const [alert, setAlert] = React.useState({ error: "", conversation: "" });
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
   const { toast } = useToast();
   const { data, status } = useSession();
@@ -70,17 +79,18 @@ const MessageForm = (props: Props) => {
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const newMessage = {
-      message: values.message,
-      senderId: data?.user?.id,
-      receiverId: props.transportOwnerId,
-      transportId: props.transportId,
-    };
-    const response = await axiosInstance.post(
-      `/api/messages/message`,
-      newMessage
-    );
-    if (response.data.status === 200) {
+    try {
+      const newMessage = {
+        message: values.message,
+        senderId: data?.user?.id,
+        receiverId: props.transportOwnerId,
+        transportId: props.transportId,
+      };
+      const response = await axiosInstance.post(
+        `/api/socket/messages`,
+        newMessage
+      );
+
       form.reset();
       toast({
         title: "Wiadomość została wysłana",
@@ -90,7 +100,7 @@ const MessageForm = (props: Props) => {
             altText="Przejdź do wiadomości"
             onClick={() =>
               router.push(
-                `/user/market/messages/${response.data.conversationId}`
+                `/user/market/messages/${response.data.message.conversationId}`
               )
             }
           >
@@ -98,44 +108,61 @@ const MessageForm = (props: Props) => {
           </ToastAction>
         ),
       });
-    } else if (response.data.status === 409) {
-      setAlert({
-        error: response.data.error,
-        conversation: response.data.conversationId,
-      });
-      setShowAlert(true);
-    } else {
+    } catch (error) {
+      console.error(error);
       toast({
         title: "Wystąpił błąd",
         description: "Nie udało się wysłać wiadomości",
         variant: "destructive",
       });
+    } finally {
+      setDialogOpen(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      {showAlert && alertBox}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="message"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Treść*</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormDescription>Wpisz treść wiadomości</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Wyślij</Button>
-        </form>
-      </Form>
-    </div>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          className="rounded-full hover:bg-amber-500 transition-all duration-500"
+          size="lg"
+        >
+          Napisz wiadomość
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="space-y-4">
+        <DialogHeader>
+          <DialogTitle>Wiadomość</DialogTitle>
+          <DialogDescription>
+            Wpisz wiadomość, którą chcesz wysłać
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {showAlert && alertBox}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Treść*</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormDescription>Wpisz treść wiadomości</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Wyślij</Button>
+            </form>
+          </Form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

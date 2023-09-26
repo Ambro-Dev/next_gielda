@@ -212,11 +212,13 @@ const ImportStudents = (props: Props) => {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className=" flex flex-col space-y-4 justify-center items-center">
                 <div className="flex flex-col justify-center items-center">
-                  <h3 className="text-lg font-bold">Pobierz szablon</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="text-lg font-bold sm:text-left text-center">
+                    Pobierz szablon
+                  </h3>
+                  <p className="text-sm text-gray-500 sm:text-left text-center">
                     Pobierz szablon pliku (
                     <span className="font-light">import.xlsx</span>)
                   </p>
@@ -284,9 +286,9 @@ const ImportStudents = (props: Props) => {
                                   </>
                                 </div>
                               ) : (
-                                <div className="flex flex-col justify-center items-center gap-2">
+                                <div className="flex flex-col justify-center items-center gap-2 p-5">
                                   <File size={40} />
-                                  <span className="text-sm text-gray-500">
+                                  <span className="text-sm text-gray-500 text-center">
                                     Przeciągnij plik tutaj lub kliknij, aby
                                     wybrać
                                   </span>
