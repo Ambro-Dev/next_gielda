@@ -24,6 +24,31 @@ export const PUT = async (req: NextRequest) => {
     polyline,
   } = body;
 
+  if (
+    !!(
+      !sendDate ||
+      !sendTime ||
+      !vehicle ||
+      !category ||
+      !receiveDate ||
+      !receiveTime ||
+      !description ||
+      !objects ||
+      !creator ||
+      !directions ||
+      !duration ||
+      !distance ||
+      !start_address ||
+      !end_address ||
+      !polyline
+    )
+  ) {
+    return NextResponse.json({
+      error: "Wszystkie pola muszą być wypełnione",
+      status: 422,
+    });
+  }
+
   const existingTransport = await prisma.transport.findUnique({
     where: {
       id: id,

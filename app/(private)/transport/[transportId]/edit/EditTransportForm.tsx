@@ -131,6 +131,9 @@ export function EditTransportForm({
     receiveTime: string;
   };
 }) {
+  const [alert, setAlert] = React.useState<{
+    error: string;
+  }>({ error: "" });
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
@@ -202,6 +205,16 @@ export function EditTransportForm({
       const { id, ...rest } = object;
       return rest;
     });
+
+    if (!directionsLeg || !directions) {
+      setAlert({ error: "Nie wybrano trasy." });
+      return toast({
+        title: "Błąd",
+        description: "Usupełnij lub popraw trasę transportu",
+        variant: "destructive",
+      });
+    }
+
     const editTransport = {
       ...values,
       id: transport.id,
@@ -210,11 +223,11 @@ export function EditTransportForm({
         start: startDestination,
         finish: endDestination,
       },
-      distance: directionsLeg?.distance,
-      duration: directionsLeg?.duration,
-      start_address: directionsLeg?.start_address,
-      end_address: directionsLeg?.end_address,
-      polyline: directions?.routes[0].overview_polyline,
+      distance: directionsLeg.distance,
+      duration: directionsLeg.duration,
+      start_address: directionsLeg.start_address,
+      end_address: directionsLeg.end_address,
+      polyline: directions.routes[0].overview_polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
@@ -246,6 +259,25 @@ export function EditTransportForm({
       });
     }
   };
+
+  const alertBox = (
+    <div className="alert alert-error">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="stroke-current shrink-0 h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <span>{alert.error}</span>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -406,7 +438,7 @@ export function EditTransportForm({
           />
         </TabsContent>
       </Tabs>
-
+      {alert.error !== "" && alertBox}
       <TransportObjectsCard
         objects={objects}
         setObjects={setObjects}
