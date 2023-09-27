@@ -18,11 +18,12 @@ type Props = {
 };
 
 const getConversations = async (
-  conversationId: string
+  conversationId: string,
+  userId: string
 ): Promise<ExtendedConversation> => {
   try {
     const response = await axiosInstance.get(
-      `/api/messages/conversation?conversationId=${conversationId}`
+      `/api/messages/conversation?conversationId=${conversationId}&userId=${userId}`
     );
     const data = response.data;
     return data;
@@ -59,7 +60,8 @@ const ConversationPage = async (props: Props) => {
   const session = await getServerSession(authOptions);
 
   const conversation: ExtendedConversation = await getConversations(
-    String(props.params.conversationId)
+    String(props.params.conversationId),
+    String(session?.user.id)
   );
 
   const userInConversation = conversation.users.find(

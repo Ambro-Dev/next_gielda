@@ -9,6 +9,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "./context/socket-provider";
 import MessageProvider from "./context/message-provider";
 
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+
+import { ourFileRouter } from "@/app/api/uploadthing/core";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -29,6 +34,9 @@ export default async function RootLayout({
           <GoogleApiProvider>
             <MessageProvider>
               <SocketProvider>
+                <NextSSRPlugin
+                  routerConfig={extractRouterConfig(ourFileRouter)}
+                />
                 <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
                   <Toaster />
                   <TopBar />

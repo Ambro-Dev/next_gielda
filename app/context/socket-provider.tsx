@@ -17,6 +17,7 @@ import React, {
 
 import { io as ClinetIO } from "socket.io-client";
 import { useMessages } from "./message-provider";
+import { MessageWithUser, OfferWithUser, FileMessage } from "./types";
 
 type SocketContextType = {
   socket: any | null;
@@ -29,49 +30,6 @@ const SocketContext = createContext<SocketContextType>({
 });
 
 export const useSocket = () => useContext(SocketContext);
-
-type MessageWithUser = Message & {
-  sender: {
-    id: string;
-    username: string;
-    email: string;
-  };
-  receiver: {
-    id: string;
-    username: string;
-    email: string;
-  };
-  conversation?: {
-    id: string;
-  };
-  offer?: {
-    id: string;
-    creator: { id: string };
-  };
-  transport?: {
-    id: string;
-    creator: { id: string };
-  };
-};
-
-type OfferWithUser = {
-  id: string;
-  createdAt: string;
-  text: string;
-  sender: {
-    id: string;
-    username: string;
-    email: string;
-  };
-  receiver: {
-    id: string;
-    username: string;
-    email: string;
-  };
-  transport: {
-    id: string;
-  };
-};
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
@@ -164,6 +122,29 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
+    socketInstance.on(`user:${userId}:offer:files`, (message: FileMessage) => {
+      if (message?.sender?.id === userId) return;
+      if (message?.offer.id && message?.offer.id === params?.offerId) return;
+      const audio = new Audio(
+        "https://drive.google.com/uc?export=download&id=1M95VOpto1cQ4FQHzNBaLf0WFQglrtWi7"
+      );
+      audio.play();
+      toast({
+        title: "Nowy plik w ofercie!",
+        description: `Użytkownik ${message?.sender?.username} dodał nowy plik do oferty:`,
+        action: (
+          <Link
+            href={`/transport/${message?.transport?.id}/offer/${message?.offer?.id}`}
+          >
+            <Button variant="outline">
+              Otwórz
+              <MoveRight className="ml-2" size={16} />
+            </Button>
+          </Link>
+        ),
+      });
+    });
+
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
     });
@@ -172,6 +153,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       socketInstance.off(`user:${userId}:message`);
+      socketInstance.off(`user:${userId}:offer`);
+      socketInstance.off(`user:${userId}:offer:files`);
       socketInstance.disconnect();
     };
   }, [userId]);
