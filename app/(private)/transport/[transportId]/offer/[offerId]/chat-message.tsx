@@ -22,7 +22,7 @@ type Props = {
   className?: string;
 };
 
-const Message = (props: Props) => {
+const ChatMessage = (props: Props) => {
   const { message, user, className } = props;
   const hourAndMinute = new Intl.DateTimeFormat("pl", {
     hour: "numeric",
@@ -66,4 +66,4 @@ const Message = (props: Props) => {
   );
 };
 
-export default Message;
+export default ChatMessage;
