@@ -9,7 +9,7 @@ import { ImportTable } from "./Import-table";
 import { importTableColumns } from "./import-table-columns";
 import { resultColumns } from "./components/results-columns";
 import { Label } from "@/components/ui/label";
-import { File, Sheet, X } from "lucide-react";
+import { File, Loader2, Sheet, X } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -66,6 +66,7 @@ const schema = z.object({
 });
 
 const ImportStudents = (props: Props) => {
+  const [submitting, setSubmitting] = React.useState<boolean>(false);
   const [importedList, setImportedList] = React.useState<Student[]>([]);
   const [disabled, setDisabled] = React.useState<boolean>(false);
   const [downloaded, setDownloaded] = React.useState<boolean>(false);
@@ -171,6 +172,7 @@ const ImportStudents = (props: Props) => {
 
   const handleImport = async () => {
     try {
+      setSubmitting(true);
       const response = await axiosInstance.post("api/students/import", {
         school: props.schoolId,
         students: importedList,
@@ -178,6 +180,8 @@ const ImportStudents = (props: Props) => {
       setResults(response.data.results);
     } catch (error) {
       console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -208,11 +212,13 @@ const ImportStudents = (props: Props) => {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className=" flex flex-col space-y-4 justify-center items-center">
                 <div className="flex flex-col justify-center items-center">
-                  <h3 className="text-lg font-bold">Pobierz szablon</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="text-lg font-bold sm:text-left text-center">
+                    Pobierz szablon
+                  </h3>
+                  <p className="text-sm text-gray-500 sm:text-left text-center">
                     Pobierz szablon pliku (
                     <span className="font-light">import.xlsx</span>)
                   </p>
@@ -280,9 +286,9 @@ const ImportStudents = (props: Props) => {
                                   </>
                                 </div>
                               ) : (
-                                <div className="flex flex-col justify-center items-center gap-2">
+                                <div className="flex flex-col justify-center items-center gap-2 p-5">
                                   <File size={40} />
-                                  <span className="text-sm text-gray-500">
+                                  <span className="text-sm text-gray-500 text-center">
                                     Przeciągnij plik tutaj lub kliknij, aby
                                     wybrać
                                   </span>
@@ -323,7 +329,16 @@ const ImportStudents = (props: Props) => {
               data={importedList}
               className="overflow-auto sm:px-5 px-0"
             />
-            <Button onClick={handleImport}>Importuj</Button>
+            <Button onClick={handleImport} disabled={submitting}>
+              {submitting ? (
+                <div className="flex flex-row items-center justify-center">
+                  <Loader2 className="animate-spin mr-2" />
+                  Importowanie...
+                </div>
+              ) : (
+                "Importuj"
+              )}
+            </Button>
           </>
         )}
       </DialogContent>

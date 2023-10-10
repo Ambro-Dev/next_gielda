@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
-  const studentsToCreate = students.map((student: Student, index: any) => {
+  const studentsToCreate = await students.map((student: Student) => {
     return {
       school: {
         connect: {
@@ -76,36 +76,47 @@ export const POST = async (req: NextRequest) => {
     phone: string;
   };
 
-  const correctStudents = studentsToCreate.filter(
-    async (student: StudentData) => {
-      const emailTaken = await prisma.user.findUnique({
+  const correctStudents = await Promise.all(
+    studentsToCreate.map(async (student: StudentData) => {
+      const emailTaken = await prisma.user.findFirst({
         where: { email: student.user.create.email },
       });
 
-      if (!emailTaken) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+      return (
+        !emailTaken && {
+          ...student,
+        }
+      );
+    })
   );
 
-  const invalidStudents = studentsToCreate.map(async (student: StudentData) => {
-    const emailTaken = await prisma.user.findUnique({
-      where: { email: student.user.create.email },
+  if (correctStudents.length === 0 || !correctStudents) {
+    return NextResponse.json({
+      error: "Wszystkie podane adresy email są już zajęte",
+      status: 409,
     });
+  }
 
-    if (emailTaken) {
-      return {
-        name_surname: `${student.name} ${student.surname}`,
-        email: student.user.create.email,
-        created: false,
-        error: `Użytkownik o emailu ${student.user.create.email} już istnieje`,
-      };
-    }
-  });
-  const createdStudents = correctStudents.map(
-    async (student: StudentData, index: any) => {
+  const invalidStudents = await Promise.all(
+    studentsToCreate.map(async (student: StudentData) => {
+      const emailTaken = await prisma.user.findFirst({
+        where: { email: student.user.create.email },
+      });
+
+      if (emailTaken) {
+        return {
+          name_surname: `${student.name} ${student.surname}`,
+          email: student.user.create.email,
+          created: false,
+          error: `Użytkownik o emailu ${student.user.create.email} już istnieje`,
+        };
+      }
+    })
+  );
+
+  const createdStudents = await Promise.all(
+    correctStudents.map(async (student: StudentData, index: any) => {
+      if (!student.user) return;
       const username = `${schoolExists.identifier}.student${
         countStudents + index + 1
       }`;
@@ -155,7 +166,7 @@ export const POST = async (req: NextRequest) => {
           error: "Nie udało się utworzyć ucznia",
         };
       }
-    }
+    })
   );
 
   if (!createdStudents || createdStudents.length === 0) {

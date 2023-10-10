@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useSocket } from "@/app/context/socket-provider";
+import { toast } from "@/components/ui/use-toast";
 
 const schema = z.object({
   message: z.string().min(1, "Wiadomość nie może być pusta"),
@@ -71,7 +72,11 @@ const NewMessage = (props: Props) => {
       }
     } catch (error) {
       console.error(error);
-      throw new Error("Nie udało się wysłać wiadomości");
+      toast({
+        title: "Błąd",
+        description: "Nie udało się wysłać wiadomości",
+        variant: "destructive",
+      });
     }
     setSending(false);
   };

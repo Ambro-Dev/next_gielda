@@ -3,12 +3,17 @@ import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
   const conversationId = req.nextUrl.searchParams.get("conversationId");
+  const userId = req.nextUrl.searchParams.get("userId");
 
   if (
     !conversationId ||
     conversationId === "" ||
     conversationId === "undefined"
   ) {
+    return NextResponse.json({ error: "Brak parametru ID" }, { status: 400 });
+  }
+
+  if (!userId || userId === "" || userId === "undefined") {
     return NextResponse.json({ error: "Brak parametru ID" }, { status: 400 });
   }
 
@@ -88,6 +93,27 @@ export const GET = async (req: NextRequest) => {
       { status: 404 }
     );
   }
+
+  await prisma.conversation.update({
+    where: {
+      id: conversation.id,
+    },
+    data: {
+      messages: {
+        updateMany: {
+          where: {
+            senderId: {
+              not: userId,
+            },
+            isRead: false,
+          },
+          data: {
+            isRead: true,
+          },
+        },
+      },
+    },
+  });
 
   return NextResponse.json(conversation);
 };

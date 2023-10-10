@@ -1,6 +1,7 @@
 "use client";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { useMessages } from "@/app/context/message-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
@@ -27,11 +28,24 @@ const Chat = (props: Props) => {
   const { data, status } = useSession();
   const user = data?.user?.id;
 
+  const newMessages = props.messages;
+
+  const { setMessages, messages } = useMessages();
+
   const chatRef = React.useRef<HTMLDivElement>(null);
   const bottomRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!chatRef.current || !bottomRef.current) return;
+
+    const messagesToRemove = messages.filter((message) => {
+      const isMessageInNewMessages = newMessages.find(
+        (newMessage) => newMessage.id === message.id
+      );
+      return !isMessageInNewMessages;
+    });
+
+    setMessages(messagesToRemove);
 
     chatRef.current.scrollTop = bottomRef.current.offsetTop;
   }, [props.messages]);

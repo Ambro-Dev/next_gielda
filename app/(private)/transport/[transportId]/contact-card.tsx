@@ -63,29 +63,10 @@ const TransportContactCard = async ({
             {session?.user.id !== transport.creator.id && (
               <div className="flex flex-row w-full sm:justify-end gap-8">
                 {session?.user ? (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        className="rounded-full hover:bg-amber-500 transition-all duration-500"
-                        size="lg"
-                      >
-                        Napisz wiadomość
-                      </Button>
-                    </DialogTrigger>
-
-                    <DialogContent className="space-y-4">
-                      <DialogHeader>
-                        <DialogTitle>Wiadomość</DialogTitle>
-                        <DialogDescription>
-                          Wpisz wiadomość, którą chcesz wysłać
-                        </DialogDescription>
-                      </DialogHeader>
-                      <MessageForm
-                        transportId={transport.id}
-                        transportOwnerId={transport.creator.id}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                  <MessageForm
+                    transportId={transport.id}
+                    transportOwnerId={transport.creator.id}
+                  />
                 ) : (
                   <Link href="/signin">
                     <Button

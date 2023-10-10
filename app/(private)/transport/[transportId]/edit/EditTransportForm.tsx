@@ -31,6 +31,10 @@ import { Transport } from "../page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrentTransportMap from "./CurrentMap";
 import { CategoryComboBox } from "@/components/CategoryComboBox";
+import { Loader2 } from "lucide-react";
+
+type DirectionsResult = google.maps.DirectionsResult;
+type LatLngLiteral = google.maps.LatLngLiteral;
 
 const formSchema = z
   .object({
@@ -42,13 +46,6 @@ const formSchema = z
         message: "Wybierz kategorię.",
       }),
     vehicle: z
-      .string({
-        required_error: "Wybierz typ pojazdu.",
-      })
-      .min(1, {
-        message: "Wybierz typ pojazdu.",
-      }),
-    type: z
       .string({
         required_error: "Wybierz typ pojazdu.",
       })
@@ -134,9 +131,16 @@ export function EditTransportForm({
     receiveTime: string;
   };
 }) {
+  const [alert, setAlert] = React.useState<{
+    error: string;
+  }>({ error: "" });
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
+
+  const [directionsLeg, setDirectionsLeg] =
+    React.useState<google.maps.DirectionsLeg>();
+  const [directions, setDirections] = React.useState<DirectionsResult>();
 
   const [objects, setObjects] = React.useState<Objects[]>([]);
   const [startDestination, setStartDestination] = React.useState<
@@ -155,6 +159,31 @@ export function EditTransportForm({
       setEndDestination(transport.directions.finish);
     }
   }, [transport]);
+
+  React.useEffect(() => {
+    if (!startDestination || !endDestination) return;
+    fetchDirections(startDestination as LatLngLiteral);
+  }, [startDestination, endDestination]);
+
+  const fetchDirections = async (start: LatLngLiteral) => {
+    if (!endDestination || !start) return;
+
+    const service = new google.maps.DirectionsService();
+
+    service.route(
+      {
+        origin: start,
+        destination: endDestination,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === "OK" && result) {
+          setDirections(result);
+          setDirectionsLeg(result.routes[0].legs[0]);
+        }
+      }
+    );
+  };
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -176,6 +205,16 @@ export function EditTransportForm({
       const { id, ...rest } = object;
       return rest;
     });
+
+    if (!directionsLeg || !directions) {
+      setAlert({ error: "Nie wybrano trasy." });
+      return toast({
+        title: "Błąd",
+        description: "Usupełnij lub popraw trasę transportu",
+        variant: "destructive",
+      });
+    }
+
     const editTransport = {
       ...values,
       id: transport.id,
@@ -184,6 +223,11 @@ export function EditTransportForm({
         start: startDestination,
         finish: endDestination,
       },
+      distance: directionsLeg.distance,
+      duration: directionsLeg.duration,
+      start_address: directionsLeg.start_address,
+      end_address: directionsLeg.end_address,
+      polyline: directions.routes[0].overview_polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
@@ -215,6 +259,25 @@ export function EditTransportForm({
       });
     }
   };
+
+  const alertBox = (
+    <div className="alert alert-error">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="stroke-current shrink-0 h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <span>{alert.error}</span>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -375,7 +438,7 @@ export function EditTransportForm({
           />
         </TabsContent>
       </Tabs>
-
+      {alert.error !== "" && alertBox}
       <TransportObjectsCard
         objects={objects}
         setObjects={setObjects}
@@ -394,8 +457,16 @@ export function EditTransportForm({
           type="button"
           onClick={form.handleSubmit(onSubmit)}
           className="w-full"
+          disabled={form.formState.isSubmitting}
         >
-          Zapisz zmiany
+          {form.formState.isSubmitting ? (
+            <div className="flex flex-row items-center justify-center">
+              <Loader2 className="animate-spin" size={16} />
+              <span>Zapisywanie...</span>
+            </div>
+          ) : (
+            "Zapisz"
+          )}
         </Button>
       </div>
     </div>

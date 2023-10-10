@@ -1,7 +1,9 @@
 "use client";
 
+import { axiosInstance } from "@/lib/axios";
 import { Message } from "@prisma/client";
-import React, { createContext, useContext, useState } from "react";
+import { useSession } from "next-auth/react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type MessageWithUser = Message & {
   sender: {
@@ -64,12 +66,43 @@ const MessagesContext = createContext<MessagesContextType>({
   setOfferMessages(): void {},
 });
 
+const getMessages = async (userId: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/messages?userId=${userId}`);
+    const messages = response.data;
+    return messages;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const useMessages = () => useContext(MessagesContext);
 
 const MessageProvider = ({ children }: { children: React.ReactNode }) => {
+  const { data } = useSession();
   const [offerMessages, setOfferMessages] = useState<MessageWithUser[]>([]);
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [offers, setOffers] = useState<OfferWithUser[]>([]);
+
+  useEffect(() => {
+    if (!data?.user?.id) return;
+    getMessages(String(data.user.id)).then((messages) => {
+      setMessages(
+        messages.map((message: any) => ({
+          id: message.id,
+          createdAt: message.createdAt,
+          text: message.text,
+          sender: message.sender,
+          conversation: message.conversation,
+          receiver: {
+            id: data?.user?.id,
+            username: data?.user?.username,
+            email: data?.user?.email,
+          },
+        }))
+      );
+    });
+  }, [data?.user?.id]);
 
   return (
     <MessagesContext.Provider

@@ -8,6 +8,8 @@ import { axiosInstance } from "@/lib/axios";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package } from "lucide-react";
+import { redirect } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
 
 type Props = {
   params: {
@@ -16,17 +18,23 @@ type Props = {
 };
 
 const getConversations = async (
-  conversationId: string
+  conversationId: string,
+  userId: string
 ): Promise<ExtendedConversation> => {
   try {
     const response = await axiosInstance.get(
-      `/api/messages/conversation?conversationId=${conversationId}`
+      `/api/messages/conversation?conversationId=${conversationId}&userId=${userId}`
     );
     const data = response.data;
     return data;
   } catch (error) {
     console.error(error);
-    throw new Error("Nie udało się pobrać konwersacji");
+    toast({
+      title: "Wystąpił błąd",
+      description: "Nie udało się pobrać rozmowy",
+      variant: "destructive",
+    });
+    redirect("/user/market/messages");
   }
 };
 
@@ -50,9 +58,17 @@ export type ExtendedConversation = {
 
 const ConversationPage = async (props: Props) => {
   const session = await getServerSession(authOptions);
+
   const conversation: ExtendedConversation = await getConversations(
-    String(props.params.conversationId)
+    String(props.params.conversationId),
+    String(session?.user.id)
   );
+
+  const userInConversation = conversation.users.find(
+    (user) => user.id === session?.user.id
+  );
+
+  if (!userInConversation) redirect("/user/market/messages");
 
   const otherUser = conversation.users.find(
     (user) => user.id !== session?.user.id

@@ -13,16 +13,15 @@ import { axiosInstance } from "@/lib/axios";
 import { Offer } from "@prisma/client";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
 import React from "react";
 import EditForm from "./edit-offer";
 import GoBack from "../../../../../../components/ui/go-back";
 import OfferAccept from "./accept-offer";
-import Message from "./message";
 import NewMessage from "./new-message";
-import { redirect } from "next/navigation";
-import { off } from "process";
+import { notFound, redirect } from "next/navigation";
 import Messages from "./messages";
+
+import FilesCard from "./files-card";
 
 type Props = {
   params: {
@@ -101,6 +100,22 @@ export type Transport = {
   receiveDate: Date;
 };
 
+export type UploadthingFile = {
+  id: string;
+  fileName: string;
+  name: string;
+  fileSize: number;
+  size: number;
+  fileKey: string;
+  key: string;
+  fileUrl: string;
+  url: string;
+  user: {
+    id: string;
+    username: string;
+  };
+};
+
 const getTransport = async (transportId: string): Promise<Transport> => {
   try {
     const response = await axiosInstance.get(
@@ -113,7 +128,10 @@ const getTransport = async (transportId: string): Promise<Transport> => {
   }
 };
 
-const getOffer = async (offerId: string): Promise<OfferWithCreator> => {
+const getOffer = async (
+  offerId: string,
+  transportId: string
+): Promise<OfferWithCreator> => {
   try {
     const response = await axiosInstance.get(
       `/api/offers/offer?offerId=${offerId}`
@@ -121,7 +139,19 @@ const getOffer = async (offerId: string): Promise<OfferWithCreator> => {
     return response.data.offer;
   } catch (error) {
     console.error(error);
-    return {} as OfferWithCreator;
+    return redirect(`/transport/${transportId}`);
+  }
+};
+
+const getOfferFiles = async (offerId: string): Promise<UploadthingFile[]> => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/offers/files?offerId=${offerId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 };
 
@@ -134,9 +164,13 @@ const formatDate = (date: Date) => {
 };
 
 const OfferCard = async (props: Props) => {
-  const offer: OfferWithCreator = await getOffer(props.params.offerId);
+  const offer: OfferWithCreator = await getOffer(
+    props.params.offerId,
+    props.params.transportId
+  );
   const transport: Transport = await getTransport(props.params.transportId);
   const session = await getServerSession(authOptions);
+  const files = await getOfferFiles(props.params.offerId);
   const receiver =
     offer.creator.id === session?.user?.id
       ? transport.creator.id
@@ -270,12 +304,14 @@ const OfferCard = async (props: Props) => {
               </div>
             </CardContent>
           </Card>
+          <FilesCard user={session.user.id as string} files={files} />
+          {transport.creator.id === session?.user?.id && !offer.isAccepted && (
+            <CardFooter className="justify-end items-start md:col-span-2">
+              <OfferAccept offer={offer} transport={transport} />
+            </CardFooter>
+          )}
         </div>
-        {transport.creator.id === session?.user?.id && !offer.isAccepted && (
-          <CardFooter className="justify-end">
-            <OfferAccept offer={offer} transport={transport} />
-          </CardFooter>
-        )}
+
         <Card>
           <CardHeader className="p-3">
             <CardTitle className="text-lg">Wiadomości</CardTitle>
