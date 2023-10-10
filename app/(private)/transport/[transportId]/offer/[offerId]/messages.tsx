@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Message from "./message";
+import ChatMessage from "./chat-message";
 import { useSession } from "next-auth/react";
 
 type Props = {
@@ -42,7 +42,7 @@ const Messages = (props: Props) => {
       className="flex flex-col space-y-4 w-full max-h-[700px] overflow-auto"
     >
       {messages.map((message) => (
-        <Message
+        <ChatMessage
           key={message.id}
           message={message}
           user={String(session?.user.id)}
