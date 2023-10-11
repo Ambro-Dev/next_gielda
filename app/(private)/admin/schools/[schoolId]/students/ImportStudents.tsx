@@ -190,7 +190,7 @@ const ImportStudents = (props: Props) => {
       <DialogTrigger asChild>
         <Button variant="outline">Importuj z Excela</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl pt-14">
+      <DialogContent className="max-w-6xl pt-14 max-h-screen overflow-auto">
         {results && results.length > 0 ? (
           <>
             <ResultsTable
