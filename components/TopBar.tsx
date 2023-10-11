@@ -110,6 +110,14 @@ const TopBar = () => {
     }
   };
 
+  const avatar = (
+    <Avatar className="flex w-full">
+      <AvatarFallback className=" px-2 text-sm">
+        {data?.user.username}
+      </AvatarFallback>
+    </Avatar>
+  );
+
   return (
     <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
@@ -248,11 +256,7 @@ const TopBar = () => {
                                         offerMessages.length}
                                     </div>
                                   )}
-                                  <Avatar>
-                                    <AvatarFallback className="capitalize">
-                                      {data?.user.username.substring(0, 1)}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  {avatar}
                                 </div>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="w-56">
@@ -457,11 +461,7 @@ const TopBar = () => {
                           </div>
                         )}
 
-                        <Avatar>
-                          <AvatarFallback className="capitalize">
-                            {data?.user.username.substring(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
+                        {avatar}
                       </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
