@@ -25,6 +25,7 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({
       error: "Nie znaleziono pojazdów",
       status: 422,
+      vehicles: [],
     });
   }
 

@@ -197,6 +197,7 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({
       error: "Nie znaleziono transportów",
       status: 422,
+      transports: [],
     });
   }
 

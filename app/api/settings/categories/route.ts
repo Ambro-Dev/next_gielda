@@ -21,10 +21,11 @@ export const GET = async (req: NextRequest) => {
     },
   });
 
-  if (!categories) {
+  if (!categories || categories.length === 0) {
     return NextResponse.json({
       error: "Nie znaleziono kategorii transportu",
       status: 422,
+      categories: [],
     });
   }
 
