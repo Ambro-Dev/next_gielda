@@ -370,7 +370,7 @@ const TopBar = () => {
       </div>
       <Separator />
 
-      <div className="lg:flex flex-row justify-end gap-12 w-full py-3 hidden lg:visible bg-transparent">
+      <div className="hidden lg:flex flex-row justify-end gap-12 w-full py-3 bg-transparent">
         <NavigationMenu>
           <NavigationMenuList className="gap-4">
             {data?.user.role === "school_admin" && (

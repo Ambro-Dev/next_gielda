@@ -225,7 +225,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                               <Input {...field} type="number" />
                             </FormControl>
                             <FormDescription>
-                              Podaj szerokość przedmiotu w m
+                              Podaj szerokość przedmiotu w <b>metrach</b>
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -241,7 +241,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                               <Input {...field} type="number" />
                             </FormControl>
                             <FormDescription>
-                              Podaj długość przedmiotu w m
+                              Podaj długość przedmiotu w <b>metrach</b>
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -257,7 +257,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                               <Input {...field} type="number" />
                             </FormControl>
                             <FormDescription>
-                              Podaj wysokość przedmiotu w m
+                              Podaj wysokość przedmiotu w <b>metrach</b>
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
