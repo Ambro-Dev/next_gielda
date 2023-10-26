@@ -42,6 +42,7 @@ import {
   PenBox,
   Menu,
   Facebook,
+  Bug,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -68,6 +69,12 @@ const menu: { title: string; href: string; description: string }[] = [
     href: "/admin/transports",
     description: "Zarządzaj ustawieniami transportów.",
   },
+  {
+    title: "Zgłoszone uwagi",
+    href: "/admin/reports",
+    description:
+      "Zarządzaj zgłoszonymi uwagami i problemami w działaniu aplikacji.",
+  },
 ];
 
 const schoolData = async (userId: string) => {
@@ -83,7 +90,7 @@ const TopBar = () => {
   const { data, status } = useSession();
   const isAuth = status === "authenticated";
   const [school, setSchool] = React.useState<School | null>(null);
-  const { offers, messages, offerMessages } = useMessages();
+  const { offers, messages, offerMessages, reports } = useMessages();
 
   useEffect(() => {
     if (data?.user?.role === "student" || data?.user?.role === "school_admin") {
@@ -169,8 +176,15 @@ const TopBar = () => {
                       {data?.user?.role === "admin" && (
                         <NavigationMenuItem>
                           <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button>Panel administracyjny</Button>
+                            <DropdownMenuTrigger asChild className="relative">
+                              <div>
+                                {reports.length > 0 && (
+                                  <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                    {reports.length}
+                                  </div>
+                                )}
+                                <Button>Panel administracyjny</Button>
+                              </div>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56">
                               <DropdownMenuGroup>
@@ -183,9 +197,17 @@ const TopBar = () => {
                                           router.replace(item.href)
                                         }
                                       >
-                                        <span className="font-bold">
-                                          {item.title}
-                                        </span>
+                                        <div className="flex justify-between w-full">
+                                          <span className="font-bold">
+                                            {item.title}
+                                          </span>
+                                          {reports.length > 0 &&
+                                            item.href === "/admin/reports" && (
+                                              <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                                {reports.length}
+                                              </div>
+                                            )}
+                                        </div>
                                         <span>{item.description}</span>
                                       </DropdownMenuItem>
                                     </SheetClose>
@@ -320,6 +342,15 @@ const TopBar = () => {
                                       <span>Oferty</span>
                                     </SheetClose>
                                   </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="hover:cursor-pointer hover:bg-amber-400 text-red-600 font-semibold"
+                                    onClick={() => router.replace("/report")}
+                                  >
+                                    <Bug className="mr-2 h-4 w-4 " />
+                                    <SheetClose asChild>
+                                      <span>Zgłoś uwagę</span>
+                                    </SheetClose>
+                                  </DropdownMenuItem>
                                 </DropdownMenuGroup>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
@@ -385,8 +416,15 @@ const TopBar = () => {
             {data?.user?.role === "admin" && (
               <NavigationMenuItem>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button>Panel administracyjny</Button>
+                  <DropdownMenuTrigger asChild className="relative">
+                    <div>
+                      {reports.length > 0 && (
+                        <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                          {reports.length}
+                        </div>
+                      )}
+                      <Button>Panel administracyjny </Button>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">
                     <DropdownMenuGroup>
@@ -396,7 +434,15 @@ const TopBar = () => {
                             className="flex flex-col w-full justify-center items-start gap-2"
                             onClick={() => router.replace(item.href)}
                           >
-                            <span className="font-bold">{item.title}</span>
+                            <div className="flex justify-between w-full">
+                              <span className="font-bold">{item.title}</span>
+                              {reports.length > 0 &&
+                                item.href === "/admin/reports" && (
+                                  <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                    {reports.length}
+                                  </div>
+                                )}
+                            </div>
                             <span>{item.description}</span>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -513,6 +559,13 @@ const TopBar = () => {
                             </div>
                           )}
                           <span>Oferty</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:cursor-pointer hover:bg-amber-400 text-red-600 font-semibold"
+                          onClick={() => router.replace("/report")}
+                        >
+                          <Bug className="mr-2 h-4 w-4 " />
+                          <span>Zgłoś uwagę</span>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />

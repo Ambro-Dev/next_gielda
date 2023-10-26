@@ -33,7 +33,16 @@ export type Transport = PrismaTransport & {
       lng: number;
     };
   };
-  creator: { id: string; username: string };
+  creator: {
+    id: string;
+    username: string;
+    name?: string;
+    surname?: string;
+    student?: {
+      name?: string;
+      surname?: string;
+    };
+  };
 };
 
 const getCategories = async (): Promise<Tags[]> => {

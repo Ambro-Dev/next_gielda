@@ -1,7 +1,7 @@
 "use client";
 
 import { axiosInstance } from "@/lib/axios";
-import { Message } from "@prisma/client";
+import { Message, Report } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -55,6 +55,8 @@ type MessagesContextType = {
   setOffers: React.Dispatch<React.SetStateAction<OfferWithUser[]>>;
   offerMessages: MessageWithUser[];
   setOfferMessages: React.Dispatch<React.SetStateAction<MessageWithUser[]>>;
+  reports: Report[];
+  setReports: React.Dispatch<React.SetStateAction<Report[]>>;
 };
 
 const MessagesContext = createContext<MessagesContextType>({
@@ -64,6 +66,8 @@ const MessagesContext = createContext<MessagesContextType>({
   setOffers(): void {},
   offerMessages: [],
   setOfferMessages(): void {},
+  reports: [],
+  setReports(): void {},
 });
 
 const getMessages = async (userId: string) => {
@@ -76,6 +80,16 @@ const getMessages = async (userId: string) => {
   }
 };
 
+const getReports = async () => {
+  try {
+    const response = await axiosInstance.get("/api/report");
+    const reports = response.data;
+    return reports;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const useMessages = () => useContext(MessagesContext);
 
 const MessageProvider = ({ children }: { children: React.ReactNode }) => {
@@ -83,6 +97,7 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   const [offerMessages, setOfferMessages] = useState<MessageWithUser[]>([]);
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [offers, setOffers] = useState<OfferWithUser[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     if (!data?.user?.id) return;
@@ -102,6 +117,13 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
         }))
       );
     });
+    if (data?.user?.role === "admin")
+      getReports().then((response) => {
+        const unseenReports = response.reports.filter(
+          (report: Report) => !report.seen
+        );
+        setReports(unseenReports);
+      });
   }, [data?.user?.id]);
 
   return (
@@ -113,6 +135,8 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
         setOffers,
         messages,
         setMessages,
+        reports,
+        setReports,
       }}
     >
       {children}
