@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 
 import { Search } from "@/components/dashboard/search";
-import { MainNav } from "@/components/dashboard/main-nav";
 import TeamSwitcher from "@/components/dashboard/team-switcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUp, School, Truck, Users } from "lucide-react";
@@ -23,7 +22,6 @@ const getData = async (): Promise<Data> => {
     const response = await axiosInstance.get(`/api/admin/all`);
     return response.data;
   } catch (error) {
-    console.error(error);
     return {
       transports: 0,
       schools: 0,
@@ -33,7 +31,7 @@ const getData = async (): Promise<Data> => {
 };
 
 export default async function SchoolManagement() {
-  const data: Data = await getData();
+  const data = await getData();
   return (
     <div className="flex flex-col">
       <div className="border-b">

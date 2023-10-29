@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import bcrypt from "bcrypt";
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 
 interface NewUserRequest {
   username: string;

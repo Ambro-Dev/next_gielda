@@ -41,7 +41,7 @@ export default async function RootLayout({
                   <Toaster />
                   <TopBar />
 
-                  <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl w-full">
+                  <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-6xl px-1 w-full">
                     {children}
                   </div>
 

@@ -188,6 +188,14 @@ export const GET = async (req: NextRequest) => {
         select: {
           id: true,
           username: true,
+          name: true,
+          surname: true,
+          student: {
+            select: {
+              name: true,
+              surname: true,
+            },
+          },
         },
       },
     },

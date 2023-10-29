@@ -113,7 +113,12 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
             <div className="flex flex-row items-center justify-center gap-2">
               <Image src={user_icon} alt="user" width={24} height={24} />
               <span className="text-sm font-bold">
-                {transport.creator.username}
+                {transport.creator.name
+                  ? transport.creator.name
+                  : transport.creator.student?.name}{" "}
+                {transport.creator.surname
+                  ? transport.creator.surname.substring(0, 1) + "."
+                  : transport.creator.student?.surname?.substring(0, 1) + "."}
               </span>
             </div>
           </div>
