@@ -17,8 +17,10 @@ import { School } from "@prisma/client";
 import { StudentsTable } from "../admin/schools/[schoolId]/students/students-table";
 import { columns } from "../admin/schools/[schoolId]/students/columns";
 import { columns as transportColumns } from "../admin/schools/[schoolId]/transports/colums";
+import { columns as offerColumns } from "./components/columns";
 import { AddStudentForm } from "../admin/schools/[schoolId]/students/add-student-form";
 import { TransportsTable } from "../admin/schools/[schoolId]/transports/transports-table";
+import { OffersTable } from "./components/offers-table";
 
 type SchoolWithTransports = {
   school: {
@@ -78,6 +80,34 @@ type Transport = {
   };
 };
 
+type Offer = {
+  id: string;
+  creator: {
+    id: string;
+    username: string;
+    name?: string;
+    surname?: string;
+    student?: {
+      name: string;
+      surname: string;
+    };
+  };
+  createdAt: Date;
+  transport: {
+    id: string;
+  };
+  brutto: number;
+};
+
+type columnOffer = {
+  id: string;
+  creator: string;
+  name_surname: string;
+  createdAt: Date;
+  transportId: string;
+  brutto: number;
+};
+
 type Props = {
   params: {
     schoolId: string;
@@ -103,6 +133,33 @@ const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
   } catch (error) {
     console.error(error);
     return {} as SchoolWithTransports;
+  }
+};
+
+const getOffers = async (schoolId: string): Promise<Offer[]> => {
+  try {
+    const res = await axiosInstance.get(
+      `/api/schools/offers?schoolId=${schoolId}`
+    );
+    const offers = res.data.map((offer: Offer) => {
+      const formatedDate = new Date(offer.createdAt).toLocaleDateString(
+        "pl-PL"
+      );
+      return {
+        id: offer.id,
+        creator: offer.creator.username,
+        name_surname: offer.creator.name
+          ? `${offer.creator.name} ${offer.creator.surname}`
+          : `${offer.creator.student?.name} ${offer.creator.student?.surname}`,
+        createdAt: formatedDate,
+        transportId: offer.transport.id,
+        brutto: offer.brutto,
+      };
+    });
+    return offers;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 };
 
@@ -136,6 +193,7 @@ export default async function SchoolManagement() {
   const school = await getSchoolId(String(session?.user.id));
   const data = await getSchool(school.id);
   const students = await getStudents(school.id);
+  const offers = await getOffers(school.id);
 
   const transportsData = await getSchoolTransports(String(school.id));
 
@@ -180,11 +238,14 @@ export default async function SchoolManagement() {
                 )}
               </div>
 
-              <TabsList>
-                <TabsTrigger value="overview">Ogólne</TabsTrigger>
-                <TabsTrigger value="users">Użytkownicy</TabsTrigger>
-                <TabsTrigger value="transports">Transporty</TabsTrigger>
-              </TabsList>
+              <div className="overflow-auto py-2">
+                <TabsList>
+                  <TabsTrigger value="overview">Ogólne</TabsTrigger>
+                  <TabsTrigger value="users">Użytkownicy</TabsTrigger>
+                  <TabsTrigger value="transports">Transporty</TabsTrigger>
+                  <TabsTrigger value="offers">Oferty</TabsTrigger>
+                </TabsList>
+              </div>
             </div>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -239,6 +300,12 @@ export default async function SchoolManagement() {
             <TransportsTable
               columns={transportColumns}
               transports={transports}
+            />
+          </TabsContent>
+          <TabsContent value="offers">
+            <OffersTable
+              columns={offerColumns}
+              offers={offers as unknown as columnOffer[]}
             />
           </TabsContent>
         </Tabs>

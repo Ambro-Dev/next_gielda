@@ -19,9 +19,9 @@ import GoBack from "../../../../../../components/ui/go-back";
 import OfferAccept from "./accept-offer";
 import NewMessage from "./new-message";
 import { notFound, redirect } from "next/navigation";
-import Messages from "./messages";
 
 import FilesCard from "./files-card";
+import ChatMessage from "./chat-message";
 
 type Props = {
   params: {
@@ -319,7 +319,7 @@ const OfferCard = async (props: Props) => {
           <CardContent className="space-y-4 sm:p-4 p-2">
             <div className="flex flex-col space-y-4 w-full max-h-[700px] overflow-auto">
               {offer.messages.map((message) => (
-                <Message
+                <ChatMessage
                   key={message.id}
                   message={message}
                   user={String(session?.user.id)}

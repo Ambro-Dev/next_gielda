@@ -30,17 +30,17 @@ import { useSession } from "next-auth/react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 
-interface TransportsTableProps<TData, TValue> {
+interface OffersTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  transports: TData[];
+  offers: TData[];
   school?: string;
 }
 
-export function TransportsTable<TData, TValue>({
+export function OffersTable<TData, TValue>({
   columns,
-  transports,
+  offers,
   school,
-}: TransportsTableProps<TData, TValue>) {
+}: OffersTableProps<TData, TValue>) {
   const router = useRouter();
 
   const handleDelete = async (id: string) => {
@@ -49,7 +49,7 @@ export function TransportsTable<TData, TValue>({
       schoolId: school,
     };
     try {
-      await axiosInstance.put("/api/transports/delete", data).then((res) => {
+      await axiosInstance.put("/api/offers/delete", data).then((res) => {
         if (res.data.message) {
           toast({
             title: "Sukces",
@@ -76,7 +76,7 @@ export function TransportsTable<TData, TValue>({
   );
 
   const table = useReactTable({
-    data: transports,
+    data: offers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -94,7 +94,7 @@ export function TransportsTable<TData, TValue>({
     <div className="sm:p-5 p-0">
       <div className="flex items-center py-4 justify-between">
         <Input
-          placeholder="Filtruj transporty..."
+          placeholder="Filtruj oferty..."
           value={(table.getColumn("creator")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("creator")?.setFilterValue(event.target.value)
@@ -185,13 +185,13 @@ export function TransportsTable<TData, TValue>({
               size="sm"
               className="sm:w-auto w-full"
             >
-              Usuń wszystkie ogłoszenia
+              Usuń wszystkie oferty
             </Button>
           </DialogTrigger>
           <DialogContent>
             <div className="flex flex-col gap-4">
               <span className="text-lg font-semibold">
-                Czy na pewno chcesz usunąć wszystkie ogłoszenia?
+                Czy na pewno chcesz usunąć wszystkie oferty?
               </span>
               <div className="flex gap-4">
                 <DialogTrigger asChild>
