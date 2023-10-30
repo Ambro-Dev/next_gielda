@@ -24,6 +24,7 @@ import {
   Bug,
   LogOut,
   MessageSquare,
+  Paperclip,
   PenBox,
   Settings,
   User,
@@ -169,6 +170,15 @@ const MobileNavMenu = (props: Props) => {
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link href="/documents" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <SheetTrigger asChild>
+                    <span>Dokumenty do pobrania</span>
+                  </SheetTrigger>
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
             <NavigationMenuItem className="hover:cursor-pointer">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -235,7 +245,7 @@ const MobileNavMenu = (props: Props) => {
                       </SheetClose>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400 text-red-600 font-semibold"
+                      className="hover:cursor-pointer hover:bg-zinc-200 text-red-600 font-semibold"
                       onClick={() => router.replace("/report")}
                     >
                       <Bug className="mr-2 h-4 w-4 " />

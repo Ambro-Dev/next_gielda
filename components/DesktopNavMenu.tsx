@@ -24,6 +24,7 @@ import {
   Bug,
   LogOut,
   MessageSquare,
+  Paperclip,
   PenBox,
   Settings,
   User,
@@ -155,6 +156,15 @@ const DesktopNavMenu = (props: Props) => {
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
+            <div className="hidden xl:block">
+              <NavigationMenuItem>
+                <Link href="/documents" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Dokumenty do pobrania
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </div>
             {school && (
               <NavigationMenuItem className="text-sm">
                 Dostęp wygaśnie za:{" "}
@@ -222,11 +232,18 @@ const DesktopNavMenu = (props: Props) => {
                       <span>Oferty</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400 text-red-600 font-semibold"
+                      className="hover:cursor-pointer hover:bg-zinc-200 text-red-600 font-semibold"
                       onClick={() => router.replace("/report")}
                     >
                       <Bug className="mr-2 h-4 w-4 " />
                       <span>Zgłoś uwagę</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="xl:hidden visible hover:cursor-pointer hover:bg-amber-400 font-semibold"
+                      onClick={() => router.replace("/documents")}
+                    >
+                      <Paperclip className="mr-2 h-4 w-4 " />
+                      <span>Dokumenty do pobrania</span>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

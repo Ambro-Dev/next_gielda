@@ -14,8 +14,6 @@ import { extractRouterConfig } from "uploadthing/server";
 
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "Giełda transportowa - fenilo.pl",
   description:
@@ -30,7 +28,7 @@ export default async function RootLayout({
   return (
     <NextAuthProvider>
       <html lang="pl">
-        <body className={inter.className}>
+        <body>
           <GoogleApiProvider>
             <MessageProvider>
               <SocketProvider>
