@@ -31,7 +31,17 @@ type Props = {
 };
 
 export type OfferWithCreator = Offer & {
-  creator: { id: string; username: string; email: string };
+  creator: {
+    id: string;
+    username: string;
+    email: string;
+    name?: string;
+    surname?: string;
+    student?: {
+      name: string;
+      surname: string;
+    };
+  };
   transport: {
     id: string;
   };
@@ -178,7 +188,9 @@ const OfferCard = async (props: Props) => {
 
   if (
     offer.creator.id !== session?.user?.id &&
-    transport.creator.id !== session?.user?.id
+    transport.creator.id !== session?.user?.id &&
+    session?.user?.role !== "admin" &&
+    session?.user?.role !== "school_admin"
   ) {
     redirect(`/transport/${transport.id}`);
   }
@@ -233,7 +245,9 @@ const OfferCard = async (props: Props) => {
                 <Label className="flex flex-wrap gap-2">
                   <span>Nazwa użytkownika:</span>
                   <span className="font-semibold">
-                    {offer.creator.username}
+                    {offer.creator.student?.name
+                      ? `${offer.creator.student.name} ${offer.creator.student.surname}`
+                      : `${offer.creator.name} ${offer.creator.surname}`}
                   </span>
                 </Label>
                 <Label className="flex flex-wrap gap-2">
