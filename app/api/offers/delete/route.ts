@@ -46,11 +46,24 @@ export async function PUT(req: NextRequest) {
 
     const schoolOffers = await prisma.offer.findMany({
       where: {
-        transport: {
-          school: {
-            id: schoolId,
+        OR: [
+          {
+            transport: {
+              school: {
+                id: schoolId,
+              },
+            },
           },
-        },
+          {
+            creator: {
+              student: {
+                school: {
+                  id: schoolId,
+                },
+              },
+            },
+          },
+        ],
       },
     });
 
@@ -63,11 +76,24 @@ export async function PUT(req: NextRequest) {
 
     await prisma.offer.deleteMany({
       where: {
-        transport: {
-          school: {
-            id: schoolId,
+        OR: [
+          {
+            transport: {
+              school: {
+                id: schoolId,
+              },
+            },
           },
-        },
+          {
+            creator: {
+              student: {
+                school: {
+                  id: schoolId,
+                },
+              },
+            },
+          },
+        ],
       },
     });
 
@@ -137,11 +163,24 @@ export async function PUT(req: NextRequest) {
 
   await prisma.offer.deleteMany({
     where: {
-      transport: {
-        school: {
-          id: school.id,
+      OR: [
+        {
+          transport: {
+            school: {
+              id: school.id,
+            },
+          },
         },
-      },
+        {
+          creator: {
+            student: {
+              school: {
+                id: school.id,
+              },
+            },
+          },
+        },
+      ],
     },
   });
 

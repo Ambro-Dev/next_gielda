@@ -26,9 +26,20 @@ export const GET = async (req: NextRequest) => {
 
   const offers = await prisma.offer.findMany({
     where: {
-      transport: {
-        schoolId: schoolId,
-      },
+      OR: [
+        {
+          creator: {
+            student: {
+              schoolId,
+            },
+          },
+        },
+        {
+          transport: {
+            schoolId,
+          },
+        },
+      ],
     },
     select: {
       id: true,
@@ -53,6 +64,9 @@ export const GET = async (req: NextRequest) => {
         },
       },
       brutto: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 
