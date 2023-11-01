@@ -64,7 +64,7 @@ export const GET = async (req: NextRequest) => {
       email: true,
       role: true,
       isBlocked: true,
-      school: true,
+      adminOf: true,
     },
   });
 
