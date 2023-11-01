@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       email: true,
       bio: true,
       role: true,
-      school: {
+      adminOf: {
         select: {
           id: true,
           name: true,
@@ -32,6 +32,12 @@ export async function GET(req: NextRequest) {
           id: true,
           name: true,
           surname: true,
+          school: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },

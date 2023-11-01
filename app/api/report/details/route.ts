@@ -41,7 +41,7 @@ export const GET = async (req: NextRequest) => {
               },
             },
           },
-          school: {
+          adminOf: {
             select: {
               id: true,
               name: true,
