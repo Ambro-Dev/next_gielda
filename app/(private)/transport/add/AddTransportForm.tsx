@@ -100,9 +100,9 @@ type Destination = {
 
 type School = {
   id: string;
-  administrator: {
+  administrators: {
     id: string;
-  };
+  }[];
 };
 
 type Settings = {

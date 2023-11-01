@@ -30,6 +30,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const noPolishCharsOrSpecialChars = /^[a-zA-Z0-9.]+$/;
 
@@ -101,7 +102,23 @@ const schema = z.object({
     }),
 });
 
-const AddSchoolAdmin = ({ schoolId }: { schoolId: string }) => {
+const AddSchoolAdmin = ({
+  schoolId,
+  className,
+  size,
+  variant,
+}: {
+  schoolId: string;
+  className?: string;
+  size?: "sm" | "icon" | "lg" | "default";
+  variant?:
+    | "default"
+    | "link"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
+}) => {
   const [open, setOpen] = React.useState(false);
   const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);
   const [createdUser, setCreatedUser] = React.useState({
@@ -150,11 +167,13 @@ const AddSchoolAdmin = ({ schoolId }: { schoolId: string }) => {
   return (
     <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
       <DialogTrigger asChild>
-        <Button size="lg">Dodaj administratora</Button>
+        <Button size={size || "lg"} className={cn(className)} variant={variant}>
+          Dodaj administratora
+        </Button>
       </DialogTrigger>
       <DialogContent>
         {createdUser.username !== "" && createdUser.password !== "" ? (
-          <div>
+          <>
             <DialogHeader>
               <DialogTitle>Administrator szkoły dodany</DialogTitle>
               <DialogDescription>
@@ -201,7 +220,7 @@ const AddSchoolAdmin = ({ schoolId }: { schoolId: string }) => {
                 Zamknij
               </Button>
             </DialogFooter>
-          </div>
+          </>
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

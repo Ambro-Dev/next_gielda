@@ -64,7 +64,8 @@ model User {
 
   accounts         Account[]
   sessions         Session[]
-  school           School?
+  adminOfSchoolId  String?         @db.ObjectId
+  adminOf          School?         @relation(name: "schoolAdmin", fields: [adminOfSchoolId], references: [id])
   transports       Transport[]
   student          Student?
   messages         Message[]
@@ -109,17 +110,27 @@ type DirectionsValue {
 }
 
 model School {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  administratorId String?     @unique @db.ObjectId
-  administrator   User?       @relation(fields: [administratorId], references: [id], onDelete: Cascade)
-  isActive        Boolean     @default(true)
-  accessExpires   DateTime
-  identifier      String      @unique
-  students        Student[]
-  transports      Transport[]
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  administrators User[]      @relation(name: "schoolAdmin")
+  isActive       Boolean     @default(true)
+  accessExpires  DateTime
+  identifier     String      @unique
+  students       Student[]
+  transports     Transport[]
+}
+
+model Conversation {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  messages    Message[]
+  userIDs     String[]   @db.ObjectId
+  users       User[]     @relation(fields: [userIDs], references: [id])
+  transportId String?    @db.ObjectId
+  transport   Transport? @relation(fields: [transportId], references: [id], onDelete: Cascade)
 }
 
 model Student {
@@ -164,17 +175,6 @@ model Transport {
   school        School?          @relation(fields: [schoolId], references: [id])
   offers        Offer[]
   conversations Conversation[]
-}
-
-model Conversation {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  messages    Message[]
-  userIDs     String[]  @db.ObjectId
-  users       User[]    @relation(fields: [userIDs], references: [id])
-  transportId String    @db.ObjectId
-  transport   Transport @relation(fields: [transportId], references: [id], onDelete: Cascade)
 }
 
 model Message {

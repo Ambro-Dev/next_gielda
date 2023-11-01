@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import logo from "../public/gielda-fenilo.webp";
 import {
@@ -16,10 +18,9 @@ import { Menu, Facebook } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import MobileNavMenu from "./MobileNavMenu";
 import DesktopNavMenu from "./DesktopNavMenu";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import OfferIndicatior from "@/components/ui/offer-indicatior";
 import { School } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 const menu: { title: string; href: string; description: string }[] = [
   {
@@ -57,13 +58,15 @@ const schoolData = async (userId: string): Promise<School | undefined> => {
   }
 };
 
-const TopBar = async () => {
-  const data = await getServerSession(authOptions);
+const TopBar = () => {
+  const { data } = useSession();
+  const [school, setSchool] = React.useState<School | undefined>(undefined);
 
-  const school =
-    data?.user?.role === "student" || data?.user?.role === "school_admin"
-      ? await schoolData(String(data.user.id))
-      : null;
+  React.useEffect(() => {
+    if (school) return;
+    if (data?.user?.role === "student" || data?.user?.role === "school_admin")
+      schoolData(String(data.user.id)).then((res) => setSchool(res));
+  }, [data]);
 
   return (
     <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
@@ -118,7 +121,7 @@ const TopBar = async () => {
         </div>
       </div>
       <Separator />
-      <div className="hidden lg:block">
+      <div className="lg:block hidden">
         <div className="flex flex-row justify-end gap-12 w-full py-3 bg-transparent ">
           <DesktopNavMenu data={data} school={school} menu={menu} />
           <div className="flex flex-row justify-center items-center gap-4">

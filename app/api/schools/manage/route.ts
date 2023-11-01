@@ -20,7 +20,7 @@ export const GET = async (req: NextRequest) => {
           students: true,
         },
       },
-      administrator: {
+      administrators: {
         select: {
           id: true,
           username: true,

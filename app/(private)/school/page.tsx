@@ -30,11 +30,11 @@ type SchoolWithTransports = {
       transports: number;
       students: number;
     };
-    administrator: {
+    administrators: {
       id: string;
       username: string;
       email: string;
-    };
+    }[];
     accessExpires: Date;
   };
   latestTransports: {

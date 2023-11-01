@@ -94,6 +94,9 @@ export const GET = async (req: NextRequest) => {
         },
       },
     },
+    orderBy: {
+      updatedAt: "desc",
+    },
   });
 
   if (!conversations) {

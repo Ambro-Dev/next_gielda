@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,15 +6,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { RecentTransports } from "@/components/dashboard/recent-transports";
 
-import admin from "@/assets/icons/administrator.png";
-import Image from "next/image";
 import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 import AddSchoolAdmin from "./add-school-admin";
 import { notFound } from "next/navigation";
+import React from "react";
+import AdminsCarousel from "./components/AdminsCarousel";
 
 interface PageProps {
   params: {
@@ -33,13 +31,13 @@ type SchoolWithTransports = {
       transports: number;
       students: number;
     };
-    administrator: {
+    administrators: {
       id: string;
       username: string;
       email: string;
       name: string;
       surname: string;
-    };
+    }[];
     accessExpires: Date;
   };
   latestTransports: {
@@ -109,43 +107,32 @@ export default async function SchoolPage({ params }: PageProps) {
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="col-span-2 gap-4 flex flex-row">
-              {data.school.administrator ? (
-                <>
-                  <div className="w-3/4">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        Administrator szkoły
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xl font-bold">
-                        {data.school.administrator.username}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {(data.school.administrator.name || "") +
-                          " " +
-                          (data.school.administrator.surname || "")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {data.school.administrator.email}
-                      </p>
-                    </CardContent>
+            <div className="col-span-2 gap-4">
+              <Card className="carousel flex flex-row">
+                {data.school.administrators.length > 0 ? (
+                  <AdminsCarousel administrators={data.school.administrators} />
+                ) : (
+                  <div className="flex flex-row items-center justify-center w-full space-x-6 p-5">
+                    <p className="text-sm text-center text-muted-foreground">
+                      Jednostka nie posiada administratora, dodaj go.
+                      Administrator będzie miał możliwość zarządzania jednostką.
+                    </p>
+                    <AddSchoolAdmin schoolId={params.schoolId} />
                   </div>
-                  <div className="flex items-center justify-center w-1/4">
-                    <Image src={admin} alt="admin" width={48} height={48} />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-row items-center justify-center w-full space-x-6 p-5">
-                  <p className="text-sm text-center text-muted-foreground">
-                    Jednostka nie posiada administratora, dodaj go.
-                    Administrator będzie miał możliwość zarządzania jednostką.
-                  </p>
-                  <AddSchoolAdmin schoolId={params.schoolId} />
+                )}
+              </Card>
+              {data.school.administrators.length > 0 && (
+                <div className="w-full pt-2">
+                  <AddSchoolAdmin
+                    schoolId={params.schoolId}
+                    className="w-full"
+                    size="default"
+                    variant="secondary"
+                  />
                 </div>
               )}
-            </Card>
+            </div>
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">

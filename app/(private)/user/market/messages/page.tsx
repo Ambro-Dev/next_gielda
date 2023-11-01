@@ -4,6 +4,8 @@ import React from "react";
 import { ExtendedTransport } from "../page";
 import { MessagesTable } from "./messages-table";
 import { axiosInstance } from "@/lib/axios";
+import { Button } from "@/components/ui/button";
+import NewConversationDialog from "./new-conversation-dialog";
 
 type Props = {};
 
@@ -40,14 +42,28 @@ export type ExtendedConversation = {
   }[];
 };
 
+const getUsers = async (
+  userId: string
+): Promise<{ label: string; value: string }[]> => {
+  try {
+    const response = await axiosInstance.get(`/api/users?userId=${userId}`);
+    const data = response.data;
+    return data.users;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
 const MarketMessages = async (props: Props) => {
   const session = await getServerSession(authOptions);
-  const conversations: ExtendedConversation[] = await getConversations(
-    String(session?.user?.id)
-  );
+  const conversations = await getConversations(String(session?.user?.id));
+  const users = await getUsers(String(session?.user?.id));
+
   return (
-    <div>
-      <MessagesTable data={conversations} />
+    <div className="flex flex-col">
+      <NewConversationDialog users={users} userId={String(session?.user.id)} />
+      <MessagesTable data={conversations} userId={String(session?.user.id)} />
     </div>
   );
 };

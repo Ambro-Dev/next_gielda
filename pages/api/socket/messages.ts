@@ -257,7 +257,41 @@ export default async function handler(
       return res.status(201).json({ message: newMessage });
     }
 
-    return res.status(400).json({ error: "Brak wymaganych pól" });
+    const conversation = await prisma.conversation.create({
+      data: {
+        users: {
+          connect: [{ id: senderId }, { id: receiverId }],
+        },
+        messages: {
+          create: {
+            text: message,
+            sender: {
+              connect: {
+                id: senderId,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({ error: "Nie udało się utworzyć konwersacji" });
+    }
+
+    const newMessage = await prisma.message.findFirst({
+      where: {
+        conversationId: conversation.id,
+      },
+    });
+
+    const recieverKey = `user:${receiverId}:messages`;
+
+    res?.socket?.server?.io?.emit(recieverKey, newMessage);
+
+    return res.status(201).json({ message: newMessage });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Error" });
