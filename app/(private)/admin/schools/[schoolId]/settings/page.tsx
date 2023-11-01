@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { axiosInstance } from "@/lib/axios";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import React from "react";
 import SchoolInfoCard from "./components/SchoolInfoCard";
 import SchoolAdminCard from "./components/SchoolAdminCard";
@@ -14,21 +14,21 @@ type Props = {
 export type School = {
   id: string;
   name: string;
-  administrator: {
+  administrators: {
     id: string;
     email: string;
     username: string;
     createdAt: Date;
     name: string;
     surname: string;
-  };
+  }[];
   createdAt: Date;
   updatedAt: Date;
   isActive: true;
   accessExpires: Date;
 };
 
-const getSchool = async (schoolId: string): Promise<School> => {
+const getSchool = async (schoolId: string): Promise<School | undefined> => {
   try {
     const response = await axiosInstance.get(
       `/api/schools/settings?id=${schoolId}`
@@ -59,21 +59,8 @@ const getSchool = async (schoolId: string): Promise<School> => {
       description: "Nie udało się pobrać danych szkoły",
       variant: "destructive",
     });
+    return undefined;
   }
-  return {
-    id: "",
-    name: "",
-    administrator: {
-      id: "",
-      email: "",
-      username: "",
-      createdAt: new Date(),
-    },
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isActive: true,
-    accessExpires: new Date(),
-  } as School;
 };
 
 const lastSevenDays = () => {
@@ -87,11 +74,16 @@ const lastSevenDays = () => {
 };
 
 const Page = async (props: Props) => {
-  const schoolData: School = await getSchool(props.params.schoolId);
+  if (props.params.schoolId.length !== 24) return notFound();
+
+  const schoolData = await getSchool(props.params.schoolId);
+
+  if (!schoolData) return notFound();
+
   return (
     <div className="w-full p-5 grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4">
       <SchoolInfoCard school={schoolData} />
-      <SchoolAdminCard administrator={schoolData.administrator} />
+      <SchoolAdminCard administrators={schoolData.administrators} />
     </div>
   );
 };

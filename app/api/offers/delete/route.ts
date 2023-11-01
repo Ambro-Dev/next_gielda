@@ -108,13 +108,6 @@ export async function PUT(req: NextRequest) {
     where: {
       id: adminId,
     },
-    select: {
-      school: {
-        select: {
-          id: true,
-        },
-      },
-    },
   });
 
   if (!admin) {
@@ -124,7 +117,7 @@ export async function PUT(req: NextRequest) {
     });
   }
 
-  if (!admin.school) {
+  if (admin.adminOfSchoolId === null) {
     return NextResponse.json({
       error: "Użytkownik nie jest adminem żadnej szkoły",
       status: 404,
@@ -133,7 +126,7 @@ export async function PUT(req: NextRequest) {
 
   const school = await prisma.school.findUnique({
     where: {
-      id: admin.school.id,
+      id: schoolId,
     },
   });
 

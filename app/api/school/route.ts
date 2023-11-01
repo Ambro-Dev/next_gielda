@@ -23,7 +23,7 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
-      school: {
+      adminOf: {
         select: {
           id: true,
           name: true,
@@ -39,7 +39,7 @@ export const GET = async (req: NextRequest) => {
     });
   }
 
-  const userSchool = user.student?.school || user.school;
+  const userSchool = user.student?.school || user.adminOf;
 
   if (!userSchool) {
     return NextResponse.json({

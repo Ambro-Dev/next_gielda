@@ -22,7 +22,11 @@ export const GET = async (req: NextRequest) => {
 
   const school = await prisma.school.findFirst({
     where: {
-      administratorId: userId,
+      administrators: {
+        some: {
+          id: user.id,
+        },
+      },
     },
   });
 

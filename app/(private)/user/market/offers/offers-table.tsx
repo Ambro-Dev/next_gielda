@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import Directions from "@/components/Directions";
 import { Card } from "@/components/ui/card";
 import { ExtendedOffer } from "./page";
 import Link from "next/link";
+import { useMessages } from "@/app/context/message-provider";
 
 export function OffersTable({
   data,
@@ -21,14 +24,33 @@ export function OffersTable({
   data: ExtendedOffer[];
   title: string;
 }) {
+  const { offers, offerMessages } = useMessages();
+
   return (
     <Table>
       <TableCaption>{title}</TableCaption>
       <TableBody>
         {data?.map((item) => (
           <TableRow key={item.id}>
-            <TableCell>
-              <div className="flex md:flex-row flex-col md:justify-between items-center gap-4 md:px-0 px-5">
+            <TableCell className="sm:px-0 px-1">
+              <Card
+                className={`${
+                  (offers?.find((offer) => offer.id === item.id) ||
+                    offerMessages?.find(
+                      (message) => message.offer?.id === item.id
+                    )) &&
+                  "drop-shadow-md"
+                } relative flex md:flex-row flex-col md:justify-between items-center gap-4 p-3`}
+              >
+                {(offers?.find((offer) => offer.id === item.id) ||
+                  offerMessages?.find(
+                    (message) => message.offer?.id === item.id
+                  )) && (
+                  <div className="absolute flex flex-row items-center gap-1 top-0 right-1 z-50">
+                    <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-sm font-semibold">Nowa</span>
+                  </div>
+                )}
                 <div>
                   <Map
                     transport={item.transport}
@@ -55,7 +77,7 @@ export function OffersTable({
                     </div>
                   </Card>
                 </div>
-              </div>
+              </Card>
             </TableCell>
           </TableRow>
         ))}

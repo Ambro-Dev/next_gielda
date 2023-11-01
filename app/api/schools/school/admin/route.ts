@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
       email,
       role: "school_admin",
       hashedPassword,
-      school: {
+      adminOf: {
         connect: {
           id: schoolId,
         },

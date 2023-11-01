@@ -84,11 +84,13 @@ const ConversationPage = async (props: Props) => {
           </Button>
         </Link>
         <h3 className="text-lg font-bold">Rozmowa z {otherUser?.username}</h3>
-        <Link href={`/transport/${conversation.transport.id}`}>
-          <Button variant="ghost">
-            Przejdź do ogłoszenia <Package size={24} className="ml-2" />
-          </Button>
-        </Link>
+        {conversation.transport && (
+          <Link href={`/transport/${conversation.transport.id}`}>
+            <Button variant="ghost">
+              Przejdź do ogłoszenia <Package size={24} className="ml-2" />
+            </Button>
+          </Link>
+        )}
       </div>
       <Chat messages={conversation.messages} />
       <NewMessage conversation={conversation} />
