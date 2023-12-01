@@ -63,21 +63,29 @@ const ObjectFormSchema = z.object({
       .number({
         required_error: "Podaj szerokość przedmiotu.",
       })
-      .min(0.1, {
+      .min(0.01, {
         message: "Szerokość przedmiotu musi być wieksza niż 0.1.",
       })
   ),
   height: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, {
-      message: "Podaj wysokość przedmiotu.",
-    })
+    z
+      .number({
+        required_error: "Podaj wysokość przedmiotu.",
+      })
+      .min(0.01, {
+        message: "Wysokość przedmiotu musi być wieksza niż 0.1.",
+      })
   ),
   length: z.preprocess(
     (val) => Number(val),
-    z.number().min(1, {
-      message: "Podaj długość przedmiotu.",
-    })
+    z
+      .number({
+        required_error: "Podaj długość przedmiotu.",
+      })
+      .min(0.01, {
+        message: "Długość przedmiotu musi być wieksza niż 0.1.",
+      })
   ),
   amount: z.preprocess(
     (val) => Number(val),
@@ -222,7 +230,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                           <FormItem className="flex flex-col">
                             <FormLabel>Szerokość ( A )*</FormLabel>
                             <FormControl>
-                              <Input {...field} type="number" />
+                              <Input {...field} type="number" step={0.01} />
                             </FormControl>
                             <FormDescription>
                               Podaj szerokość przedmiotu w <b>metrach</b>
@@ -238,7 +246,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                           <FormItem className="flex flex-col">
                             <FormLabel>Długość ( B )*</FormLabel>
                             <FormControl>
-                              <Input {...field} type="number" />
+                              <Input {...field} type="number" step={0.01} />
                             </FormControl>
                             <FormDescription>
                               Podaj długość przedmiotu w <b>metrach</b>
@@ -254,7 +262,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                           <FormItem className="flex flex-col">
                             <FormLabel>Wysokość ( C )*</FormLabel>
                             <FormControl>
-                              <Input {...field} type="number" />
+                              <Input {...field} type="number" step={0.01} />
                             </FormControl>
                             <FormDescription>
                               Podaj wysokość przedmiotu w <b>metrach</b>
@@ -272,7 +280,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
                       <FormItem className="flex flex-col">
                         <FormLabel>Waga*</FormLabel>
                         <FormControl>
-                          <Input {...field} type="number" />
+                          <Input {...field} type="number" step={0.1} />
                         </FormControl>
                         <FormDescription>
                           Podaj wagę przedmiotu w kg
