@@ -37,7 +37,7 @@ import {
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Loader, Loader2, Plus } from "lucide-react";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 
 type Props = {
@@ -179,7 +179,16 @@ const UpdateSchoolAccess = (props: Props) => {
                   Anuluj
                 </Button>
               </DialogTrigger>
-              <Button type="submit">Zaktualizuj</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    Aktualizowanie...
+                  </>
+                ) : (
+                  "Zaktualizuj"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

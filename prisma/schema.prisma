@@ -263,10 +263,10 @@ model Object {
   createdAt   DateTime  @default(now())
   description String?
   amount      Int
-  width       Int
-  height      Int
-  length      Int
-  weight      Int
+  width       Float
+  height      Float
+  length      Float
+  weight      Float
   updatedAt   DateTime  @updatedAt
   tansportId  String    @db.ObjectId
   transport   Transport @relation(fields: [tansportId], references: [id], onDelete: Cascade)

@@ -19,7 +19,11 @@ type Props = {
   defaultValue?: Date;
 };
 
-export function DatePicker({ onChange, defaultValue }: Props) {
+export function DatePicker({
+  onChange,
+  defaultValue,
+  selectedDay,
+}: Props & { selectedDay: Date | undefined }) {
   const [date, setDate] = React.useState<Date | undefined>();
 
   const formatedDate = defaultValue && new Date(defaultValue);
@@ -70,6 +74,14 @@ export function DatePicker({ onChange, defaultValue }: Props) {
           mode="single"
           selected={date}
           onSelect={setDate}
+          modifiers={selectedDay ? { booked: new Date(selectedDay) } : {}}
+          modifiersStyles={{
+            booked: {
+              backgroundColor: "#FBBF24",
+              color: "#fff",
+              borderRadius: "0.375rem",
+            },
+          }}
           initialFocus
           locale={pl}
           disabled={(date) => date < new Date()}

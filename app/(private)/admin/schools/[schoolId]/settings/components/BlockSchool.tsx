@@ -17,15 +17,17 @@ import { useRouter } from "next/navigation";
 
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { axiosInstance } from "@/lib/axios";
-import { Hash } from "lucide-react";
+import { Hash, Loader2 } from "lucide-react";
 
 export const BlockSchool = ({ schoolId }: { schoolId: string }) => {
+  const [sending, setSending] = React.useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const [showBlockSchool, setShowBlockSchool] = React.useState(false);
 
   const onSubmit = async () => {
     try {
+      setSending(true);
       const res = await axiosInstance.put(`/api/schools/settings/block`, {
         schoolId: schoolId,
       });
@@ -50,6 +52,9 @@ export const BlockSchool = ({ schoolId }: { schoolId: string }) => {
         title: "Błąd",
         description: "Nie udało się zablokować dostępu do szkoły",
       });
+      setSending(false);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -71,7 +76,7 @@ export const BlockSchool = ({ schoolId }: { schoolId: string }) => {
               zalogować.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-x-4">
+          <div className="space-x-4 flex flex-row items-center">
             <DialogTrigger asChild>
               <Button variant="outline">Anuluj</Button>
             </DialogTrigger>
@@ -80,9 +85,13 @@ export const BlockSchool = ({ schoolId }: { schoolId: string }) => {
               onClick={() => {
                 onSubmit();
               }}
+              disabled={sending}
             >
               Zablokuj dostęp
             </Button>
+            <Loader2
+              className={`w-5 h-5 ${sending ? "" : "hidden"} animate-spin`}
+            />
           </div>
         </>
       </DialogContent>

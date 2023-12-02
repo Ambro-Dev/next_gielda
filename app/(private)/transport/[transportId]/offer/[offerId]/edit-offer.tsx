@@ -34,6 +34,7 @@ import { set } from "mongoose";
 import { axiosInstance } from "@/lib/axios";
 import { Transport } from "../../page";
 import { OfferWithCreator } from "./page";
+import { Loader, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   currency: z.string({
@@ -345,7 +346,16 @@ const EditForm = ({
                   )}
                 />
               </div>
-              <Button type="submit">Zaktualizuj</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    Aktualizowanie...
+                  </>
+                ) : (
+                  "Zaktualizuj"
+                )}
+              </Button>
             </form>
           </Form>
         </div>
