@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import { set } from "mongoose";
 import { axiosInstance } from "@/lib/axios";
 import { Transport } from "./page";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   message: z.string(),
@@ -365,7 +366,16 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Wyślij</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" />
+                    Wysyłanie...
+                  </>
+                ) : (
+                  "Wyślij ofertę"
+                )}
+              </Button>
             </form>
           </Form>
         </div>

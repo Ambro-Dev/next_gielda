@@ -77,7 +77,7 @@ const FilesCard = (props: Props) => {
       <CardHeader className="p-3 flex flex-row">
         <CardTitle className="text-lg">Pliki i załączniki</CardTitle>
         <UploadButton
-          endpoint="imageUploader"
+          endpoint="fileUploader"
           className="ml-auto ut-button:w-auto ut-button:bg-black ut-button:hover:bg-gray-900 ut-button:px-4 ut-button:py-2 ut-button:rounded-md ut-button:shadow-sm ut-button:text-sm ut-button:font-semibold ut-button:text-white"
           content={{
             button({ ready }) {
