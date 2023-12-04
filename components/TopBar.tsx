@@ -62,6 +62,21 @@ const TopBar = () => {
   const { data } = useSession();
   const [school, setSchool] = React.useState<School | undefined>(undefined);
 
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+  const handleResize = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobile(true);
+    } else {
+      setIsMobile(false);
+    }
+  };
+
+  React.useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   React.useEffect(() => {
     if (school) return;
     if (data?.user?.role === "student" || data?.user?.role === "school_admin")
@@ -121,7 +136,13 @@ const TopBar = () => {
         </div>
       </div>
       <Separator />
-      <div className="lg:block hidden">
+      <div
+        style={
+          isMobile
+            ? { display: "none" }
+            : { display: "flex", flexDirection: "row" }
+        }
+      >
         <div className="flex flex-row justify-end gap-12 w-full py-3 bg-transparent ">
           <DesktopNavMenu data={data} school={school} menu={menu} />
           <div className="flex flex-row justify-center items-center gap-4">
