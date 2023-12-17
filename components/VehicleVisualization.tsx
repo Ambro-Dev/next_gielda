@@ -56,7 +56,7 @@ export const VehicleVizualization = ({ className, vehicleSize }: Props) => {
       className={cn(className, "w-full h-full")}
     >
       <color attach="background" args={["#f3f4f6"]} />
-      <Bus args={vehicleSize} />
+      <CarTrailerLow args={vehicleSize} />
       <OrbitControls
         autoRotate={true}
         autoRotateSpeed={-0.2}

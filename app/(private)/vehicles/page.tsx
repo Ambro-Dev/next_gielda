@@ -5,6 +5,78 @@ import React, { useEffect } from "react";
 
 type Props = {};
 
+const TrailersTypes = [
+  {
+    name: "Naczepa plandeka",
+    size: [2.5, 2.7, 13.6],
+  },
+  {
+    name: "Naczepa wywrotka",
+    size: [2.5, 0.5, 13.6],
+  },
+  {
+    name: "Naczepa custerna",
+    size: [2.5, 1, 13.6],
+  },
+  {
+    name: "Naczepa płaska",
+    size: [2.5, 0.1, 13.6],
+  },
+];
+
+const MediumTypes = [
+  {
+    name: "Dostawczy 12t - plandeka",
+    size: [2.5, 2.7, 6.6],
+  },
+  {
+    name: "Dostawczy 12t - wywrotka",
+    size: [2.5, 0.5, 6.6],
+  },
+  {
+    name: "Dostawczy 12t - custerna",
+    size: [2.5, 1, 6.6],
+  },
+  {
+    name: "Dostawczy 12t - płaska",
+    size: [2.5, 0.1, 6.6],
+  },
+];
+
+const SmallTypes = [
+  {
+    name: "Dostawczy 3.5t - plandeka",
+    size: [2.1, 2.4, 3.5],
+  },
+  {
+    name: "Dostawczy 3.5t - wywrotka",
+    size: [2.1, 0.5, 3.5],
+  },
+  {
+    name: "Dostawczy 3.5t - custerna",
+    size: [2.1, 1, 3.5],
+  },
+  {
+    name: "Dostawczy 3.5t - płaska",
+    size: [2.1, 0.1, 3.5],
+  },
+  {
+    name: "Dostawczy 3.5t - bus",
+    size: [2.1, 1.8, 3.5],
+  },
+];
+
+const CarTrailerTypes = [
+  {
+    name: "Przyczepa - plandeka",
+    size: [1.8, 2, 2.8],
+  },
+  {
+    name: "Przyczepa - wywrotka",
+    size: [1.8, 0.5, 2.5],
+  },
+];
+
 const Page = (props: Props) => {
   const [vehicleSize, setVehicleSize] = React.useState<
     [number, number, number]
