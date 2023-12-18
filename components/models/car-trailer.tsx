@@ -54,26 +54,26 @@ function CarTrailerLow({ args, ...props }: { args: [number, number, number] }) {
           <group position={[0, 0, (-args[2] / 1.5 + 6) / 2]}>
             <DoubleWheel
               side="left"
-              args={[0.4, 0.4, 0.4]}
-              position={[(args[0] - 0.5) / 2, -0.7, (args[2] - 6.4) / 2]}
+              args={[0.4, 0.4, 0.3]}
+              position={[(args[0] + 0.2) / 2, -0.7, (args[2] - 6.4) / 2]}
             />
             <DoubleWheel
               side="right"
-              args={[0.4, 0.4, 0.4]}
-              position={[-(args[0] - 0.3) / 2, -0.7, (args[2] - 6.4) / 2]}
+              args={[0.4, 0.4, 0.3]}
+              position={[-(args[0] + 0.4) / 2, -0.7, (args[2] - 6.4) / 2]}
             />
           </group>
           {args[2] > 5 && (
             <group position={[0, 0, (-args[2] / 1.5 + 4) / 2]}>
               <DoubleWheel
                 side="left"
-                args={[0.4, 0.4, 0.4]}
-                position={[(args[0] - 0.5) / 2, -0.7, (args[2] - 6.4) / 2]}
+                args={[0.4, 0.4, 0.3]}
+                position={[(args[0] + 0.2) / 2, -0.7, (args[2] - 6.4) / 2]}
               />
               <DoubleWheel
                 side="right"
-                args={[0.4, 0.4, 0.4]}
-                position={[-(args[0] - 0.3) / 2, -0.7, (args[2] - 6.4) / 2]}
+                args={[0.4, 0.4, 0.3]}
+                position={[-(args[0] + 0.4) / 2, -0.7, (args[2] - 6.4) / 2]}
               />
             </group>
           )}
@@ -107,26 +107,26 @@ function CarTrailerBox({ args, ...props }: { args: [number, number, number] }) {
           <group position={[0, 0, (-args[2] / 1.5 + 6) / 2]}>
             <DoubleWheel
               side="left"
-              args={[0.4, 0.4, 0.4]}
-              position={[(args[0] - 0.5) / 2, -0.7, (args[2] - 6.4) / 2]}
+              args={[0.4, 0.4, 0.3]}
+              position={[(args[0] + 0.2) / 2, -0.7, (args[2] - 6.4) / 2]}
             />
             <DoubleWheel
               side="right"
-              args={[0.4, 0.4, 0.4]}
-              position={[-(args[0] - 0.3) / 2, -0.7, (args[2] - 6.4) / 2]}
+              args={[0.4, 0.4, 0.3]}
+              position={[-(args[0] + 0.4) / 2, -0.7, (args[2] - 6.4) / 2]}
             />
           </group>
           {args[2] > 5 && (
             <group position={[0, 0, (-args[2] / 1.5 + 4) / 2]}>
               <DoubleWheel
                 side="left"
-                args={[0.4, 0.4, 0.4]}
-                position={[(args[0] - 0.5) / 2, -0.7, (args[2] - 6.4) / 2]}
+                args={[0.4, 0.4, 0.3]}
+                position={[(args[0] + 0.2) / 2, -0.7, (args[2] - 6.4) / 2]}
               />
               <DoubleWheel
                 side="right"
-                args={[0.4, 0.4, 0.4]}
-                position={[-(args[0] - 0.3) / 2, -0.7, (args[2] - 6.4) / 2]}
+                args={[0.4, 0.4, 0.3]}
+                position={[-(args[0] + 0.4) / 2, -0.7, (args[2] - 6.4) / 2]}
               />
             </group>
           )}
@@ -145,7 +145,7 @@ function WhhelArch({
 }) {
   return (
     <Cylinder
-      args={[0.5, 0.5, 0.4, 3, 1, false, 0, 3.15]}
+      args={[0.5, 0.5, 0.3, 3, 1, false, 0, 3.15]}
       scale={[1, 1, 1]}
       position={position || [0, 0, 0]}
       rotation={[0, 0, Math.PI / 2]}

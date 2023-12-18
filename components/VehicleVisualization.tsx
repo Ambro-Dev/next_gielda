@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use, useEffect } from "react";
 
 import { Canvas } from "@react-three/fiber";
 import {
@@ -11,23 +11,23 @@ import {
   RandomizedLight,
 } from "@react-three/drei";
 import { cn } from "@/lib/utils";
-import { LargeBoxy, LargeFlat, LargeLow } from "./models/large-truck";
-import { MediumBoxy, MediumLow, MediumTanker } from "./models/medium-truck";
-import {
-  SmallBoxy,
-  SmallFlat,
-  SmallLow,
-  SmallTanker,
-} from "./models/small-truck";
-import Bus from "./models/bus";
-import { CarTrailerBox, CarTrailerLow } from "./models/car-trailer";
 
 type Props = {
   className?: string;
   vehicleSize: [number, number, number];
+  VehicleModel: ({
+    args,
+    ...props
+  }: {
+    args: [number, number, number];
+  }) => React.JSX.Element;
 };
 
-export const VehicleVizualization = ({ className, vehicleSize }: Props) => {
+export const VehicleVizualization = ({
+  className,
+  vehicleSize,
+  VehicleModel,
+}: Props) => {
   const [autoRotate, setAutoRotate] = React.useState(false);
   const [shadow, setShadow] = React.useState("#fff");
 
@@ -56,7 +56,7 @@ export const VehicleVizualization = ({ className, vehicleSize }: Props) => {
       className={cn(className, "w-full h-full")}
     >
       <color attach="background" args={["#f3f4f6"]} />
-      <CarTrailerLow args={vehicleSize} />
+      <VehicleModel args={vehicleSize} />
       <OrbitControls
         autoRotate={true}
         autoRotateSpeed={-0.2}
