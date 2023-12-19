@@ -2,18 +2,20 @@
 
 import React, { use, useEffect } from "react";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Environment,
   Lightformer,
   OrbitControls,
   AccumulativeShadows,
   RandomizedLight,
+  PerspectiveCamera,
 } from "@react-three/drei";
 import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
+  vehicleType: string;
   vehicleSize: [number, number, number];
   VehicleModel: ({
     args,
@@ -27,9 +29,14 @@ export const VehicleVizualization = ({
   className,
   vehicleSize,
   VehicleModel,
+  vehicleType,
 }: Props) => {
   const [autoRotate, setAutoRotate] = React.useState(false);
   const [shadow, setShadow] = React.useState("#fff");
+  const [position, setPosition] = React.useState<[number, number, number]>([
+    0, 0, 0,
+  ]);
+  const [zoom, setZoom] = React.useState(4);
 
   const takeScreenshot = () => {
     // Save the canvas as a *.png
@@ -47,16 +54,39 @@ export const VehicleVizualization = ({
     link.click();
   };
 
+  useEffect(() => {
+    setPosition(
+      vehicleType.includes("large")
+        ? [0, 0, -5]
+        : vehicleType.includes("medium")
+        ? [0, 0, -2]
+        : vehicleType.includes("small")
+        ? [0, 0, 0]
+        : [0, 0, 0]
+    );
+    setZoom(
+      vehicleType.includes("large")
+        ? 2.8
+        : vehicleType.includes("medium")
+        ? 3.5
+        : vehicleType.includes("small")
+        ? 4
+        : 4
+    );
+  }, [vehicleType]);
+
   return (
     <Canvas
       shadows
       orthographic
-      camera={{ position: [10, 20, 20], zoom: 80, fov: 60 }}
       gl={{ preserveDrawingBuffer: true }}
       className={cn(className, "w-full h-full")}
     >
       <color attach="background" args={["#f3f4f6"]} />
-      <VehicleModel args={vehicleSize} />
+      <mesh position={position}>
+        <VehicleModel args={vehicleSize} />
+      </mesh>
+
       <OrbitControls
         autoRotate={true}
         autoRotateSpeed={-0.2}
@@ -67,6 +97,12 @@ export const VehicleVizualization = ({
         dampingFactor={0.05}
         minPolarAngle={Math.PI / 4}
         maxPolarAngle={Math.PI / 2}
+      />
+      <PerspectiveCamera
+        makeDefault
+        position={[10, 20, 20]}
+        fov={60}
+        zoom={zoom}
       />
       {/** The environment is just a bunch of shapes emitting light. This is needed for the clear-coat */}
       <Environment resolution={32}>

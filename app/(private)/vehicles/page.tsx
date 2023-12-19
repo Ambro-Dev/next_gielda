@@ -24,6 +24,7 @@ import Bus from "@/components/models/bus";
 import { CarTrailerBox, CarTrailerLow } from "@/components/models/car-trailer";
 import TypeSelector from "@/components/vehicles/type-selector";
 import { VehicleVizualization } from "@/components/VehicleVisualization";
+import { SizeChanger } from "@/components/vehicles/size-changer";
 
 type Props = {};
 
@@ -169,7 +170,7 @@ const Page = (props: Props) => {
   >(null);
 
   return (
-    <div className="w-full h-[600px] border-2 grid grid-cols-2 grid-rows-2">
+    <div className="w-full h-[600px]  grid grid-cols-2 grid-rows-2">
       <div className="p-5">
         <TypeSelector
           vehicles={Vehicles}
@@ -188,8 +189,15 @@ const Page = (props: Props) => {
                 args: [number, number, number];
               }) => React.JSX.Element
             }
+            vehicleType={selectedVehicle?.id}
           />
         )}
+      </div>
+      <div className="p-5">
+        <SizeChanger
+          selectedVehicle={selectedVehicle}
+          setSelectedVehicle={setSelectedVehicle}
+        />
       </div>
     </div>
   );
