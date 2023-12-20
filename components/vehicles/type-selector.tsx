@@ -18,22 +18,18 @@ import Image from "next/image";
 type Props = {
   vehicles: Vehicle;
   setSelectedVehicle: React.Dispatch<
-    React.SetStateAction<
-      | {
-          id: string;
-          name: string;
-          size: number[];
-          model: ({
-            args,
-            ...props
-          }: {
-            args: [number, number, number];
-          }) => React.JSX.Element;
-          icon: string;
-        }
-      | null
-      | undefined
-    >
+    React.SetStateAction<{
+      id: string;
+      name: string;
+      size: number[];
+      model: ({
+        args,
+        ...props
+      }: {
+        args: [number, number, number];
+      }) => React.JSX.Element;
+      icon: string;
+    }>
   >;
 };
 
@@ -64,16 +60,16 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
   return (
     <Select
       onValueChange={(value) => {
-        setSelectedVehicle(
-          categoryList
-            .map((category) => category.vehicles)
-            .flat()
-            .find((vehicle) => vehicle.name === value)
-        );
+        const vehicle = Object.values(vehicles).flatMap((vehicles) =>
+          vehicles.filter((vehicle) => vehicle.name === value)
+        )[0];
+        setSelectedVehicle(vehicle);
       }}
     >
       <SelectTrigger className="w-full py-14 items-center">
-        <SelectValue placeholder="Typ pojazdu" />
+        <SelectValue
+          placeholder={<span className="text-xl ">Wybierz typ pojazdu</span>}
+        />
       </SelectTrigger>
       <SelectContent className="overflow-y-auto max-h-[500px] max-w-xl">
         {categoryList.map((category) => (

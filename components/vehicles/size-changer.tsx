@@ -15,46 +15,71 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useEffect } from "react";
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
+  width: z
+    .number({
+      invalid_type_error: "Szerokość musi być liczbą",
+      required_error: "Szerokość jest wymagana",
+    })
+    .min(0.01)
+    .max(4.5)
+    .nonnegative({
+      message: "Szerokość musi być liczbą dodatnią",
+    })
+    .transform((val) => Number(val)),
+  length: z
+    .number({
+      invalid_type_error: "Długość musi być liczbą",
+      required_error: "Długość jest wymagana",
+    })
+    .min(0.01)
+    .max(16)
+    .nonnegative({
+      message: "Długość musi być liczbą dodatnią",
+    })
+    .transform((val) => Number(val)),
+  height: z
+    .number({
+      invalid_type_error: "Musi być liczbą",
+      required_error: "Wymagane pole",
+    })
+    .min(0.01)
+    .max(15)
+    .nonnegative({
+      message: "Musi być liczbą dodatnią",
+    })
+    .transform((val) => Number(val))
+    .default(2),
 });
 
 type Props = {
-  selectedVehicle:
-    | {
-        id: string;
-        name: string;
-        size: number[];
-        model: ({
-          args,
-          ...props
-        }: {
-          args: [number, number, number];
-        }) => React.JSX.Element;
-        icon: string;
-      }
-    | null
-    | undefined;
+  selectedVehicle: {
+    id: string;
+    name: string;
+    size: number[];
+    model: ({
+      args,
+      ...props
+    }: {
+      args: [number, number, number];
+    }) => React.JSX.Element;
+    icon: string;
+  };
   setSelectedVehicle: React.Dispatch<
-    React.SetStateAction<
-      | {
-          id: string;
-          name: string;
-          size: number[];
-          model: ({
-            args,
-            ...props
-          }: {
-            args: [number, number, number];
-          }) => React.JSX.Element;
-          icon: string;
-        }
-      | null
-      | undefined
-    >
+    React.SetStateAction<{
+      id: string;
+      name: string;
+      size: number[];
+      model: ({
+        args,
+        ...props
+      }: {
+        args: [number, number, number];
+      }) => React.JSX.Element;
+      icon: string;
+    }>
   >;
 };
 
@@ -63,37 +88,133 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      width: selectedVehicle?.size[0],
+      length: selectedVehicle?.size[2],
+      height: selectedVehicle?.size[1],
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  useEffect(() => {
+    form.reset({
+      width: selectedVehicle?.size[0],
+      length: selectedVehicle?.size[2],
+      height: selectedVehicle?.size[1],
+    });
+  }, [selectedVehicle?.id]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+      <form className="space-y-8">
+        <div className="flex flex-row gap-4 items-center justify-around">
+          {!selectedVehicle?.id.includes("tanker") && (
+            <FormField
+              control={form.control}
+              name="width"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Szerokość (m)</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) => {
+                        form.setValue("width", Number(e.target.value));
+                        if (selectedVehicle)
+                          setSelectedVehicle({
+                            ...selectedVehicle,
+                            size: [
+                              Number(e.target.value),
+                              selectedVehicle.size[1],
+                              selectedVehicle.size[2],
+                            ],
+                          });
+                      }}
+                      step={0.01}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Szerokość przestrzeni ładunkowej
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
-        <Button type="submit">Submit</Button>
+
+          <FormField
+            control={form.control}
+            name="height"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {selectedVehicle?.id.includes("tanker")
+                    ? "Promień beczki"
+                    : "Wysokość"}{" "}
+                  (m)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={(e) => {
+                      form.setValue("height", Number(e.target.value));
+                      if (selectedVehicle)
+                        setSelectedVehicle({
+                          ...selectedVehicle,
+                          size: [
+                            selectedVehicle.size[0],
+                            Number(e.target.value),
+                            selectedVehicle.size[2],
+                          ],
+                        });
+                    }}
+                    step={0.01}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {selectedVehicle?.id.includes("tanker")
+                    ? "Promień beczki cysterny"
+                    : "Wysokość przestrzeni ładunkowej"}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="length"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Długość (m)</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={(e) => {
+                      form.setValue("length", Number(e.target.value));
+                      if (selectedVehicle)
+                        setSelectedVehicle({
+                          ...selectedVehicle,
+                          size: [
+                            selectedVehicle.size[0],
+                            selectedVehicle.size[1],
+                            Number(e.target.value),
+                          ],
+                        });
+                    }}
+                    step={0.01}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {selectedVehicle?.id.includes("tanker")
+                    ? "Długość beczki cysterny"
+                    : "Długość przestrzeni ładunkowej"}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </form>
     </Form>
   );

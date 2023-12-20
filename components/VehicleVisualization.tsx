@@ -80,7 +80,7 @@ export const VehicleVizualization = ({
       shadows
       orthographic
       gl={{ preserveDrawingBuffer: true }}
-      className={cn(className, "w-full h-full")}
+      className={cn(className, "w-full h-full rounded-md")}
     >
       <color attach="background" args={["#f3f4f6"]} />
       <mesh position={position}>

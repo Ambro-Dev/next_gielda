@@ -18,7 +18,6 @@ import {
   SmallBoxy,
   SmallFlat,
   SmallLow,
-  SmallTanker,
 } from "@/components/models/small-truck";
 import Bus from "@/components/models/bus";
 import { CarTrailerBox, CarTrailerLow } from "@/components/models/car-trailer";
@@ -26,7 +25,36 @@ import TypeSelector from "@/components/vehicles/type-selector";
 import { VehicleVizualization } from "@/components/VehicleVisualization";
 import { SizeChanger } from "@/components/vehicles/size-changer";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+
 type Props = {};
+
+const formSchema = z.object({
+  description: z
+    .string()
+    .min(20, {
+      message: "Opis musi mieć co najmniej 20 znaków",
+    })
+    .max(2000, {
+      message: "Opis może mieć maksymalnie 2000 znaków",
+    }),
+});
 
 const TrailersTypes = [
   {
@@ -152,54 +180,113 @@ const Vehicles = {
 export type Vehicle = typeof Vehicles;
 
 const Page = (props: Props) => {
-  const [selectedVehicle, setSelectedVehicle] = React.useState<
-    | {
-        id: string;
-        name: string;
-        size: number[];
-        model: ({
-          args,
-          ...props
-        }: {
-          args: [number, number, number];
-        }) => React.JSX.Element;
-        icon: string;
-      }
-    | null
-    | undefined
-  >(null);
+  const [selectedVehicle, setSelectedVehicle] = React.useState<{
+    id: string;
+    name: string;
+    size: number[];
+    model: ({
+      args,
+      ...props
+    }: {
+      args: [number, number, number];
+    }) => React.JSX.Element;
+    icon: string;
+  }>({
+    id: "default",
+    name: "Domyślny",
+    size: [2.5, 2.7, 13.6],
+    model: LargeBoxy,
+    icon: "default",
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      description: "",
+    },
+  });
 
   return (
-    <div className="w-full h-[600px]  grid grid-cols-2 grid-rows-2">
-      <div className="p-5">
-        <TypeSelector
-          vehicles={Vehicles}
-          setSelectedVehicle={setSelectedVehicle}
-        />
-      </div>
-      <div className="py-16 px-5 row-span-2">
-        {selectedVehicle && (
-          <VehicleVizualization
-            vehicleSize={selectedVehicle?.size as [number, number, number]}
-            VehicleModel={
-              selectedVehicle?.model as ({
-                args,
-                ...props
-              }: {
-                args: [number, number, number];
-              }) => React.JSX.Element
-            }
-            vehicleType={selectedVehicle?.id}
+    <Card>
+      <div className="w-full mt-3 mb-10 grid grid-cols-2 px-5">
+        <div className="relative py-8 overflow-visible">
+          <Progress className="absolute right-1.5 mt-10" value={10} />
+          <div className="absolute top-6 mt-10 rounded-full right-0 bg-black w-6 h-6" />
+          <div
+            className={`absolute top-[33%] mt-10 rounded-full right-0  w-6 h-6 ${
+              selectedVehicle.id === "default" ? "bg-secondary" : "bg-black"
+            }`}
           />
-        )}
+          <div
+            className={`absolute top-[66%] mt-10 rounded-full right-0  w-6 h-6 ${
+              selectedVehicle.id === "default" ? "bg-secondary" : "bg-black"
+            }`}
+          />
+
+          <div className="mr-10 grid grid-cols-1 grid-rows-3 gap-4">
+            <TypeSelector
+              vehicles={Vehicles}
+              setSelectedVehicle={setSelectedVehicle}
+            />
+            {selectedVehicle.id !== "default" && (
+              <>
+                <SizeChanger
+                  selectedVehicle={selectedVehicle}
+                  setSelectedVehicle={setSelectedVehicle}
+                />
+                <Form {...form}>
+                  <form>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Opis</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} className="bg-white" />
+                          </FormControl>
+                          <FormDescription>
+                            Opisz swój pojazd. Szczegółowy opis pomoże
+                            potencjalnym zainteresowanym
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="py-8 ml-2">
+          {selectedVehicle && selectedVehicle.id !== "default" ? (
+            <VehicleVizualization
+              vehicleSize={selectedVehicle?.size as [number, number, number]}
+              VehicleModel={
+                selectedVehicle?.model as ({
+                  args,
+                  ...props
+                }: {
+                  args: [number, number, number];
+                }) => React.JSX.Element
+              }
+              vehicleType={selectedVehicle?.id}
+            />
+          ) : (
+            <span className="flex justify-center items-center bg-secondary rounded-md text-center h-full">
+              Podgląd pojazdu pojawi się po wybraniu typu pojazdu
+            </span>
+          )}
+        </div>
       </div>
-      <div className="p-5">
-        <SizeChanger
-          selectedVehicle={selectedVehicle}
-          setSelectedVehicle={setSelectedVehicle}
-        />
+      <div className="flex w-full justify-center items-center py-5 z-10">
+        <button className="bg-primary text-white px-10 py-3 rounded-full z-10">
+          Dodaj pojazd
+        </button>
       </div>
-    </div>
+    </Card>
   );
 };
 
