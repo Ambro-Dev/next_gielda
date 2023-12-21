@@ -67,9 +67,7 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
       }}
     >
       <SelectTrigger className="w-full py-14 items-center">
-        <SelectValue
-          placeholder={<span className="text-xl ">Wybierz typ pojazdu</span>}
-        />
+        <SelectValue placeholder="Typ pojazdu" />
       </SelectTrigger>
       <SelectContent className="overflow-y-auto max-h-[500px] max-w-xl">
         {categoryList.map((category) => (

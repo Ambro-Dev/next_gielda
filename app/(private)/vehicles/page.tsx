@@ -42,6 +42,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import GoBack from "@/components/ui/go-back";
+import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
 
 type Props = {};
 
@@ -58,28 +62,28 @@ const formSchema = z.object({
 
 const TrailersTypes = [
   {
-    id: "large-box",
+    id: "large_box",
     name: "Naczepa plandeka",
     size: [2.5, 2.7, 13.6],
     model: LargeBoxy,
     icon: "/vehicles/large-box.svg",
   },
   {
-    id: "large-low",
+    id: "large_low",
     name: "Naczepa burtowa",
     size: [2.5, 0.5, 13.6],
     model: LargeLow,
     icon: "/vehicles/large-low.svg",
   },
   {
-    id: "large-tanker",
+    id: "large_tanker",
     name: "Naczepa cysterna",
     size: [13.6, 1, 2.5],
     model: LargeTanker,
     icon: "/vehicles/large-tanker.svg",
   },
   {
-    id: "large-flat",
+    id: "large_flat",
     name: "Naczepa płaska",
     size: [2.5, 0.1, 13.6],
     model: LargeFlat,
@@ -89,28 +93,28 @@ const TrailersTypes = [
 
 const MediumTypes = [
   {
-    id: "medium-box",
+    id: "medium_box",
     name: "Dostawczy od 12t - plandeka",
     size: [2.5, 2.7, 6.6],
     model: MediumBoxy,
     icon: "/vehicles/medium-box.svg",
   },
   {
-    id: "medium-low",
+    id: "medium_low",
     name: "Dostawczy od 12t - burtowa",
     size: [2.5, 0.5, 6.6],
     model: MediumLow,
     icon: "/vehicles/medium-low.svg",
   },
   {
-    id: "medium-tanker",
+    id: "medium_tanker",
     name: "Dostawczy od 12t - cysterna",
     size: [2.5, 1, 6.6],
     model: MediumTanker,
     icon: "/vehicles/medium-tanker.svg",
   },
   {
-    id: "medium-flat",
+    id: "medium_flat",
     name: "Dostawczy od 12t - płaska",
     size: [2.5, 0.1, 6.6],
     model: MediumFlat,
@@ -120,21 +124,21 @@ const MediumTypes = [
 
 const SmallTypes = [
   {
-    id: "small-box",
+    id: "small_box",
     name: "Dostawczy do 12t - plandeka",
     size: [2.1, 2.4, 3.5],
     model: SmallBoxy,
     icon: "/vehicles/small-box.svg",
   },
   {
-    id: "small-low",
+    id: "small_low",
     name: "Dostawczy do 12t - burtowa",
     size: [2.1, 0.5, 3.5],
     model: SmallLow,
     icon: "/vehicles/small-low.svg",
   },
   {
-    id: "small-flat",
+    id: "small_flat",
     name: "Dostawczy do 12t - płaska",
     size: [2.1, 0.1, 3.5],
     model: SmallFlat,
@@ -154,14 +158,14 @@ const BusTypes = [
 
 const CarTrailerTypes = [
   {
-    id: "car-trailer-box",
+    id: "car_trailer_box",
     name: "Przyczepka samochodowa - plandeka",
     size: [1.8, 2, 2.8],
     model: CarTrailerBox,
     icon: "/vehicles/car-trailer-box.svg",
   },
   {
-    id: "car-trailer-low",
+    id: "car_trailer_low",
     name: "Przyczepka samochodowa - burtowa",
     size: [1.8, 0.5, 2.5],
     model: CarTrailerLow,
@@ -208,9 +212,20 @@ const Page = (props: Props) => {
 
   return (
     <Card>
+      <GoBack clasName="m-3" />
+      <Separator />
       <div className="w-full mt-3 mb-10 grid grid-cols-2 px-5">
         <div className="relative py-8 overflow-visible">
-          <Progress className="absolute right-1.5 mt-10" value={10} />
+          <Progress
+            className="absolute right-1.5 mt-10"
+            value={
+              selectedVehicle.id === "default"
+                ? 10
+                : form.formState.isValid
+                ? 100
+                : 66
+            }
+          />
           <div className="absolute top-6 mt-10 rounded-full right-0 bg-black w-6 h-6" />
           <div
             className={`absolute top-[33%] mt-10 rounded-full right-0  w-6 h-6 ${
@@ -281,11 +296,27 @@ const Page = (props: Props) => {
           )}
         </div>
       </div>
-      <div className="flex w-full justify-center items-center py-5 z-10">
-        <button className="bg-primary text-white px-10 py-3 rounded-full z-10">
-          Dodaj pojazd
-        </button>
-      </div>
+      {form.formState.isValid && selectedVehicle.id !== "default" && (
+        <div className="flex w-full justify-center items-center pb-6 z-10">
+          <Button
+            className="z-10"
+            size="lg"
+            disabled={
+              !form.formState.isValid ||
+              selectedVehicle.id === "default" ||
+              form.formState.isSubmitting
+            }
+          >
+            {form.formState.isSubmitting ? (
+              <span>
+                <Loader2 className="animate-spin mr-2" /> Dodawanie pojazdu
+              </span>
+            ) : (
+              "Dodaj pojazd"
+            )}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

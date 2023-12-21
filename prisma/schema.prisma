@@ -77,6 +77,7 @@ model User {
   resetToken       ResetToken?     @relation(name: "resetToken")
   files            Files[]
   reports          Report[]
+  UsersVehicles    UsersVehicles[]
 }
 
 model VerificationToken {
@@ -297,4 +298,38 @@ model Report {
   content   String
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
+}
+
+enum VehicleType {
+  large_box
+  large_low
+  large_tanker
+  large_flat
+  medium_box
+  medium_low
+  medium_tanker
+  medium_flat
+  small_box
+  small_low
+  small_flat
+  bus
+  car_trailer_box
+  car_trailer_low
+}
+
+type Size {
+  width  Float
+  height Float
+  length Float
+}
+
+model UsersVehicles {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String      @db.ObjectId
+  user        User        @relation(fields: [userId], references: [id])
+  type        VehicleType
+  size        Size
+  description String
 }
