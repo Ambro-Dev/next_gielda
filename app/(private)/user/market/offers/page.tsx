@@ -1,7 +1,7 @@
 import React from "react";
 import { ExtendedTransport } from "../page";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { OffersTable } from "./offers-table";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";

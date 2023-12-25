@@ -11,7 +11,7 @@ import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { RecentTransports } from "@/components/dashboard/recent-transports";
 import { School } from "@prisma/client";
 import { StudentsTable } from "../admin/schools/[schoolId]/students/students-table";

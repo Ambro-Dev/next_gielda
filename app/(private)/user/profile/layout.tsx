@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { SidebarNav } from "@/components/SidebarNav";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";

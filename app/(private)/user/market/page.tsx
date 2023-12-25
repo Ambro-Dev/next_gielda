@@ -2,7 +2,7 @@ import React from "react";
 import { UserTransports } from "./user-transports";
 import { Transport } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { axiosInstance } from "@/lib/axios";
 
 type Props = {};

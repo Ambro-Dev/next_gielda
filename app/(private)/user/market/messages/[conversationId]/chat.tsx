@@ -1,6 +1,6 @@
 "use client";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { useMessages } from "@/app/context/message-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getServerSession } from "next-auth";

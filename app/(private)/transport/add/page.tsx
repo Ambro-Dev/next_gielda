@@ -1,5 +1,5 @@
 import { AddTransportForm } from "@/app/(private)/transport/add/AddTransportForm";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { Card, CardContent } from "@/components/ui/card";
 import { axiosInstance } from "@/lib/axios";
 import { getServerSession } from "next-auth";

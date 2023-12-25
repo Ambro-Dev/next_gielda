@@ -1,7 +1,7 @@
 import React from "react";
 import { Transport } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { axiosInstance } from "@/lib/axios";
 import { UserTransports } from "../user-transports";
 import { TransportsHistory } from "./transports-history";

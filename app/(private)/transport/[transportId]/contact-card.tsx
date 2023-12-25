@@ -23,7 +23,7 @@ import { OffersTable } from "./offers-table";
 import { Transport } from "./page";
 import { axiosInstance } from "@/lib/axios";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
