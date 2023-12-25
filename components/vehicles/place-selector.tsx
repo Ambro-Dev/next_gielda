@@ -1,8 +1,6 @@
 import React from "react";
 
-import { Check, ChevronsUpDown } from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import { ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -24,11 +22,15 @@ import usePlacesAutocomplete, {
 } from "use-places-autocomplete";
 
 type Props = {
-  setPlace: (position: google.maps.LatLngLiteral) => void;
+  setPlace: (place: {
+    lat: number;
+    lng: number;
+    formatted_address: string;
+  }) => void;
   placeholder?: string;
 };
 
-const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
+const PlaceSelector = ({ setPlace, placeholder }: Props) => {
   const [open, setOpen] = React.useState(false);
 
   const [currentValue, setCurrentValue] = React.useState("");
@@ -52,8 +54,7 @@ const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
 
     const results = await getGeocode({ address: val });
     const { lat, lng } = await getLatLng(results[0]);
-    console.log(results[0]);
-    setPlace({ lat, lng });
+    setPlace({ lat, lng, formatted_address: results[0].formatted_address });
     setOpen(false);
   };
 
@@ -95,4 +96,4 @@ const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
   );
 };
 
-export default TransportMapSelector;
+export default PlaceSelector;

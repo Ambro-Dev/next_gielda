@@ -12,8 +12,8 @@ import {
   SelectGroup,
   SelectSeparator,
 } from "@/components/ui/select";
-import { Vehicle } from "@/app/(private)/vehicles/page";
 import Image from "next/image";
+import { Vehicle } from "@/lib/types/vehicles";
 
 type Props = {
   vehicles: Vehicle;
@@ -95,18 +95,18 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
                           : "Wyskość"}
                         : <span className="font-normal">{vehicle.size[1]}</span>
                       </span>
-
-                      <span>
-                        Długość:{" "}
-                        <span className="font-normal">{vehicle.size[2]}</span>
-                      </span>
-
                       {vehicle.id.includes("tanker") ? null : (
                         <span>
-                          Szerokość:{" "}
-                          <span className="font-normal">{vehicle.size[0]}</span>
+                          <span className="font-normal">{vehicle.size[2]}</span>
                         </span>
                       )}
+
+                      <span>
+                        {vehicle.id.includes("tanker")
+                          ? "Długość"
+                          : "Szerokość"}{" "}
+                        : <span className="font-normal">{vehicle.size[0]}</span>
+                      </span>
                     </div>
                   </div>
                 </SelectItem>

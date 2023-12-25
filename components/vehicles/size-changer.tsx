@@ -89,7 +89,9 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       width: selectedVehicle?.size[0],
-      length: selectedVehicle?.size[2],
+      length: selectedVehicle.id.includes("tanker")
+        ? selectedVehicle?.size[0]
+        : selectedVehicle?.size[2],
       height: selectedVehicle?.size[1],
     },
   });
@@ -97,7 +99,9 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
   useEffect(() => {
     form.reset({
       width: selectedVehicle?.size[0],
-      length: selectedVehicle?.size[2],
+      length: selectedVehicle.id.includes("tanker")
+        ? selectedVehicle?.size[0]
+        : selectedVehicle?.size[2],
       height: selectedVehicle?.size[1],
     });
   }, [selectedVehicle?.id]);
@@ -193,14 +197,24 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
                     onChange={(e) => {
                       form.setValue("length", Number(e.target.value));
                       if (selectedVehicle)
-                        setSelectedVehicle({
-                          ...selectedVehicle,
-                          size: [
-                            selectedVehicle.size[0],
-                            selectedVehicle.size[1],
-                            Number(e.target.value),
-                          ],
-                        });
+                        if (selectedVehicle.id.includes("tanker"))
+                          setSelectedVehicle({
+                            ...selectedVehicle,
+                            size: [
+                              Number(e.target.value),
+                              selectedVehicle.size[1],
+                              selectedVehicle.size[2],
+                            ],
+                          });
+                        else
+                          setSelectedVehicle({
+                            ...selectedVehicle,
+                            size: [
+                              selectedVehicle.size[0],
+                              selectedVehicle.size[1],
+                              Number(e.target.value),
+                            ],
+                          });
                     }}
                     step={0.01}
                   />

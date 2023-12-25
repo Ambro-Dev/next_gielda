@@ -23,7 +23,7 @@ export function DatePicker({
   onChange,
   defaultValue,
   selectedDay,
-}: Props & { selectedDay: Date | undefined }) {
+}: Props & { selectedDay?: Date | undefined }) {
   const [date, setDate] = React.useState<Date | undefined>();
 
   const formatedDate = defaultValue && new Date(defaultValue);

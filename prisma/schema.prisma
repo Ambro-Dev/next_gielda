@@ -323,6 +323,12 @@ type Size {
   length Float
 }
 
+type Place {
+  lat               Float
+  lng               Float
+  formatted_address String
+}
+
 model UsersVehicles {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
   createdAt   DateTime    @default(now())
@@ -330,6 +336,8 @@ model UsersVehicles {
   userId      String      @db.ObjectId
   user        User        @relation(fields: [userId], references: [id])
   type        VehicleType
+  name        String
+  place       Place
   size        Size
   description String
 }
