@@ -29,5 +29,6 @@ declare module "next-auth/jwt" {
     username: string;
     email?: string;
     schoolId?: string;
+    idToken?: string;
   }
 }

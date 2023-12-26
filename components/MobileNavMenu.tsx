@@ -35,6 +35,7 @@ import { School } from "@prisma/client";
 import { Session } from "next-auth/core/types";
 import { useMessages } from "@/app/context/message-provider";
 import { useRouter } from "next/navigation";
+import { Separator } from "./ui/separator";
 
 type Props = {
   school: School | null | undefined;
@@ -49,11 +50,14 @@ const MobileNavMenu = (props: Props) => {
   const isAuth = data?.user ? true : false;
 
   const avatar = (
-    <Avatar className="flex w-full">
-      <AvatarFallback className=" px-2 text-sm">
-        {data?.user.username}
-      </AvatarFallback>
-    </Avatar>
+    <div className="flex flex-col justify-center items-center space-y-2">
+      <Avatar className="w-16 h-16">
+        <AvatarFallback className="text-sm">
+          {data?.user.username.substring(0, 1).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      <span>{data?.user.username}</span>
+    </div>
   );
 
   const untilExpire = () => {
@@ -78,107 +82,8 @@ const MobileNavMenu = (props: Props) => {
   return (
     <NavigationMenu>
       <NavigationMenuList className="gap-4 flex-col">
-        {data?.user.role === "school_admin" && (
-          <NavigationMenuItem>
-            <Link href="/school" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                <SheetClose asChild>
-                  <Button>Zarządzaj szkołą</Button>
-                </SheetClose>
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        )}
-        {data?.user?.role === "admin" && (
-          <NavigationMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild className="relative">
-                <div>
-                  {reports.length > 0 && (
-                    <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                      {reports.length}
-                    </div>
-                  )}
-                  <Button>Panel administracyjny</Button>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuGroup>
-                  {menu.map((item) => (
-                    <div key={item.title}>
-                      <SheetClose asChild>
-                        <DropdownMenuItem
-                          className="flex flex-col w-full justify-center items-start gap-2"
-                          onClick={() => router.replace(item.href)}
-                        >
-                          <div className="flex justify-between w-full">
-                            <span className="font-bold">{item.title}</span>
-                            {reports.length > 0 &&
-                              item.href === "/admin/reports" && (
-                                <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                                  {reports.length}
-                                </div>
-                              )}
-                          </div>
-                          <span>{item.description}</span>
-                        </DropdownMenuItem>
-                      </SheetClose>
-                      <DropdownMenuSeparator />
-                    </div>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </NavigationMenuItem>
-        )}
-        <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
-          <Link href="/transport/add" legacyBehavior passHref>
-            <NavigationMenuLink>
-              <SheetClose asChild>
-                <p>Dodaj ogłoszenie</p>
-              </SheetClose>
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link href="/" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              <SheetTrigger asChild>
-                <p>Giełda transportowa</p>
-              </SheetTrigger>
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-        {!isAuth ? (
-          <NavigationMenuItem>
-            <Link href="/signin" legacyBehavior passHref>
-              <SheetClose asChild>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Zaloguj się
-                </NavigationMenuLink>
-              </SheetClose>
-            </Link>
-          </NavigationMenuItem>
-        ) : (
+        {isAuth && (
           <>
-            <NavigationMenuItem>
-              <Link href="/user/market" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <SheetTrigger asChild>
-                    <span>Moja giełda</span>
-                  </SheetTrigger>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/documents" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <SheetTrigger asChild>
-                    <span>Dokumenty do pobrania</span>
-                  </SheetTrigger>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
             <NavigationMenuItem className="hover:cursor-pointer">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -267,6 +172,120 @@ const MobileNavMenu = (props: Props) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </NavigationMenuItem>
+            <Separator />
+          </>
+        )}
+        {data?.user.role === "school_admin" && (
+          <NavigationMenuItem>
+            <Link href="/school" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <SheetClose asChild>
+                  <Button>Zarządzaj szkołą</Button>
+                </SheetClose>
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        )}
+        {data?.user?.role === "admin" && (
+          <NavigationMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="relative">
+                <div>
+                  {reports.length > 0 && (
+                    <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                      {reports.length}
+                    </div>
+                  )}
+                  <Button>Panel administracyjny</Button>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuGroup>
+                  {menu.map((item) => (
+                    <div key={item.title}>
+                      <SheetClose asChild>
+                        <DropdownMenuItem
+                          className="flex flex-col w-full justify-center items-start gap-2"
+                          onClick={() => router.replace(item.href)}
+                        >
+                          <div className="flex justify-between w-full">
+                            <span className="font-bold">{item.title}</span>
+                            {reports.length > 0 &&
+                              item.href === "/admin/reports" && (
+                                <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
+                                  {reports.length}
+                                </div>
+                              )}
+                          </div>
+                          <span>{item.description}</span>
+                        </DropdownMenuItem>
+                      </SheetClose>
+                      <DropdownMenuSeparator />
+                    </div>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </NavigationMenuItem>
+        )}
+        <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
+          <Link href="/transport/add" legacyBehavior passHref>
+            <NavigationMenuLink>
+              <SheetClose asChild>
+                <p>Dodaj ogłoszenie</p>
+              </SheetClose>
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link href="/" legacyBehavior passHref>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              <SheetTrigger asChild>
+                <p>Giełda transportowa</p>
+              </SheetTrigger>
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        {!isAuth ? (
+          <NavigationMenuItem>
+            <Link href="/signin" legacyBehavior passHref>
+              <SheetClose asChild>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Zaloguj się
+                </NavigationMenuLink>
+              </SheetClose>
+            </Link>
+          </NavigationMenuItem>
+        ) : (
+          <>
+            <NavigationMenuItem>
+              <Link href="/vehicles" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <SheetTrigger asChild>
+                    <p>Dostępne pojazdy</p>
+                  </SheetTrigger>
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link href="/user/market" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <SheetTrigger asChild>
+                    <span>Moja giełda</span>
+                  </SheetTrigger>
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link href="/documents" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <SheetTrigger asChild>
+                    <span>Dokumenty do pobrania</span>
+                  </SheetTrigger>
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+
             {school && (
               <NavigationMenuItem className="text-sm">
                 Dostęp wygaśnie za:{" "}

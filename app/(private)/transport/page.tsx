@@ -4,7 +4,7 @@ import { axiosInstance } from "@/lib/axios";
 
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import TransportsFilter from "@/components/TransportsFilter";
 import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
 import { Transport as PrismaTransport } from "@prisma/client";

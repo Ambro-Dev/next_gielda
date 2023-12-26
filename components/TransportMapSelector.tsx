@@ -52,6 +52,7 @@ const TransportMapSelector = ({ setPlace, placeholder }: Props) => {
 
     const results = await getGeocode({ address: val });
     const { lat, lng } = await getLatLng(results[0]);
+    console.log(results[0]);
     setPlace({ lat, lng });
     setOpen(false);
   };

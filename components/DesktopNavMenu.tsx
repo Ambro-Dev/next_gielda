@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -22,11 +22,15 @@ import {
 import { SocketIndicator } from "@/components/ui/socket-indicator";
 import {
   Bug,
+  Home,
+  Loader2,
   LogOut,
+  Menu,
   MessageSquare,
   Paperclip,
   PenBox,
   Settings,
+  Truck,
   User,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -132,45 +136,44 @@ const DesktopNavMenu = (props: Props) => {
             <NavigationMenuLink>Dodaj ogłoszenie</NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link href="/" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Giełda transportowa
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
+
         {!isAuth ? (
-          <NavigationMenuItem>
-            <Link href="/signin" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Zaloguj się
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        ) : (
           <>
             <NavigationMenuItem>
-              <Link href="/user/market" legacyBehavior passHref>
+              <Link href="/" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Moja giełda
+                  Giełda transportowa
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
-            <div className="hidden xl:block">
-              <NavigationMenuItem>
-                <Link href="/documents" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Dokumenty do pobrania
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            </div>
+            <NavigationMenuItem>
+              <Link href="/signin" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Zaloguj się
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          </>
+        ) : (
+          <>
+            <NavigationMenuItem>
+              <Link href="/" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Giełda transportowa
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+
             {school && (
               <NavigationMenuItem className="text-sm">
                 Dostęp wygaśnie za:{" "}
-                <span className="font-semibold text-red-500">
-                  {untilExpire()}
-                </span>
+                <Suspense
+                  fallback={<Loader2 className="h-8 w-8 animate-spin" />}
+                >
+                  <span className="font-semibold text-red-500">
+                    {untilExpire()}
+                  </span>
+                </Suspense>
               </NavigationMenuItem>
             )}
             <NavigationMenuItem className="hover:cursor-pointer">
@@ -184,13 +187,39 @@ const DesktopNavMenu = (props: Props) => {
                       </div>
                     )}
 
-                    {avatar}
+                    <Button variant="outline" className="rounded-full p-3 h-12">
+                      <Menu size={24} />
+                    </Button>
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuLabel className="flex flex-wrap justify-between">
-                    Moje konto <SocketIndicator />
+                    {data?.user.username} <SocketIndicator />
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      className="hover:cursor-pointer hover:bg-amber-400"
+                      onClick={() => router.replace("/vehicles")}
+                    >
+                      <Truck className="mr-2 h-4 w-4" />
+                      <span>Dostępne pojazdy</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="hover:cursor-pointer hover:bg-amber-400"
+                      onClick={() => router.replace("/user/market")}
+                    >
+                      <Home className="mr-2 h-4 w-4" />
+                      <span>Moja giełda</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="hover:cursor-pointer hover:bg-amber-400"
+                      onClick={() => router.replace("/documents")}
+                    >
+                      <Paperclip className="mr-2 h-4 w-4" />
+                      <span>Dokumenty do pobrania</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -237,13 +266,6 @@ const DesktopNavMenu = (props: Props) => {
                     >
                       <Bug className="mr-2 h-4 w-4 " />
                       <span>Zgłoś uwagę</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="xl:hidden visible hover:cursor-pointer hover:bg-amber-400 font-semibold"
-                      onClick={() => router.replace("/documents")}
-                    >
-                      <Paperclip className="mr-2 h-4 w-4 " />
-                      <span>Dokumenty do pobrania</span>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

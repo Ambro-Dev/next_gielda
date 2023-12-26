@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import { set } from "mongoose";
 import { axiosInstance } from "@/lib/axios";
 import { Transport } from "./page";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   message: z.string(),
@@ -93,6 +94,9 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   const { toast } = useToast();
   const router = useRouter();
   const { data, status } = useSession();
+
+  const bookedStyle = { border: "2px solid currentColor" };
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -285,7 +289,10 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Załadunek od</FormLabel>
                       <FormControl>
-                        <DatePicker onChange={field.onChange} />
+                        <DatePicker
+                          onChange={field.onChange}
+                          selectedDay={transport.sendDate}
+                        />
                       </FormControl>
                       <FormDescription>Wybierz datę załadunku</FormDescription>
                       <FormMessage />
@@ -300,7 +307,10 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Załadunek do</FormLabel>
                       <FormControl>
-                        <DatePicker onChange={field.onChange} />
+                        <DatePicker
+                          onChange={field.onChange}
+                          selectedDay={transport.receiveDate}
+                        />
                       </FormControl>
                       <FormDescription>
                         Wybierz datę rozaładunku
@@ -356,7 +366,16 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Wyślij</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" />
+                    Wysyłanie...
+                  </>
+                ) : (
+                  "Wyślij ofertę"
+                )}
+              </Button>
             </form>
           </Form>
         </div>

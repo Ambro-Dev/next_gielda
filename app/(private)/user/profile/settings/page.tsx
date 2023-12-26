@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { AccountForm } from "./settings-form";
 import { axiosInstance } from "@/lib/axios";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 
 const getUserInfo = async (
   userId: string
