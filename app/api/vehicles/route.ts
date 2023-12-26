@@ -73,7 +73,8 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!vehicles) {
-    return NextResponse.json([], { status: 200 });
+    const vehiclesTable: VehiclesTableType[] = [];
+    return NextResponse.json(vehiclesTable, { status: 200 });
   }
 
   const vehiclesTable: VehiclesTableType[] = vehicles.map((vehicle) => {
