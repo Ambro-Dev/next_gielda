@@ -73,12 +73,7 @@ export const GET = async (req: NextRequest) => {
   });
 
   if (!vehicles) {
-    return NextResponse.json(
-      {
-        error: "Nie znaleziono pojazdów",
-      },
-      { status: 404 }
-    );
+    return NextResponse.json([], { status: 200 });
   }
 
   const vehiclesTable: VehiclesTableType[] = vehicles.map((vehicle) => {
