@@ -92,7 +92,7 @@ export function LoginForm() {
         });
       }
     } else {
-      router.back();
+      router.push("/");
     }
   };
 

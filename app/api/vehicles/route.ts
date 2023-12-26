@@ -91,9 +91,12 @@ export const GET = async (req: NextRequest) => {
       height: vehicle.type.includes("tanker")
         ? vehicle.size.height * 2
         : vehicle.size.height,
-      length: vehicle.type.includes("tanker")
-        ? vehicle.size.width
-        : vehicle.size.length,
+      length:
+        vehicle.type === "medium_tanker"
+          ? vehicle.size.length
+          : vehicle.type.includes("tanker")
+          ? vehicle.size.width
+          : vehicle.size.length,
       userId: vehicle.userId,
       createdAt: vehicle.createdAt,
       updatedAt: vehicle.updatedAt,

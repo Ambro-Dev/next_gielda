@@ -89,9 +89,12 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       width: selectedVehicle?.size[0],
-      length: selectedVehicle.id.includes("tanker")
-        ? selectedVehicle?.size[0]
-        : selectedVehicle?.size[2],
+      length:
+        selectedVehicle.id === "medium_tanker"
+          ? selectedVehicle.size[2]
+          : selectedVehicle.id.includes("tanker")
+          ? selectedVehicle?.size[0]
+          : selectedVehicle?.size[2],
       height: selectedVehicle?.size[1],
     },
   });
@@ -99,9 +102,12 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
   useEffect(() => {
     form.reset({
       width: selectedVehicle?.size[0],
-      length: selectedVehicle.id.includes("tanker")
-        ? selectedVehicle?.size[0]
-        : selectedVehicle?.size[2],
+      length:
+        selectedVehicle.id === "medium_tanker"
+          ? selectedVehicle.size[2]
+          : selectedVehicle.id.includes("tanker")
+          ? selectedVehicle?.size[0]
+          : selectedVehicle?.size[2],
       height: selectedVehicle?.size[1],
     });
   }, [selectedVehicle?.id]);
@@ -197,16 +203,7 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
                     onChange={(e) => {
                       form.setValue("length", Number(e.target.value));
                       if (selectedVehicle)
-                        if (selectedVehicle.id.includes("tanker"))
-                          setSelectedVehicle({
-                            ...selectedVehicle,
-                            size: [
-                              Number(e.target.value),
-                              selectedVehicle.size[1],
-                              selectedVehicle.size[2],
-                            ],
-                          });
-                        else
+                        if (selectedVehicle.id === "medium_tanker")
                           setSelectedVehicle({
                             ...selectedVehicle,
                             size: [
@@ -215,6 +212,26 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
                               Number(e.target.value),
                             ],
                           });
+                        else {
+                          if (selectedVehicle.id.includes("tanker"))
+                            setSelectedVehicle({
+                              ...selectedVehicle,
+                              size: [
+                                Number(e.target.value),
+                                selectedVehicle.size[1],
+                                selectedVehicle.size[2],
+                              ],
+                            });
+                          else
+                            setSelectedVehicle({
+                              ...selectedVehicle,
+                              size: [
+                                selectedVehicle.size[0],
+                                selectedVehicle.size[1],
+                                Number(e.target.value),
+                              ],
+                            });
+                        }
                     }}
                     step={0.01}
                   />

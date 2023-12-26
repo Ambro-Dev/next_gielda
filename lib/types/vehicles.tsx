@@ -181,6 +181,14 @@ export type VehiclesTableType = {
   place_lng: number;
 };
 
+export const VehicleModels = [
+  ...TrailersTypes,
+  ...MediumTypes,
+  ...SmallTypes,
+  ...BusTypes,
+  ...CarTrailerTypes,
+];
+
 const Vehicles = {
   trailers: TrailersTypes,
   medium: MediumTypes,

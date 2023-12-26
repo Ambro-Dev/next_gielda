@@ -66,17 +66,17 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
         setSelectedVehicle(vehicle);
       }}
     >
-      <SelectTrigger className="w-full py-14 items-center">
+      <SelectTrigger className="w-full sm:py-24 md:py-14 py-32 items-center">
         <SelectValue placeholder="Typ pojazdu" />
       </SelectTrigger>
-      <SelectContent className="overflow-y-auto max-h-[500px] max-w-xl">
+      <SelectContent className="overflow-y-auto overflow-x-auto max-h-[500px] lg:max-w-xl">
         {categoryList.map((category) => (
           <React.Fragment key={category.name}>
             <SelectGroup>
               <SelectLabel>{category.name}</SelectLabel>
               {category.vehicles.map((vehicle) => (
                 <SelectItem key={vehicle.id} value={vehicle.name}>
-                  <div className="grid grid-cols-3 space-x-6">
+                  <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6 ">
                     <Image
                       src={vehicle.icon}
                       alt={vehicle.name}
@@ -88,7 +88,7 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
                     <div className="items-center flex font-semibold">
                       <span>{vehicle.name}</span>
                     </div>
-                    <div className="grid grid-cols-1 items-center py-5 font-semibold">
+                    <div className="grid md:grid-cols-1 grid-cols-3 md:col-span-1 sm:col-span-2 col-span-1 items-center py-5 font-semibold">
                       <span>
                         {vehicle.id.includes("tanker")
                           ? "Promień beczki"
@@ -97,6 +97,7 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
                       </span>
                       {vehicle.id.includes("tanker") ? null : (
                         <span>
+                          Długość:{" "}
                           <span className="font-normal">{vehicle.size[2]}</span>
                         </span>
                       )}
@@ -104,8 +105,13 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
                       <span>
                         {vehicle.id.includes("tanker")
                           ? "Długość"
-                          : "Szerokość"}{" "}
-                        : <span className="font-normal">{vehicle.size[0]}</span>
+                          : "Szerokość"}
+                        :{" "}
+                        <span className="font-normal">
+                          {vehicle.id === "medium_tanker"
+                            ? vehicle.size[2]
+                            : vehicle.size[0]}
+                        </span>
                       </span>
                     </div>
                   </div>

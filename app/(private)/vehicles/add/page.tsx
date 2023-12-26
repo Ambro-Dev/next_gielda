@@ -37,6 +37,7 @@ import { LargeBoxy } from "@/components/models/large-truck";
 import Vehicles from "@/lib/types/vehicles";
 import { VehicleNames } from "@/lib/types/vehicles";
 import PlaceSelector from "@/components/vehicles/place-selector";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
@@ -65,6 +66,8 @@ const formSchema = z.object({
 const Page = (props: Props) => {
   const [error, setError] = React.useState<string | null>(null);
   const session = useSession();
+
+  const router = useRouter();
 
   function AlertDestructive() {
     return (
@@ -154,6 +157,7 @@ const Page = (props: Props) => {
         title: "Pojazd został dodany",
         description: "Twój pojazd został dodany do listy pojazdów",
       });
+      router.push("/vehicles");
     } catch (error: any) {
       console.log(error);
       toast({
@@ -166,10 +170,10 @@ const Page = (props: Props) => {
 
   return (
     <Card>
-      <GoBack clasName="m-3" />
+      <GoBack className="m-3" />
       <Separator />
-      <div className="w-full mt-3 mb-10 flex justify-between flex-row px-5">
-        <div className="space-y-8 py-8 w-1/2">
+      <div className="w-full mt-3 mb-10 flex justify-between lg:flex-row flex-col px-5">
+        <div className="space-y-8 py-8 lg:w-1/2">
           <TypeSelector
             vehicles={Vehicles}
             setSelectedVehicle={setSelectedVehicle}
@@ -230,7 +234,7 @@ const Page = (props: Props) => {
           <Separator orientation="vertical" />
         </div>
 
-        <div className="py-8 max-h-[600px] w-1/2">
+        <div className="py-8 sm:max-h-[600px] max-h-[450px] h-[400px] sm:h-[500px] md:h-full lg:w-1/2">
           {selectedVehicle && selectedVehicle.id !== "default" ? (
             <VehicleVizualization
               vehicleSize={selectedVehicle?.size as [number, number, number]}
@@ -263,7 +267,7 @@ const Page = (props: Props) => {
           onClick={() => form.handleSubmit(onSubmit)()}
         >
           {form.formState.isSubmitting ? (
-            <span className="flex items-center">
+            <span className="flex items-center select-none">
               <Loader2 className="animate-spin mr-2" /> Dodawanie pojazdu
             </span>
           ) : (

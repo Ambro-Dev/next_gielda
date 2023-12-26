@@ -71,15 +71,32 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div>
-      <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 pb-4">
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 pb-4">
         <div>
           <Card>
             <CardHeader className="p-5">
               <CardTitle>Dodaj pojazd</CardTitle>
               <CardDescription>
-                Dodaj nowy pojazd do swojej floty.
+                Dodaj nowy pojazd do floty pojazdów.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -95,7 +112,7 @@ export function DataTable<TData, TValue>({
               </Link>
             </CardFooter>
           </Card>
-          <div className="flex items-center pt-4">
+          <div className="items-center pt-4 md:flex hidden">
             <Input
               placeholder="Filtruj miejscowości..."
               value={
@@ -112,8 +129,24 @@ export function DataTable<TData, TValue>({
             />
           </div>
         </div>
-        <div className="lg:col-span-2 collapse sm:collapse-open">
+
+        <div className="lg:col-span-2 hidden sm:block">
           <VehiclesMap data={data} />
+        </div>
+        <div className="items-center pt-4 md:hidden flex">
+          <Input
+            placeholder="Filtruj miejscowości..."
+            value={
+              (table.getColumn("place_address")?.getFilterValue() as string) ??
+              ""
+            }
+            onChange={(event) =>
+              table
+                .getColumn("place_address")
+                ?.setFilterValue(event.target.value)
+            }
+            className="w-full"
+          />
         </div>
       </div>
 
@@ -175,6 +208,9 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="pt-5">
         <DataTablePagination table={table} />
+      </div>
+      <div className="sm:hidden block mt-10">
+        <VehiclesMap data={data} />
       </div>
     </div>
   );

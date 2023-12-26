@@ -65,7 +65,7 @@ const TransportInfo = async ({ params }: PageParams) => {
       />
       <TransportDetails transport={transport} />
       <TransportContactCard transport={transport} />
-      <GoBack clasName="absolute top-2 left-5 bg-white/80" />
+      <GoBack className="absolute top-2 left-5 bg-white/80" />
     </div>
   );
 };
