@@ -234,7 +234,7 @@ const Page = (props: Props) => {
           <Separator orientation="vertical" />
         </div>
 
-        <div className="py-8 sm:max-h-[600px] max-h-[450px] h-[400px] sm:h-[500px] md:h-full lg:w-1/2">
+        <div className="py-8 sm:max-h-[600px] max-h-[450px] h-[400px] sm:h-[500px] lg:w-1/2">
           {selectedVehicle && selectedVehicle.id !== "default" ? (
             <VehicleVizualization
               vehicleSize={selectedVehicle?.size as [number, number, number]}
