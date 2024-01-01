@@ -4,7 +4,7 @@ import prisma from "@/lib/prismadb";
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
 
-  const { place, content, userId } = body;
+  const { place, content, userId, file } = body;
 
   if (!place || !content) {
     return NextResponse.json(
@@ -39,6 +39,7 @@ export const POST = async (req: NextRequest) => {
     data: {
       place,
       content,
+      fileUrl: file,
       user: {
         connect: {
           id: userId,

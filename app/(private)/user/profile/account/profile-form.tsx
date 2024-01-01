@@ -19,12 +19,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
+import { Loader2 } from "lucide-react";
 
 const noPolishCharsOrSpecialChars = /^[a-zA-Z0-9.]+$/;
 
 const profileFormSchema = z.object({
   username: z
-    .string()
+    .string({
+      required_error: "Nazwa użytkownika jest wymagana.",
+    })
     .refine((value) => !/\.\.+/.test(value), {
       message: 'Nazwa użytkownika nie może zawierać ".."',
     })
@@ -45,7 +50,8 @@ const profileFormSchema = z.object({
           message: "Nazwa użytkownika może mieć maksymalnie 30 znaków.",
         })
         .optional()
-    ),
+    )
+    .optional(),
 
   email: z
     .string({
@@ -83,6 +89,8 @@ type Profile = {
 };
 
 export function ProfileForm({ profile }: { profile: Profile }) {
+  const router = useRouter();
+
   // This can come from your database or API.
   const defaultValues: Partial<ProfileFormValues> = {
     bio: profile.bio || "Posiadam komputer",
@@ -94,7 +102,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     mode: "onChange",
   });
 
-  function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(data: ProfileFormValues) {
     toast({
       title: "Przesłałeś następujące wartości:",
       description: (
@@ -103,6 +111,21 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         </pre>
       ),
     });
+    try {
+      await axiosInstance.put(`/api/users/update?userId=${profile.id}`, data);
+      router.refresh();
+      toast({
+        title: "Zapisano",
+        description: "Zmiany zostały zapisane",
+      });
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zapisać zmian, spróbuj ponownie.",
+        variant: "destructive",
+      });
+      console.error(error);
+    }
   }
 
   return (
@@ -166,7 +189,28 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </FormItem>
           )}
         />
-        <Button type="submit">Zapisz</Button>
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => {
+              form.reset();
+              router.back();
+            }}
+          >
+            Anuluj
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? (
+              <span className="flex items-center justify-center select-none">
+                <Loader2 className="animate-spin mr-2" />
+                Zapisywanie
+              </span>
+            ) : (
+              "Zapisz"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

@@ -84,7 +84,7 @@ const TopBar = () => {
   }, [data]);
 
   return (
-    <div className="fixed w-full px-10 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
+    <div className="fixed w-full sm:px-10 px-5 bg-white backdrop-blur-sm bg-opacity-80 shadow-md z-10">
       <div className="flex flex-col w-full h-full ">
         <div className="flex justify-start flex-row items-center w-full h-16  py-1">
           <Sheet>
@@ -96,7 +96,7 @@ const TopBar = () => {
                 </button>
               </div>
             </SheetTrigger>
-            <SheetContent side={"left"}>
+            <SheetContent side={"left"} className="overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>
                   <Link href="/" legacyBehavior passHref>

@@ -19,6 +19,7 @@ export const GET = async (req: NextRequest) => {
       id: true,
       place: true,
       content: true,
+      fileUrl: true,
       createdAt: true,
       seen: true,
       user: {

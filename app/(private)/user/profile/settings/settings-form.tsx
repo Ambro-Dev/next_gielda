@@ -195,6 +195,7 @@ export function AccountForm({
               </FormItem>
             )}
           />
+
           <Button
             type="submit"
             disabled={
@@ -208,7 +209,17 @@ export function AccountForm({
           </Button>
         </form>
       </Form>
-      <div className="w-full flex justify-end">
+      <div className="w-full flex justify-between items-center">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            form.reset();
+            router.back();
+          }}
+        >
+          Anuluj
+        </Button>
         <Dialog open={openPassword} onOpenChange={setOpenPassword}>
           <DialogTrigger asChild>
             <Button>Zmień hasło</Button>

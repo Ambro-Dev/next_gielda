@@ -136,21 +136,32 @@ const Page = async (props: Props) => {
               </div>
             </div>
           </div>
-          <div className="relative sm:col-span-2 col-span-1 sm:row-span-2 border-2 rounded-xl ">
-            <Image
-              src={image}
-              alt="Screenshot"
-              priority
-              className="rounded-lg max-h-[500px] object-cover"
-            />
-            <div className="absolute inset-0 flex flex-col justify-center items-center select-none backdrop-blur-sm bg-zinc-300 bg-opacity-50 text-white p-2 rounded-lg">
-              <span className="text-2xl font-semibold">
-                Miejsce na zrzut ekranu
-              </span>
-              <span className="text-sm font-semibold">
-                Do dodania w przyszłości
-              </span>
-            </div>
+          <div className="relative sm:col-span-2 col-span-1 sm:row-span-2 border-2 rounded-xl flex justify-center items-center text-center max-h-[500px]">
+            {report.fileUrl ? (
+              <Image
+                src={report.fileUrl}
+                alt="Screenshot"
+                priority
+                className="rounded-lg object-contain w-auto h-auto"
+                objectFit="contain"
+                height={500}
+                width={900}
+              />
+            ) : (
+              <>
+                <Image
+                  src={image}
+                  alt="Screenshot"
+                  priority
+                  className="rounded-lg max-h-[500px] object-cover"
+                />
+                <div className="absolute inset-0 flex flex-col justify-center items-center select-none backdrop-blur-sm bg-zinc-300 bg-opacity-50 text-white p-2 rounded-lg">
+                  <span className="text-2xl font-semibold">
+                    Miejsce na zrzut ekranu
+                  </span>
+                </div>
+              </>
+            )}
           </div>
           <div className="border-2 md:col-span-3 sm:col-span-2 col-span-1 drop-shadow-md rounded-lg py-2">
             <div className="flex flex-row gap-4 px-5 items-center pb-2">

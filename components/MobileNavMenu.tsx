@@ -199,7 +199,7 @@ const MobileNavMenu = (props: Props) => {
                   <Button>Panel administracyjny</Button>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
+              <DropdownMenuContent className="w-56" side="bottom">
                 <DropdownMenuGroup>
                   {menu.map((item) => (
                     <div key={item.title}>
@@ -249,11 +249,11 @@ const MobileNavMenu = (props: Props) => {
         {!isAuth ? (
           <NavigationMenuItem>
             <Link href="/signin" legacyBehavior passHref>
-              <SheetClose asChild>
+              <SheetTrigger asChild>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Zaloguj się
                 </NavigationMenuLink>
-              </SheetClose>
+              </SheetTrigger>
             </Link>
           </NavigationMenuItem>
         ) : (
