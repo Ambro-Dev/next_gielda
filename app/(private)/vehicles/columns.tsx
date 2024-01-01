@@ -71,7 +71,7 @@ export const columns: ColumnDef<VehiclesTableType>[] = [
     cell: ({ row }) => {
       const vehicle = row.original;
 
-      return <div>{vehicle.width} m</div>;
+      return <div className="text-center">{vehicle.width} m</div>;
     },
   },
   {
@@ -90,7 +90,7 @@ export const columns: ColumnDef<VehiclesTableType>[] = [
     cell: ({ row }) => {
       const vehicle = row.original;
 
-      return <div>{vehicle.height} m</div>;
+      return <div className="text-center">{vehicle.height} m</div>;
     },
   },
   {
@@ -109,7 +109,7 @@ export const columns: ColumnDef<VehiclesTableType>[] = [
     cell: ({ row }) => {
       const vehicle = row.original;
 
-      return <div>{vehicle.length} m</div>;
+      return <div className="text-center">{vehicle.length} m</div>;
     },
   },
   {
