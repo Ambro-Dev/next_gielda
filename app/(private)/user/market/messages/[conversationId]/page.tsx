@@ -1,101 +1,119 @@
-import { authOptions } from "@/utils/authOptions";
-import { getServerSession } from "next-auth";
-import React from "react";
-import { ExtendedTransport } from "../../page";
-import Chat from "./chat";
-import NewMessage from "./new-meesage";
-import { axiosInstance } from "@/lib/axios";
-import Link from "next/link";
+"use client";
+
+import { useMessages } from "@/hooks/use-messages";
+import { useSupabase } from "@/context/supabase-provider";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package } from "lucide-react";
-import { redirect } from "next/navigation";
-import { toast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { useState, useRef, useEffect } from "react";
+import { Loader2, Send } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/use-toast";
 
-type Props = {
-  params: {
-    conversationId: string;
-  };
-};
+export default function ConversationPage({
+	params,
+}: { params: { conversationId: string } }) {
+	const { conversationId } = params;
+	const { messages, loading, sendMessage } = useMessages(conversationId);
+	const { user } = useSupabase();
+	const [text, setText] = useState("");
+	const [sending, setSending] = useState(false);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const { toast } = useToast();
 
-const getConversations = async (
-  conversationId: string,
-  userId: string
-): Promise<ExtendedConversation> => {
-  try {
-    const response = await axiosInstance.get(
-      `/api/messages/conversation?conversationId=${conversationId}&userId=${userId}`
-    );
-    const data = response.data;
-    return data;
-  } catch (error) {
-    console.error(error);
-    toast({
-      title: "Wystąpił błąd",
-      description: "Nie udało się pobrać rozmowy",
-      variant: "destructive",
-    });
-    redirect("/user/market/messages");
-  }
-};
+	// Przewijanie do najnowszej wiadomości
+	useEffect(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
 
-export type ExtendedConversation = {
-  id: string;
-  transport: ExtendedTransport;
-  messages: {
-    id: string;
-    createdAt: Date;
-    text: string;
-    sender: {
-      id: string;
-      username: string;
-    };
-  }[];
-  users: {
-    id: string;
-    username: string;
-  }[];
-};
+	const handleSendMessage = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!text.trim() || sending) return;
 
-const ConversationPage = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+		setSending(true);
+		try {
+			const result = await sendMessage(text);
+			if (result) {
+				setText("");
+			} else {
+				toast({
+					title: "Błąd",
+					description: "Nie udało się wysłać wiadomości",
+					variant: "destructive",
+				});
+			}
+		} finally {
+			setSending(false);
+		}
+	};
 
-  const conversation: ExtendedConversation = await getConversations(
-    String(props.params.conversationId),
-    String(session?.user.id)
-  );
+	if (loading) {
+		return (
+			<div className="flex justify-center items-center h-[calc(100vh-200px)]">
+				<Loader2 className="w-8 h-8 animate-spin" />
+			</div>
+		);
+	}
 
-  const userInConversation = conversation.users.find(
-    (user) => user.id === session?.user.id
-  );
+	return (
+		<div className="flex flex-col h-[calc(100vh-200px)]">
+			<div className="flex-1 overflow-y-auto p-4 space-y-4">
+				{messages.map((message) => (
+					<div
+						key={message.id}
+						className={`flex ${
+							message.sender.id === user?.id ? "justify-end" : "justify-start"
+						}`}
+					>
+						<div
+							className={`max-w-[80%] rounded-lg p-3 ${
+								message.sender.id === user?.id
+									? "bg-blue-500 text-white"
+									: "bg-gray-200 text-black"
+							}`}
+						>
+							<div className="flex items-center space-x-2 mb-1">
+								<Avatar className="w-6 h-6">
+									<AvatarFallback>
+										{message.sender.username.charAt(0).toUpperCase()}
+									</AvatarFallback>
+								</Avatar>
+								<span className="text-xs font-medium">
+									{message.sender.username}
+								</span>
+							</div>
+							<p>{message.text}</p>
+							<p className="text-xs opacity-70 text-right mt-1">
+								{formatDistanceToNow(new Date(message.created_at), {
+									addSuffix: true,
+									locale: pl,
+								})}
+							</p>
+						</div>
+					</div>
+				))}
+				<div ref={messagesEndRef} />
+			</div>
 
-  if (!userInConversation) redirect("/user/market/messages");
-
-  const otherUser = conversation.users.find(
-    (user) => user.id !== session?.user.id
-  );
-
-  return (
-    <div className="flex flex-col space-y-8">
-      <div className="px-5 flex gap-4 flex-wrap items-center justify-around">
-        <Link href="/user/market/messages">
-          <Button variant="ghost">
-            <ArrowLeft size={24} />
-            <span className="pl-2">Wszystkie rozmowy</span>
-          </Button>
-        </Link>
-        <h3 className="text-lg font-bold">Rozmowa z {otherUser?.username}</h3>
-        {conversation.transport && (
-          <Link href={`/transport/${conversation.transport.id}`}>
-            <Button variant="ghost">
-              Przejdź do ogłoszenia <Package size={24} className="ml-2" />
-            </Button>
-          </Link>
-        )}
-      </div>
-      <Chat messages={conversation.messages} />
-      <NewMessage conversation={conversation} />
-    </div>
-  );
-};
-
-export default ConversationPage;
+			<div className="p-4 border-t">
+				<form onSubmit={handleSendMessage} className="flex space-x-2">
+					<Input
+						value={text}
+						onChange={(e) => setText(e.target.value)}
+						placeholder="Wpisz wiadomość..."
+						disabled={sending}
+						className="flex-1"
+					/>
+					<Button type="submit" disabled={sending || !text.trim()}>
+						{sending ? (
+							<Loader2 className="w-4 h-4 animate-spin" />
+						) : (
+							<Send className="w-4 h-4" />
+						)}
+					</Button>
+				</form>
+			</div>
+		</div>
+	);
+}

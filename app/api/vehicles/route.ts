@@ -1,108 +1,125 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prismadb";
+import { type NextRequest, NextResponse } from "next/server";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
-export const POST = async (req: NextRequest) => {
-  const body = await req.json();
+export async function GET(req: NextRequest) {
+	try {
+		const supabase = createRouteHandlerClient({ cookies });
 
-  const { description, size, userId, type, name, place } = body;
+		// Sprawdź sesję użytkownika
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		if (!session) {
+			return NextResponse.json(
+				{ error: "Nieautoryzowany dostęp" },
+				{ status: 401 },
+			);
+		}
 
-  if (!description || !size || !userId || !type || !name || !place) {
-    return NextResponse.json(
-      {
-        error:
-          "Brakuje wymaganych pól (pola wymagane: typ pojazdu, wymiary, ID użytkownika, opis, miejsce, nazwa)",
-      },
-      { status: 400 }
-    );
-  }
+		// Pobierz pojazdy
+		const { data: vehicles, error } = await supabase
+			.from("user_vehicles")
+			.select(`
+        id,
+        name,
+        type,
+        size,
+        place,
+        description,
+        created_at,
+        updated_at,
+        users:user_id(id, username)
+      `)
+			.order("created_at", { ascending: false });
 
-  const vehicle = await prisma.usersVehicles.create({
-    data: {
-      description,
-      size,
-      type,
-      name,
-      place,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
-    },
-  });
+		if (error) {
+			return NextResponse.json({ error: error.message }, { status: 500 });
+		}
 
-  if (!vehicle) {
-    return NextResponse.json(
-      {
-        error: "Nie udało się dodać pojazdu",
-      },
-      { status: 500 }
-    );
-  }
+		// Przekształć dane do oczekiwanego formatu
+		const vehiclesTable = vehicles.map((vehicle) => ({
+			id: vehicle.id,
+			name: vehicle.name,
+			width: vehicle.type.includes("tanker")
+				? vehicle.size.height * 2
+				: vehicle.size.width,
+			height: vehicle.type.includes("tanker")
+				? vehicle.size.height * 2
+				: vehicle.size.height,
+			length:
+				vehicle.type === "medium_tanker"
+					? vehicle.size.length
+					: vehicle.type.includes("tanker")
+						? vehicle.size.width
+						: vehicle.size.length,
+			userId: vehicle.users.id,
+			createdAt: vehicle.created_at,
+			updatedAt: vehicle.updated_at,
+			description: vehicle.description,
+			type: vehicle.type,
+			place_address: vehicle.place.formatted_address,
+			place_lat: vehicle.place.lat,
+			place_lng: vehicle.place.lng,
+		}));
 
-  return NextResponse.json(
-    { message: "Pojazd został dodany" },
-    { status: 200 }
-  );
-};
+		return NextResponse.json(vehiclesTable, { status: 200 });
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
+}
 
-type VehiclesTableType = {
-  id: string;
-  name: string;
-  width: number;
-  height: number;
-  length: number;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string;
-  type: string;
-  place_address: string;
-  place_lat: number;
-  place_lng: number;
-};
+export async function POST(req: NextRequest) {
+	try {
+		const supabase = createRouteHandlerClient({ cookies });
 
-export const GET = async (req: NextRequest) => {
-  const vehicles = await prisma.usersVehicles.findMany({
-    include: {
-      user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+		// Sprawdź sesję użytkownika
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		if (!session) {
+			return NextResponse.json(
+				{ error: "Nieautoryzowany dostęp" },
+				{ status: 401 },
+			);
+		}
 
-  if (!vehicles) {
-    const vehiclesTable: VehiclesTableType[] = [];
-    return NextResponse.json(vehiclesTable, { status: 200 });
-  }
+		const body = await req.json();
+		const { description, size, type, name, place } = body;
 
-  const vehiclesTable: VehiclesTableType[] = vehicles.map((vehicle) => {
-    return {
-      id: vehicle.id,
-      name: vehicle.name,
-      width: vehicle.type.includes("tanker")
-        ? vehicle.size.height * 2
-        : vehicle.size.width,
-      height: vehicle.type.includes("tanker")
-        ? vehicle.size.height * 2
-        : vehicle.size.height,
-      length:
-        vehicle.type === "medium_tanker"
-          ? vehicle.size.length
-          : vehicle.type.includes("tanker")
-          ? vehicle.size.width
-          : vehicle.size.length,
-      userId: vehicle.userId,
-      createdAt: vehicle.createdAt,
-      updatedAt: vehicle.updatedAt,
-      description: vehicle.description,
-      type: vehicle.type,
-      place_address: vehicle.place.formatted_address,
-      place_lat: vehicle.place.lat,
-      place_lng: vehicle.place.lng,
-    };
-  });
+		// Walidacja wymaganych pól
+		if (!description || !size || !type || !name || !place) {
+			return NextResponse.json(
+				{
+					error: "Brakuje wymaganych pól",
+				},
+				{ status: 400 },
+			);
+		}
 
-  return NextResponse.json(vehiclesTable, { status: 200 });
-};
+		// Dodanie pojazdu
+		const { data: vehicle, error } = await supabase
+			.from("user_vehicles")
+			.insert({
+				description,
+				size,
+				type,
+				name,
+				place,
+				user_id: session.user.id,
+			})
+			.select()
+			.single();
+
+		if (error) {
+			return NextResponse.json({ error: error.message }, { status: 500 });
+		}
+
+		return NextResponse.json(
+			{ message: "Pojazd został dodany" },
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
+}

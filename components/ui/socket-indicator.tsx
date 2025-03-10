@@ -1,19 +1,27 @@
+// components/ui/socket-indicator.tsx
 "use client";
 
-import { useSocket } from "@/app/context/socket-provider";
+import { useRealtime } from "@/context/supabase-realtime-provider";
 import { Badge } from "@/components/ui/badge";
 
-export const SocketIndicator = () => {
-  const { isConnected } = useSocket();
+interface SocketIndicatorProps {
+	className?: string;
+}
 
-  return (
-    <>
-      <Badge
-        variant={isConnected ? "default" : "destructive"}
-        className={`text-xs ${isConnected && "bg-green-500"}`}
-      >
-        {isConnected ? "Połączono" : "Rozłączono"}
-      </Badge>
-    </>
-  );
+export const SocketIndicator = ({ className }: SocketIndicatorProps) => {
+	const { isConnected } = useRealtime();
+
+	if (!isConnected) {
+		return (
+			<Badge variant="outline" className="bg-red-500 text-white border-none">
+				Offline
+			</Badge>
+		);
+	}
+
+	return (
+		<Badge variant="outline" className="bg-emerald-500 text-white border-none">
+			Online
+		</Badge>
+	);
 };
