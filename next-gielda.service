@@ -1,0 +1,57 @@
+[Unit]
+Description=Next.js Gielda Transport Application
+After=network.target mongod.service
+Wants=mongod.service
+
+[Service]
+Type=simple
+User=nextjs
+Group=nodejs
+WorkingDirectory=/opt/next-gielda
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=0.0.0.0
+Environment=DATABASE_URL=mongodb://localhost:27017/next_gielda
+Environment=NEXTAUTH_URL=https://yourdomain.com
+Environment=NEXTAUTH_SECRET=your-nextauth-secret-key-here
+Environment=NEXTAUTH_PUBLIC_SITE_URL=https://yourdomain.com
+Environment=NEXT_PUBLIC_SERVER_URL=https://yourdomain.com
+Environment=NEXT_PUBLIC_GOOGLE_MAP_API_KEY=your-google-maps-api-key-here
+Environment=EMAIL_SERVER=smtp://username:password@smtp.gmail.com:587
+Environment=EMAIL_FROM=noreply@yourdomain.com
+Environment=UPLOADTHING_SECRET=your-uploadthing-secret
+Environment=UPLOADTHING_APP_ID=your-uploadthing-app-id
+Environment=SOCKET_IO_PORT=3001
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/next-gielda
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=2G
+CPUQuota=200%
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=60s
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=next-gielda
+
+# Exec command
+ExecStart=/usr/bin/node server.prod.js
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

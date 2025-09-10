@@ -5,8 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:prod": "prisma generate && next build --config next.config.prod.js",
     "start": "prisma generate && next start",
-    "lint": "next lint"
+    "start:prod": "NODE_ENV=production next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "setup:db": "node scripts/setup-database.js",
+    "setup:admin": "node scripts/create-admin.js",
+    "init:prod": "node scripts/init-production.js",
+    "setup:full": "npm run setup:db && npm run setup:admin",
+    "test:admin": "node scripts/test-admin.js"
   },
   "dependencies": {
     "@auth/core": "^0.9.0",
