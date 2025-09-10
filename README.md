@@ -103,12 +103,39 @@ UPLOADTHING_APP_ID="your-uploadthing-app-id"
 
 ## 🐳 Docker Deployment
 
-### Using Docker Compose
+### Production with Docker Compose (Recommended)
+
+1. **Quick setup with automated script**
+   ```bash
+   chmod +x scripts/docker-setup.sh
+   ./scripts/docker-setup.sh
+   ```
+
+2. **Manual setup**
+   ```bash
+   # Copy environment file
+   cp env.docker .env
+   # Edit .env with your production values
+   
+   # Start the application
+   docker-compose -f docker-compose.prod.yml up -d
+   
+   # Initialize database and create admin user
+   docker-compose -f docker-compose.prod.yml exec app node scripts/init-production.js
+   ```
+
+3. **Check status**
+   ```bash
+   docker-compose -f docker-compose.prod.yml ps
+   docker-compose -f docker-compose.prod.yml logs -f
+   ```
+
+### Development with Docker Compose
 
 1. **Configure environment**
    ```bash
    cp env.example .env
-   # Edit .env with your production values
+   # Edit .env with your development values
    ```
 
 2. **Start the application**
@@ -306,6 +333,7 @@ sudo tail -f /var/log/nginx/error.log
 ## 📚 Documentation
 
 - [Deployment Guide](./README-DEPLOYMENT.md) - Complete deployment instructions
+- [Docker Production Guide](./DOCKER-PRODUCTION.md) - Docker Compose production setup
 - [Admin Setup Guide](./ADMIN-SETUP.md) - Admin user management
 - [Production Checklist](./PRODUCTION-CHECKLIST.md) - Production verification steps
 
