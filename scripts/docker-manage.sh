@@ -33,10 +33,20 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if Docker Compose file exists
+# Check if Docker Compose file exists and determine compose command
 check_compose_file() {
     if [ ! -f "$COMPOSE_FILE" ]; then
         print_error "Docker Compose file $COMPOSE_FILE not found!"
+        exit 1
+    fi
+    
+    # Check for docker compose (newer version) or docker-compose (older version)
+    if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+        COMPOSE_CMD="docker compose"
+    elif command -v docker-compose &> /dev/null; then
+        COMPOSE_CMD="docker-compose"
+    else
+        print_error "Docker Compose is not installed. Please install Docker Compose first."
         exit 1
     fi
 }
@@ -53,28 +63,28 @@ check_env_file() {
 # Start services
 start_services() {
     print_status "Starting services..."
-    docker-compose -f "$COMPOSE_FILE" up -d
+    $COMPOSE_CMD -f "$COMPOSE_FILE" up -d
     print_success "Services started"
 }
 
 # Stop services
 stop_services() {
     print_status "Stopping services..."
-    docker-compose -f "$COMPOSE_FILE" down
+    $COMPOSE_CMD -f "$COMPOSE_FILE" down
     print_success "Services stopped"
 }
 
 # Restart services
 restart_services() {
     print_status "Restarting services..."
-    docker-compose -f "$COMPOSE_FILE" restart
+    $COMPOSE_CMD -f "$COMPOSE_FILE" restart
     print_success "Services restarted"
 }
 
 # Show status
 show_status() {
     print_status "Service status:"
-    docker-compose -f "$COMPOSE_FILE" ps
+    $COMPOSE_CMD -f "$COMPOSE_FILE" ps
     echo
     print_status "Resource usage:"
     docker stats --no-stream
@@ -85,51 +95,51 @@ show_logs() {
     local service=${1:-""}
     if [ -n "$service" ]; then
         print_status "Showing logs for $service:"
-        docker-compose -f "$COMPOSE_FILE" logs -f "$service"
+        $COMPOSE_CMD -f "$COMPOSE_FILE" logs -f "$service"
     else
         print_status "Showing logs for all services:"
-        docker-compose -f "$COMPOSE_FILE" logs -f
+        $COMPOSE_CMD -f "$COMPOSE_FILE" logs -f
     fi
 }
 
 # Update services
 update_services() {
     print_status "Updating services..."
-    docker-compose -f "$COMPOSE_FILE" pull
-    docker-compose -f "$COMPOSE_FILE" up -d --force-recreate
+    $COMPOSE_CMD -f "$COMPOSE_FILE" pull
+    $COMPOSE_CMD -f "$COMPOSE_FILE" up -d --force-recreate
     print_success "Services updated"
 }
 
 # Build services
 build_services() {
     print_status "Building services..."
-    docker-compose -f "$COMPOSE_FILE" build --no-cache
+    $COMPOSE_CMD -f "$COMPOSE_FILE" build --no-cache
     print_success "Services built"
 }
 
 # Create admin user
 create_admin() {
     print_status "Creating admin user..."
-    docker-compose -f "$COMPOSE_FILE" exec app node scripts/create-admin.js
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec app node scripts/create-admin.js
 }
 
 # Test admin setup
 test_admin() {
     print_status "Testing admin setup..."
-    docker-compose -f "$COMPOSE_FILE" exec app node scripts/test-admin.js
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec app node scripts/test-admin.js
 }
 
 # Initialize database
 init_database() {
     print_status "Initializing database..."
-    docker-compose -f "$COMPOSE_FILE" exec app node scripts/init-production.js
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec app node scripts/init-production.js
 }
 
 # Backup database
 backup_database() {
     local backup_name="backup_$(date +%Y%m%d_%H%M%S)"
     print_status "Creating database backup: $backup_name"
-    docker-compose -f "$COMPOSE_FILE" exec mongo mongodump --db next_gielda --out "/backups/$backup_name"
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec mongo mongodump --db next_gielda --out "/backups/$backup_name"
     print_success "Database backup created: $backup_name"
 }
 
@@ -139,12 +149,12 @@ restore_database() {
     if [ -z "$backup_name" ]; then
         print_error "Please provide backup name"
         print_status "Available backups:"
-        docker-compose -f "$COMPOSE_FILE" exec mongo ls -la /backups/
+        $COMPOSE_CMD -f "$COMPOSE_FILE" exec mongo ls -la /backups/
         exit 1
     fi
     
     print_status "Restoring database from: $backup_name"
-    docker-compose -f "$COMPOSE_FILE" exec mongo mongorestore --db next_gielda "/backups/$backup_name/next_gielda"
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec mongo mongorestore --db next_gielda "/backups/$backup_name/next_gielda"
     print_success "Database restored from: $backup_name"
 }
 
@@ -160,7 +170,7 @@ health_check() {
     print_status "Performing health check..."
     
     # Check if services are running
-    if ! docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+    if ! $COMPOSE_CMD -f "$COMPOSE_FILE" ps | grep -q "Up"; then
         print_error "Some services are not running"
         return 1
     fi
@@ -173,7 +183,7 @@ health_check() {
     fi
     
     # Check database connection
-    if docker-compose -f "$COMPOSE_FILE" exec mongo mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
+    if $COMPOSE_CMD -f "$COMPOSE_FILE" exec mongo mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
         print_success "Database health check passed"
     else
         print_warning "Database health check failed"

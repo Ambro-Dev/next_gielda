@@ -44,12 +44,17 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null && ! command -v docker compose &> /dev/null; then
+    # Check for docker compose (newer version) or docker-compose (older version)
+    if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+        COMPOSE_CMD="docker compose"
+        print_success "Docker and Docker Compose (new version) are installed"
+    elif command -v docker-compose &> /dev/null; then
+        COMPOSE_CMD="docker-compose"
+        print_success "Docker and Docker Compose (legacy version) are installed"
+    else
         print_error "Docker Compose is not installed. Please install Docker Compose first."
         exit 1
     fi
-    
-    print_success "Docker and Docker Compose are installed"
 }
 
 # Check if running as root
@@ -147,10 +152,10 @@ start_services() {
     print_status "Building and starting services..."
     
     # Build the application
-    docker-compose -f "$COMPOSE_FILE" build --no-cache
+    $COMPOSE_CMD -f "$COMPOSE_FILE" build --no-cache
     
     # Start services
-    docker-compose -f "$COMPOSE_FILE" up -d
+    $COMPOSE_CMD -f "$COMPOSE_FILE" up -d
     
     print_success "Services started"
 }
@@ -161,7 +166,7 @@ wait_for_services() {
     
     # Wait for MongoDB
     print_status "Waiting for MongoDB..."
-    timeout 60 bash -c 'until docker-compose -f docker-compose.prod.yml exec mongo mongosh --eval "db.adminCommand(\"ping\")" > /dev/null 2>&1; do sleep 2; done'
+    timeout 60 bash -c "until $COMPOSE_CMD -f $COMPOSE_FILE exec mongo mongosh --eval 'db.adminCommand(\"ping\")' > /dev/null 2>&1; do sleep 2; done"
     
     # Wait for application
     print_status "Waiting for application..."
@@ -218,7 +223,7 @@ initialize_database() {
     sleep 10
     
     # Run database initialization
-    docker-compose -f "$COMPOSE_FILE" exec app node scripts/init-production.js
+    $COMPOSE_CMD -f "$COMPOSE_FILE" exec app node scripts/init-production.js
     
     print_success "Database initialized and admin user created"
 }
@@ -227,7 +232,7 @@ initialize_database() {
 show_status() {
     print_status "Checking service status..."
     
-    docker-compose -f "$COMPOSE_FILE" ps
+    $COMPOSE_CMD -f "$COMPOSE_FILE" ps
     
     print_success "Deployment completed successfully!"
     echo
@@ -243,10 +248,10 @@ show_status() {
     print_warning "IMPORTANT: Change the admin password after first login!"
     echo
     print_status "Useful commands:"
-    print_status "  View logs: docker-compose -f $COMPOSE_FILE logs -f"
-    print_status "  Stop services: docker-compose -f $COMPOSE_FILE down"
-    print_status "  Restart services: docker-compose -f $COMPOSE_FILE restart"
-    print_status "  Update services: docker-compose -f $COMPOSE_FILE pull && docker-compose -f $COMPOSE_FILE up -d"
+    print_status "  View logs: $COMPOSE_CMD -f $COMPOSE_FILE logs -f"
+    print_status "  Stop services: $COMPOSE_CMD -f $COMPOSE_FILE down"
+    print_status "  Restart services: $COMPOSE_CMD -f $COMPOSE_FILE restart"
+    print_status "  Update services: $COMPOSE_CMD -f $COMPOSE_FILE pull && $COMPOSE_CMD -f $COMPOSE_FILE up -d"
 }
 
 # Main function
