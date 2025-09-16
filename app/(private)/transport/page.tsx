@@ -1,5 +1,8 @@
 import React from "react";
 
+// Force dynamic rendering to prevent static generation
+export const dynamic = 'force-dynamic';
+
 import { axiosInstance } from "@/lib/axios";
 
 import { getServerSession } from "next-auth";
@@ -48,10 +51,10 @@ export type Transport = PrismaTransport & {
 const getCategories = async (): Promise<Tags[]> => {
   try {
     const res = await axiosInstance.get("/api/settings/categories");
-
     return res.data.categories;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching categories:", error);
+    // Return empty array during build or on error
     return [];
   }
 };
@@ -61,7 +64,8 @@ const getVehicles = async (): Promise<Tags[]> => {
     const res = await axiosInstance.get("/api/settings/vehicles");
     return res.data.vehicles;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching vehicles:", error);
+    // Return empty array during build or on error
     return [];
   }
 };
@@ -84,7 +88,8 @@ const getTransports = async (): Promise<Transport[]> => {
     const res = await axiosInstance.get("/api/transports");
     return res.data.transports;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching transports:", error);
+    // Return empty array during build or on error
     return [];
   }
 };

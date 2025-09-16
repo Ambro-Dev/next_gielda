@@ -33,7 +33,8 @@ const getCategories = async () => {
     const data = res.data;
     return data.categories;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching categories:", error);
+    // Return empty array during build or on error
     return [];
   }
 };
@@ -44,7 +45,8 @@ const getVehicles = async () => {
     const data = res.data;
     return data.vehicles;
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching vehicles:", error);
+    // Return empty array during build or on error
     return [];
   }
 };

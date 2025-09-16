@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import logo from "../public/gielda-fenilo.webp";
+// Use the public folder path for static assets
+const logo = "/gielda-fenilo.webp";
 import {
   Sheet,
   SheetClose,
@@ -105,6 +106,8 @@ const TopBar = () => {
                         src={logo}
                         priority
                         alt="fenilo-gielda"
+                        width={200}
+                        height={60}
                         className="hover:cursor-pointer"
                       />
                     </SheetClose>
@@ -130,6 +133,8 @@ const TopBar = () => {
               src={logo}
               priority
               alt="gielda-fenilo"
+              width={200}
+              height={60}
               className="h-full w-auto hover:cursor-pointer"
             />
           </Link>

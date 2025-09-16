@@ -159,7 +159,9 @@ const Page = (props: Props) => {
       });
       router.push("/vehicles");
     } catch (error: any) {
-      console.log(error);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(error);
+      }
       toast({
         title: "Wystąpił błąd",
         description: error.response.data.error,

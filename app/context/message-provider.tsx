@@ -74,19 +74,21 @@ const getMessages = async (userId: string) => {
   try {
     const response = await axiosInstance.get(`/api/messages?userId=${userId}`);
     const messages = response.data;
-    return messages;
+    return messages || [];
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching messages:', error);
+    return [];
   }
 };
 
 const getReports = async () => {
   try {
     const response = await axiosInstance.get("/api/report");
-    const reports = response.data;
-    return reports;
+    const reports = response.data.reports;
+    return reports || [];
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching reports:', error);
+    return [];
   }
 };
 
@@ -102,28 +104,37 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!data?.user?.id) return;
     getMessages(String(data.user.id)).then((messages) => {
-      setMessages(
-        messages.map((message: any) => ({
-          id: message.id,
-          createdAt: message.createdAt,
-          text: message.text,
-          sender: message.sender,
-          conversation: message.conversation,
-          receiver: {
-            id: data?.user?.id,
-            username: data?.user?.username,
-            email: data?.user?.email,
-          },
-        }))
-      );
-    });
-    if (data?.user?.role === "admin")
-      getReports().then((response) => {
-        const unseenReports = response.reports.filter(
-          (report: Report) => !report.seen
+      if (messages && Array.isArray(messages)) {
+        setMessages(
+          messages.map((message: any) => ({
+            ...message,
+            sender: message.sender,
+            receiver: {
+              id: data?.user?.id,
+              username: data?.user?.username,
+              email: data?.user?.email,
+            },
+          }))
         );
-        setReports(unseenReports);
+      }
+    }).catch((error) => {
+      console.error('Error fetching messages:', error);
+      setMessages([]);
+    });
+    
+    if (data?.user?.role === "admin") {
+      getReports().then((reports) => {
+        if (reports && Array.isArray(reports)) {
+          const unseenReports = reports.filter(
+            (report: Report) => !report.seen
+          );
+          setReports(unseenReports);
+        }
+      }).catch((error) => {
+        console.error('Error fetching reports:', error);
+        setReports([]);
       });
+    }
   }, [data?.user?.id]);
 
   return (

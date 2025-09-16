@@ -46,8 +46,10 @@ const FilesCard = (props: Props) => {
       !params.transportId ||
       files.length === 0
     ) {
-      console.log("No files or offerId or transportId");
-      console.log(files, params?.offerId, params?.transportId);
+      if (process.env.NODE_ENV === 'development') {
+        console.log("No files or offerId or transportId");
+        console.log(files, params?.offerId, params?.transportId);
+      }
       return;
     }
     try {

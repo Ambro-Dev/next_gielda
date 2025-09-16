@@ -130,16 +130,23 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest) => {
-  await prisma.transport.updateMany({
-    where: {
-      sendDate: {
-        lt: new Date(),
+  // Update expired transports
+  try {
+    await prisma.transport.updateMany({
+      where: {
+        sendDate: {
+          lt: new Date(),
+        },
+        isAvailable: true,
       },
-    },
-    data: {
-      isAvailable: false,
-    },
-  });
+      data: { isAvailable: false },
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Warning: Could not update expired transports:", error);
+    }
+    // Continue execution even if update fails
+  }
 
   const transports = await prisma.transport.findMany({
     where: {

@@ -1,73 +1,116 @@
-# Use the official Node.js 18 image as base
-FROM node:18-alpine AS base
+# Optimized production Dockerfile for Next.js App Router
+FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+# Install necessary packages for Prisma and builds
+RUN apk add --no-cache \
+    libc6-compat \
+    openssl \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+# Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+
+# Install dependencies with npm ci for faster, reliable builds
+RUN npm ci --only=production && npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    libc6-compat \
+    openssl \
+    && rm -rf /var/cache/apk/*
+
 WORKDIR /app
+
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client (if needed)
+RUN if [ -f "prisma/schema.prisma" ]; then npx prisma generate; fi
 
-# Build the application
-ENV NEXT_PUBLIC_SERVER_URL=""
-ENV NEXTAUTH_URL=""
-ENV NEXTAUTH_SECRET=""
-ENV NEXTAUTH_PUBLIC_SITE_URL=""
-ENV DATABASE_URL=""
-ENV NEXT_PUBLIC_GOOGLE_MAP_API_KEY=""
-ENV EMAIL_SERVER=""
-ENV EMAIL_FROM=""
-ENV UPLOADTHING_SECRET=""
-ENV UPLOADTHING_APP_ID=""
-ENV SOCKET_IO_PORT="3001"
+# Build-time environment variables
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-RUN npm run build
+# Copy environment variables for build (required for NEXT_PUBLIC_ vars)
+ARG NEXT_PUBLIC_GOOGLE_MAP_API_KEY
+ARG NEXT_PUBLIC_SERVER_URL
+ARG NEXTAUTH_URL
+ENV NEXT_PUBLIC_GOOGLE_MAP_API_KEY=$NEXT_PUBLIC_GOOGLE_MAP_API_KEY
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
-# Production image, copy all the files and run next
+# Use production config if exists
+RUN if [ -f "next.config.prod.js" ]; then cp next.config.prod.js next.config.js; fi
+
+# Build the application with optimizations
+RUN npm run build:prod
+
+# Production image
 FROM base AS runner
+
 WORKDIR /app
 
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    curl \
+    openssl \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Create nextjs user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Set production environment
 ENV NODE_ENV=production
-# Disable Next.js telemetry during runtime
 ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy the built application
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma files
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-USER nextjs
-
-EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start the application
-CMD ["node", "server.prod.js"]
+# Copy public assets (if exists)
+COPY --from=builder /app/public ./public
+
+# Create .next directory with proper permissions
+RUN mkdir .next && chown nextjs:nodejs .next
+
+# Copy built application (standalone includes everything needed for App Router)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy Prisma files only if they exist
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma 
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma 
+
+# Scripts are not needed in production container
+
+# Create logs directory
+RUN mkdir -p logs && chown nextjs:nodejs logs
+
+# Switch to nextjs user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check for App Router
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application (standalone server.js works for App Router)
+CMD ["node", "server.js"]

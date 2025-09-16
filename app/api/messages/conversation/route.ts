@@ -94,26 +94,26 @@ export const GET = async (req: NextRequest) => {
     );
   }
 
-  await prisma.conversation.update({
-    where: {
-      id: conversation.id,
-    },
-    data: {
-      messages: {
-        updateMany: {
-          where: {
-            senderId: {
-              not: userId,
-            },
-            isRead: false,
-          },
-          data: {
-            isRead: true,
-          },
+  // Mark messages as read
+  try {
+    await prisma.message.updateMany({
+      where: {
+        conversationId: conversation.id,
+        senderId: {
+          not: userId,
         },
+        isRead: false,
       },
-    },
-  });
+      data: {
+        isRead: true,
+      },
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Warning: Could not update message read status:", error);
+    }
+    // Continue execution even if update fails
+  }
 
   return NextResponse.json(conversation);
 };

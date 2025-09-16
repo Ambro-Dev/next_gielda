@@ -1,51 +1,113 @@
-version: '3.8'
-
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=mongodb://mongo:27017/next_gielda
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_PUBLIC_SITE_URL=http://localhost:3000
-      - NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-      - NEXT_PUBLIC_GOOGLE_MAP_API_KEY=${NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
-      - EMAIL_SERVER=${EMAIL_SERVER}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - UPLOADTHING_SECRET=${UPLOADTHING_SECRET}
-      - UPLOADTHING_APP_ID=${UPLOADTHING_APP_ID}
-      - SOCKET_IO_PORT=3001
-    depends_on:
-      - mongo
-    volumes:
-      - ./uploads:/app/uploads
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
     restart: unless-stopped
-
-  mongo:
-    image: mongo:6.0
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    restart: unless-stopped
-    environment:
-      - MONGO_INITDB_DATABASE=next_gielda
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - gielda-network
+    command: mongod --replSet rs0 --bind_ip_all
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
 
-  nginx:
+  next-gielda:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_GOOGLE_MAP_API_KEY=${NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
+        - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+        - NEXTAUTH_URL=${NEXTAUTH_URL}
+    container_name: next-gielda-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=mongodb://mongodb:27017/edugielda
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+      # Mount uploads directory if needed
+      - ./uploads:/app/uploads
+    networks:
+      - gielda-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  nginx-proxy:
     image: nginx:alpine
+    container_name: next-gielda-nginx
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - gielda-network
     depends_on:
-      - app
-    restart: unless-stopped
+      - next-gielda
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+
+networks:
+  gielda-network:
+    driver: bridge
+    external: false
 
 volumes:
-  mongo_data:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  logs:
+    driver: local
+  uploads:
+    driver: local

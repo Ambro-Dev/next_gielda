@@ -1,5 +1,9 @@
 "use client";
 
+// Force dynamic rendering to prevent static generation
+export const dynamic = 'force-dynamic';
+
+import dynamicImport from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,10 +33,13 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
-import Lottie from "lottie-react";
+// Dynamically import Lottie to prevent SSR issues
+const Lottie = dynamicImport(() => import("lottie-react"), { ssr: false });
 
 import report_sent from "@/assets/animations/report_sent.json";
-import { UploadButton, UploadDropzone } from "@/utils/uploadthing";
+// Dynamically import UploadThing components to prevent SSR issues
+const UploadButton = dynamicImport(() => import("@/utils/uploadthing").then(mod => ({ default: mod.UploadButton })), { ssr: false });
+const UploadDropzone = dynamicImport(() => import("@/utils/uploadthing").then(mod => ({ default: mod.UploadDropzone })), { ssr: false });
 import Image from "next/image";
 import { Cross, Delete } from "lucide-react";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -150,7 +157,9 @@ const Page = (props: Props) => {
         description: "Zrzut ekranu został usunięty z zgłoszenia",
       });
     } catch (error) {
-      console.log(error);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(error);
+      }
       toast({
         title: "Wystąpił błąd",
         description: "Nie udało się usunąć pliku",
@@ -172,11 +181,14 @@ const Page = (props: Props) => {
               <CardTitle>Uwaga została wysłana</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Lottie
-                className="w-1/2 mx-auto"
-                animationData={report_sent}
-                loop={false}
-              />
+              <div className="w-1/2 mx-auto">
+                <div className="text-center text-green-500 text-6xl mb-4">✓</div>
+                <Lottie
+                  className="w-full"
+                  animationData={report_sent}
+                  loop={false}
+                />
+              </div>
               <CardDescription className="text-center">
                 Twoja uwaga została wysłana. Dziękujemy za pomoc w rozwoju
                 systemu.
@@ -228,29 +240,31 @@ const Page = (props: Props) => {
                   />
                   <div className="w-full h-auto">
                     {!file ? (
-                      <UploadDropzone
-                        endpoint="imageUplaoder"
-                        className="ml-auto ut-button:w-auto ut-button:bg-black ut-button:hover:bg-gray-900 ut-button:px-4 ut-button:py-2 ut-button:rounded-md ut-button:shadow-sm ut-button:text-sm ut-button:font-semibold ut-button:text-white"
-                        content={{
-                          label: "Kliknij lub przeciągnij i upuść plik",
-                          allowedContent({ ready, isUploading }) {
-                            if (!ready) return "Sprawdzanie pliku...";
-                            if (isUploading) return "Przesyłanie...";
-                            return `Kliknij, aby dodać zrzut ekranu`;
-                          },
-                        }}
-                        onClientUploadComplete={(res) => {
-                          // Do something with the response
-                          saveFile(res as UploadthingFile[]);
-                        }}
-                        onUploadError={(error: Error) => {
-                          // Do something with the error.
-                          alert(`ERROR! ${error.message}`);
-                        }}
-                        config={{
-                          mode: "auto",
-                        }}
-                      />
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <UploadDropzone
+                          endpoint="imageUplaoder"
+                          className="ml-auto ut-button:w-auto ut-button:bg-black ut-button:hover:bg-gray-900 ut-button:px-4 ut-button:py-2 ut-button:rounded-md ut-button:shadow-sm ut-button:text-sm ut-button:font-semibold ut-button:text-white"
+                          content={{
+                            label: "Kliknij lub przeciągnij i upuść plik",
+                            allowedContent({ ready, isUploading }) {
+                              if (!ready) return "Sprawdzanie pliku...";
+                              if (isUploading) return "Przesyłanie...";
+                              return `Kliknij, aby dodać zrzut ekranu`;
+                            },
+                          }}
+                          onClientUploadComplete={(res) => {
+                            // Do something with the response
+                            saveFile(res as UploadthingFile[]);
+                          }}
+                          onUploadError={(error: Error) => {
+                            // Do something with the error.
+                            alert(`ERROR! ${error.message}`);
+                          }}
+                          config={{
+                            mode: "auto",
+                          }}
+                        />
+                      </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center rounded-md">
                         <Image

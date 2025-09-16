@@ -1,6 +1,7 @@
 const { createServer } = require("http");
 const { parse } = require("url");
 const next = require("next");
+const { Server } = require("socket.io");
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME || "0.0.0.0";
@@ -32,7 +33,18 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
+  // Initialize admin user on startup - DISABLED FOR DEBUGGING
+  // console.log('🔧 Initializing admin user...');
+  // try {
+  //   await initAdmin();
+  //   console.log('✅ Admin initialization completed');
+  // } catch (error) {
+  //   console.error('❌ Admin initialization failed:', error.message);
+  //   console.error('❌ Admin initialization error details:', error);
+  //   // Don't exit - let the app start anyway
+  // }
+
   const server = createServer(async (req, res) => {
     try {
       // Parse URL
@@ -53,6 +65,14 @@ app.prepare().then(() => {
         return;
       }
 
+      // Handle Socket.IO requests
+      if (pathname === '/api/socket/io') {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Socket.IO endpoint');
+        return;
+      }
+
       // Handle Next.js requests
       await handle(req, res, parsedUrl);
     } catch (err) {
@@ -64,6 +84,29 @@ app.prepare().then(() => {
         message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
       }));
     }
+  });
+
+  // Initialize Socket.IO
+  const io = new Server(server, {
+    path: '/api/socket/io',
+    addTrailingSlash: false,
+    cors: {
+      origin: process.env.NEXTAUTH_PUBLIC_SITE_URL || "https://gielda.fenilo.pl",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  // Socket.IO connection handling
+  io.on('connection', (socket) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Socket.IO client connected:', socket.id);
+    }
+
+    socket.on('disconnect', () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Socket.IO client disconnected:', socket.id);
+      }
+    });
   });
 
   // Set server timeout

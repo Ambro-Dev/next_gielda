@@ -15,7 +15,9 @@ const checkToken = async (token: string) => {
     const response = await axiosInstance.get(
       `api/auth/check-token?token=${token}`
     );
-    console.log(response);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(response);
+    }
     return true;
   } catch (error) {
     console.error(error);
