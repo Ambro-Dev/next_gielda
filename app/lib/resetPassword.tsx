@@ -66,7 +66,16 @@ function html(params: { username: string; link: string }) {
 }
 
 const sendResetPassword = async ({ username, email, link }: Props) => {
-  const transporter = createTransport(process.env.EMAIL_SERVER);
+  const transporter = createTransport({
+    host: process.env.EMAIL_HOST || "mail.fenilo.pl",
+    port: Number(process.env.EMAIL_PORT) || 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER || "",
+      pass: process.env.EMAIL_PASS || "",
+    },
+    tls: { rejectUnauthorized: false },
+  });
   const result = await transporter.sendMail({
     to: email,
     from: process.env.EMAIL_FROM,

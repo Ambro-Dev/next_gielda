@@ -22,17 +22,13 @@ const getBaseURL = () => {
     return window.location.origin;
   }
   
-  // For server-side requests, use the configured server URL or localhost
-  if (serverUrl) {
-    return serverUrl;
-  }
-  
+  // For server-side requests, always use localhost to avoid routing issues
   return "http://localhost:3000";
 };
 
 export const axiosInstance = axios.create({
   baseURL: getBaseURL(),
-  timeout: isBuildMode ? 1000 : 10000, // Short timeout during build
+  timeout: isBuildMode ? 1000 : 120000, // Short timeout during build, 2min for bulk operations
 });
 
 // Override baseURL for client-side requests

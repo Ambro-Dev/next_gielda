@@ -3,8 +3,6 @@ services:
     image: mongo:5.0
     container_name: mongodb
     restart: unless-stopped
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
@@ -41,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=mongodb://mongodb:27017/edugielda
+      - DATABASE_URL=mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/edugielda?authSource=admin&directConnection=true
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
     volumes:
