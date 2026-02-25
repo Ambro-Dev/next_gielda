@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import { NextApiResponseServerIO } from "@/types";
+import { auth } from "@/auth";
 
-export const PUT = async (req: NextRequest, res: NextApiResponseServerIO) => {
+export const PUT = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
 
-  const { message, senderId, receiverId, offerId } = body;
+  const { message, receiverId, offerId } = body;
+  const senderId = session.user.id;
 
   if (!(message || senderId || receiverId || offerId)) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
@@ -88,7 +94,7 @@ export const PUT = async (req: NextRequest, res: NextApiResponseServerIO) => {
   const offerKey = `offer:${offerId}:messages`;
   const receiverKey = `user:${receiverId}:messages`;
 
-  res?.socket?.server?.io?.emit(receiverKey, newMessage);
+  // Socket.io notification is handled client-side via the socket provider
 
   return NextResponse.json({
     message: newMessage,

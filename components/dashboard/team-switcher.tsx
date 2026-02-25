@@ -55,9 +55,8 @@ export default function SchoolSwitcher({
   }
 
   React.useEffect(() => {
-    if (schools?.length > 0) return;
     fetchSchools();
-  }, [schoolId, schools]);
+  }, [schoolId]);
 
   const [open, setOpen] = React.useState(false);
   const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);

@@ -1,58 +1,42 @@
 "use client";
 
-import React, { useMemo, useCallback, useRef } from "react";
+import React from "react";
+import ReactMap, { Marker } from "react-map-gl/mapbox";
 
-import { GoogleMap, Marker } from "@react-google-maps/api";
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-type MapOptions = google.maps.MapOptions;
+const centerOfPoland = { lng: 19.480556, lat: 52.069167 };
 
 interface DataTableProps<TData> {
   data: TData[];
 }
 
 function TransportMap<TData>({ data }: DataTableProps<TData>) {
-  const mapRef = useRef<GoogleMap>();
-
-  const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-  const options = useMemo<MapOptions>(
-    () => ({
-      streetViewControl: false,
-      mapTypeControl: false,
-    }),
-    []
-  );
-
-  const centerOfPoland = {
-    lat: 52.069167,
-    lng: 19.480556,
-  };
-
-  const containerStyle = {
-    width: "100%",
-    height: "100%",
-    minHeight: "300px",
-    borderRadius: "0.5rem",
-  };
   return (
-    <GoogleMap
-      zoom={5}
-      mapContainerClassName="map-container"
-      options={options}
-      onLoad={onLoad}
-      mapContainerStyle={containerStyle}
-      center={centerOfPoland}
+    <ReactMap
+      mapboxAccessToken={MAPBOX_TOKEN}
+      initialViewState={{
+        longitude: centerOfPoland.lng,
+        latitude: centerOfPoland.lat,
+        zoom: 5,
+      }}
+      style={{ width: "100%", height: "100%", minHeight: "300px", borderRadius: "0.5rem" }}
+      mapStyle="mapbox://styles/mapbox/streets-v12"
+      onLoad={(e) => e.target.setLanguage("pl")}
     >
       {data.map((item: any) => (
-        <Marker
-          key={item.id}
-          position={{
-            lat: item.place_lat,
-            lng: item.place_lng,
-          }}
-        />
+        item.place_lat && item.place_lng ? (
+          <Marker
+            key={item.id}
+            longitude={item.place_lng}
+            latitude={item.place_lat}
+            anchor="bottom"
+          >
+            <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-md" />
+          </Marker>
+        ) : null
       ))}
-    </GoogleMap>
+    </ReactMap>
   );
 }
 

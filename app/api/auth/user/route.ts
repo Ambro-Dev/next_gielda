@@ -1,12 +1,12 @@
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export const GET = async (req: NextRequest) => {
-  const userId = req.nextUrl.searchParams.get("userId");
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({ error: "Brakuje ID użytkownika", status: 400 });
-  }
+  const userId = session.user.id;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -78,13 +78,14 @@ export const GET = async (req: NextRequest) => {
 };
 
 export const PUT = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = req.json();
 
-  const { name, surname, userId } = await body;
+  const { name, surname } = await body;
 
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({ error: "Brakuje ID użytkownika", status: 400 });
-  }
+  const userId = session.user.id;
 
   const user = await prisma.user.findUnique({
     where: {

@@ -1,8 +1,7 @@
 import React from "react";
 import { UserTransports } from "./user-transports";
 import { Transport } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
@@ -46,7 +45,7 @@ export type ExtendedTransport = Transport & {
 };
 
 const Market = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const transports: ExtendedTransport[] = await getUserTransports(
     String(session?.user?.id)
   );

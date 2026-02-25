@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 // Force dynamic rendering to prevent static generation
 export const dynamic = 'force-dynamic';
 
 export const GET = async (req: NextRequest) => {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (session.user.role !== "admin" && session.user.role !== "school_admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     // Check if we're in build mode
     if (process.env.BUILD_MODE === "true") {
       return NextResponse.json({

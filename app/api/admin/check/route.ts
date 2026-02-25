@@ -15,9 +15,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ 
-      adminExists: !!adminExists,
-      admin: adminExists
+    return NextResponse.json({
+      adminExists: !!adminExists
     }, { status: 200 });
 
   } catch (error) {

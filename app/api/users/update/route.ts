@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const PUT = async (req: NextRequest) => {
-  const userId = req.nextUrl.searchParams.get("userId");
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!userId) {
-    return NextResponse.json(
-      {
-        error: "userId is required",
-      },
-      { status: 400 }
-    );
-  }
+  const userId = session.user.id;
 
   const body = await req.json();
 

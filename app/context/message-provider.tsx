@@ -81,6 +81,16 @@ const getMessages = async (userId: string) => {
   }
 };
 
+const getUnreadNotifications = async (userId: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/notifications/unread?userId=${userId}`);
+    return response.data || { offers: [], offerMessages: [] };
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return { offers: [], offerMessages: [] };
+  }
+};
+
 const getReports = async () => {
   try {
     const response = await axiosInstance.get("/api/report");
@@ -103,7 +113,9 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!data?.user?.id) return;
-    getMessages(String(data.user.id)).then((messages) => {
+    const userId = String(data.user.id);
+
+    getMessages(userId).then((messages) => {
       if (messages && Array.isArray(messages)) {
         setMessages(
           messages.map((message: any) => ({
@@ -121,7 +133,18 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error fetching messages:', error);
       setMessages([]);
     });
-    
+
+    getUnreadNotifications(userId).then((notifs) => {
+      if (notifs.offers && Array.isArray(notifs.offers)) {
+        setOffers(notifs.offers);
+      }
+      if (notifs.offerMessages && Array.isArray(notifs.offerMessages)) {
+        setOfferMessages(notifs.offerMessages);
+      }
+    }).catch((error) => {
+      console.error('Error fetching notifications:', error);
+    });
+
     if (data?.user?.role === "admin") {
       getReports().then((reports) => {
         if (reports && Array.isArray(reports)) {

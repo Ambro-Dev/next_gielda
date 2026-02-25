@@ -1,7 +1,6 @@
-import { authOptions } from "@/utils/authOptions";
-import { Card, CardContent } from "@/components/ui/card";
+import { auth } from "@/auth";
 import { axiosInstance } from "@/lib/axios";
-import { getServerSession } from "next-auth";
+
 import { redirect } from "next/navigation";
 import { EditTransportForm } from "./EditTransportForm";
 import { Transport } from "../page";
@@ -22,9 +21,9 @@ type School = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     transportId: string;
-  };
+  }>;
 };
 
 const getCategories = async () => {
@@ -76,14 +75,15 @@ const getTransport = async (transportId: string): Promise<Transport> => {
 };
 
 const EditTransport = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+  const { transportId } = await props.params;
+  const session = await auth();
 
   if (!session?.user) redirect("/signin");
 
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
   const school = await getSchool(String(session?.user.id));
-  const transport = await getTransport(String(props.params.transportId));
+  const transport = await getTransport(transportId);
 
   if (!transport) redirect("/");
   if (transport.creator.id !== session?.user.id)
@@ -104,18 +104,22 @@ const EditTransport = async (props: Props) => {
   }));
 
   return (
-    <div className="flex w-full h-full pt-5 pb-10">
-      <Card className="w-full h-full pt-5">
-        <CardContent>
-          <EditTransportForm
-            user={String(session?.user.id)}
-            school={school}
-            transport={transport}
-            vehicles={vehiclesNames}
-            categories={categoriesNames}
-          />
-        </CardContent>
-      </Card>
+    <div className="py-6 space-y-6 pb-10">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Edytuj ogłoszenie
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Zaktualizuj dane zlecenia transportowego.
+        </p>
+      </div>
+      <EditTransportForm
+        user={String(session?.user.id)}
+        school={school}
+        transport={transport}
+        vehicles={vehiclesNames}
+        categories={categoriesNames}
+      />
     </div>
   );
 };

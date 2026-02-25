@@ -6,191 +6,121 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
-
-import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
+import React from "react";
 import Image from "next/image";
-
-import distance_icon from "@/assets/icons/distance.png";
-import time_icon from "@/assets/icons/time.png";
-import date_icon from "@/assets/icons/date.png";
-import user_icon from "@/assets/icons/user.png";
-import vehicle_icon from "@/assets/icons/vehicle.png";
-import arrow_icon from "@/assets/icons/arrow.png";
-
+import { Truck, Calendar, Navigation, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Transport } from "@/app/(private)/transport/page";
 
-type LatLngLiteral = google.maps.LatLngLiteral;
-
-type MapOptions = google.maps.MapOptions;
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const CardWithMap = ({ transport }: { transport: Transport }) => {
   const date = new Date(transport.sendDate);
-  const [center, setCenter] = useState<String | null>(null);
-  const [zoom, setZoom] = useState<number | null>(null);
   const formatedDate = date.toLocaleDateString("pl-PL", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
     day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
-  const getCenter = (): String => {
-    const start = transport.directions.start;
-    const finish = transport.directions.finish;
-    const lat = (start.lat + finish.lat) / 2;
-    const lng = (start.lng + finish.lng) / 2;
+  const start = transport.directions?.start;
+  const finish = transport.directions?.finish;
 
-    return `${lat},${lng}`;
+  const getMapboxStaticUrl = () => {
+    if (!start || !finish || !MAPBOX_TOKEN) return null;
+    const markers = `pin-s-a+FCAC0C(${start.lng},${start.lat}),pin-s-b+1A1A2E(${finish.lng},${finish.lat})`;
+    const path = transport.polyline
+      ? `,path-5+FCAC0C-0.9(${encodeURIComponent(transport.polyline)})`
+      : "";
+    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${markers}${path}/auto/500x350@2x?language=pl&access_token=${MAPBOX_TOKEN}`;
   };
 
-  const getZoomLevel = (): number => {
-    const start = transport.directions.start;
-    const finish = transport.directions.finish;
-    const lat = Math.abs(start.lat - finish.lat);
-    const lng = Math.abs(start.lng - finish.lng);
-    return Math.max(lat, lng);
-  };
+  const mapUrl = getMapboxStaticUrl();
 
-  useEffect(() => {
-    setCenter(getCenter());
-    setZoom(getZoomLevel());
-  }, [transport]);
-
-  const mapRef = useRef<GoogleMap>();
-
-  const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-  const options = useMemo<MapOptions>(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: false,
-      zoomControl: false,
-      fullscreenControl: false,
-      streetViewControl: false,
-      mapTypeControl: false,
-      disableDoubleClickZoom: true,
-      scrollwheel: false,
-      gestureHandling: "none",
-    }),
-    []
-  );
-
-  const containerStyle = {
-    width: "100%",
-    height: "300px",
-    borderRadius: "0.5rem",
-  };
   return (
-    <Card className="flex flex-col transition-all duration-500 hover:scale-[102%] hover:shadow-md">
-      <CardHeader className="h-80 relative">
-        {center && zoom && (
-          <Image
-            src={`https://maps.googleapis.com/maps/api/staticmap?language=pl&size=500x350&scale=2&visible=77+${transport.start_address}%7C${transport.end_address}&markers=color:red%7Clabel:A%7C${transport.directions.start.lat},${transport.directions.start.lng}&markers=color:red%7Clabel:B%7C${transport.directions.finish.lat},${transport.directions.finish.lng}&path=weight:5%7Ccolor:0x0000ff80%7Cenc:${transport.polyline}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`}
-            fill
-            className="object-cover p-[2px] rounded-md pb-5"
-            alt="map"
-            sizes="100%"
-            priority
-          />
-        )}
-      </CardHeader>
-      <div className="grow">
-        <CardContent>
-          <div className="flex mb-6 flex-row items-center justify-around w-full gap-2">
-            <div className="flex flex-row items-center gap-2">
-              <Badge>{transport.category.name}</Badge>
+    <Link href={`/transport/${transport.id}`} className="block group">
+      <Card className="flex flex-col overflow-hidden border border-border shadow-card transition-all duration-200 group-hover:shadow-card-hover group-hover:-translate-y-0.5">
+        {/* Map Image */}
+        <CardHeader className="p-0 h-48 relative overflow-hidden">
+          {mapUrl ? (
+            <Image
+              src={mapUrl}
+              fill
+              className="object-cover"
+              alt="Mapa trasy"
+              sizes="(max-width: 768px) 100vw, 400px"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Navigation className="w-10 h-10 text-muted-foreground/30" />
             </div>
-            <div className="flex flex-row items-center justify-center gap-2">
-              <Image src={user_icon} alt="user" width={24} height={24} />
-              <span className="text-sm font-bold">
-                {transport.creator.name
-                  ? transport.creator.name
-                  : transport.creator.student?.name}{" "}
-                {transport.creator.surname
-                  ? transport.creator.surname.substring(0, 1) + "."
-                  : transport.creator.student?.surname?.substring(0, 1) + "."}
+          )}
+          <div className="absolute top-3 left-3">
+            <Badge
+              variant="secondary"
+              className="bg-white/90 text-foreground shadow-sm backdrop-blur-sm text-xs font-medium"
+            >
+              {transport.category.name}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        {/* Content */}
+        <CardContent className="p-4 flex-grow space-y-3">
+          {/* Route */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-[8px] font-bold text-white">A</span>
+              </div>
+              <span className="text-sm text-foreground line-clamp-1">
+                {transport.start_address || "—"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-shrink-0 w-4 h-4 rounded-full bg-navy flex items-center justify-center">
+                <span className="text-[8px] font-bold text-white">B</span>
+              </div>
+              <span className="text-sm text-foreground line-clamp-1">
+                {transport.end_address || "—"}
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 px-5">
-            <div className="flex flex-row items-center gap-2">
-              <Image src={vehicle_icon} alt="date" width={24} height={24} />
-              <span className="text-sm font-bold capitalize">
-                {transport.vehicle.name}
-              </span>
-            </div>
-            <div className="flex flex-row items-center gap-2">
-              <Image src={date_icon} alt="date" width={24} height={24} />
-              <span className="text-sm font-bold">{formatedDate}</span>
-            </div>
 
-            <div className="flex flex-row items-center gap-2">
-              <Image
-                src={distance_icon}
-                alt="distance"
-                width={24}
-                height={24}
-              />
-              <span className="text-sm font-bold">
-                {transport.distance?.text}
-              </span>
+          {/* Metadata */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{formatedDate}</span>
             </div>
-            <div className="flex flex-row items-center gap-2">
-              <Image src={time_icon} alt="time" width={24} height={24} />
-              <span className="text-sm font-bold">
-                {transport.duration?.text}
-              </span>
+            <div className="flex items-center gap-1">
+              <Truck className="w-3.5 h-3.5" />
+              <span className="capitalize">{transport.vehicle.name}</span>
             </div>
-          </div>
-          <div className="flex flex-row pt-6 items-start">
-            <div className="flex flex-col items-center justify-start h-full w-5/12">
-              <Image
-                src="https://img.icons8.com/stickers/100/marker-a.png"
-                width={48}
-                height={48}
-                alt="start"
-                priority
-              />
-              <span className="text-sm font-bold text-center">
-                {transport.start_address}
-              </span>
-            </div>
-            <div className="flex items-center justify-center my-auto w-2/12">
-              <Image src={arrow_icon} alt="arrow" width={36} height={36} />
-            </div>
-
-            <div className="flex flex-col items-center justify-between w-5/12">
-              <Image
-                src="https://img.icons8.com/stickers/100/marker-b.png"
-                width={48}
-                height={48}
-                alt="start"
-                priority
-              />
-              <span className="text-sm font-bold text-center">
-                {transport.end_address}
-              </span>
-            </div>
+            {transport.distance?.text && (
+              <div className="flex items-center gap-1">
+                <Navigation className="w-3.5 h-3.5" />
+                <span>{transport.distance.text}</span>
+              </div>
+            )}
+            {transport.duration?.text && (
+              <div className="flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{transport.duration.text}</span>
+              </div>
+            )}
           </div>
         </CardContent>
-      </div>
 
-      <CardFooter>
-        <Link href={`/transport/${transport.id}`} className="w-full">
-          <Button className="w-full">Zobacz ogłoszenie</Button>
-        </Link>
-      </CardFooter>
-    </Card>
+        {/* Footer */}
+        <CardFooter className="px-4 pb-4 pt-0">
+          <span className="text-sm text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1">
+            Zobacz szczegóły
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 };
 

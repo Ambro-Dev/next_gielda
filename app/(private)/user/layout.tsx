@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
+
 import React from "react";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) redirect("/signin");
   return <>{children}</>;
 };

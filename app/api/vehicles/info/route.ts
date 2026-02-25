@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import { VehiclesTableType } from "@/lib/types/vehicles";
-import { getToken } from "next-auth/jwt";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const id = req.nextUrl.searchParams.get("id");
 
   if (!id) {

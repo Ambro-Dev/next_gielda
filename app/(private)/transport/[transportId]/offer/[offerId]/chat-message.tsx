@@ -24,6 +24,7 @@ type Props = {
 
 const ChatMessage = (props: Props) => {
   const { message, user, className } = props;
+  const isUser = message.sender.id === user;
   const hourAndMinute = new Intl.DateTimeFormat("pl", {
     hour: "numeric",
     minute: "numeric",
@@ -36,32 +37,44 @@ const ChatMessage = (props: Props) => {
   return (
     <div
       className={cn(
-        `chat ${message.sender.id === user ? "chat-end" : "chat-start"}`,
+        `flex ${isUser ? "justify-end" : "justify-start"} gap-2 mb-3`,
         className
       )}
     >
-      <div className="chat-image avatar">
-        <Avatar>
-          <AvatarFallback className="uppercase">
+      {!isUser && (
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarFallback className="uppercase text-xs">
             {message.sender.username.substring(0, 1)}
           </AvatarFallback>
         </Avatar>
+      )}
+
+      <div className={`max-w-[75%] ${isUser ? "text-right" : ""}`}>
+        <div className="text-xs text-gray-500 mb-0.5">
+          {message.sender.username}
+          <span className="ml-1.5 opacity-70">
+            {date === today ? "Dzisiaj" : date === yesterday ? "Wczoraj" : date}
+            , {hourAndMinute}
+          </span>
+        </div>
+        <div
+          className={`inline-block px-3 py-2 rounded-lg text-sm ${
+            isUser
+              ? "bg-gray-900 text-white rounded-br-sm"
+              : "bg-gray-100 text-gray-900 rounded-bl-sm"
+          }`}
+        >
+          {message.text}
+        </div>
       </div>
 
-      <div className="chat-header">
-        {message.sender.username}
-        <time className="text-xs opacity-50 p-1">
-          {date === today ? "Dzisiaj" : date === yesterday ? "Wczoraj" : date},{" "}
-          {hourAndMinute}
-        </time>
-      </div>
-      <div
-        className={`chat-bubble text-black text-md ${
-          message.sender.id === user ? "chat-bubble-warning" : "bg-neutral-200"
-        } `}
-      >
-        {message.text}
-      </div>
+      {isUser && (
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarFallback className="uppercase text-xs">
+            {message.sender.username.substring(0, 1)}
+          </AvatarFallback>
+        </Avatar>
+      )}
     </div>
   );
 };

@@ -17,8 +17,7 @@ import zlecenie from "@/assets/images/zlecenie.png";
 import cmr from "@/assets/images/cmr.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-
-type Props = {};
+import { Download, FileText } from "lucide-react";
 
 const documents = [
   {
@@ -73,32 +72,56 @@ const handleDownload = (url: string, filename: string) => {
   link.remove();
 };
 
-const Page = (props: Props) => {
+const Page = () => {
   return (
-    <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mb-5">
-      {documents.map((document) => (
-        <Card key={document.id} className="flex flex-col p-3">
-          <CardHeader>
-            <CardTitle>{document.title}</CardTitle>
-            <CardDescription>{document.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="grow">
-            <Image
-              src={document.image}
-              alt={`document-image-${document.id}`}
-              draggable={false}
-            />
-          </CardContent>
-          <CardFooter>
-            <Button
-              onClick={() => handleDownload(document.url, document.title)}
-              className="w-full"
-            >
-              Pobierz
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+    <div className="py-6 space-y-6 mb-5">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Dokumenty do pobrania
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Wzory dokumentów przydatnych w branży transportowej.
+        </p>
+      </div>
+      <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+        {documents.map((document) => (
+          <Card
+            key={document.id}
+            className="flex flex-col border border-gray-200 shadow-sm"
+          >
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <span className="text-xs font-medium text-gray-400 uppercase">
+                  {document.type}
+                </span>
+              </div>
+              <CardTitle className="text-base">{document.title}</CardTitle>
+              <CardDescription className="text-sm">
+                {document.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grow">
+              <Image
+                src={document.image}
+                alt={`document-image-${document.id}`}
+                draggable={false}
+                className="rounded-md"
+              />
+            </CardContent>
+            <CardFooter className="pt-0">
+              <Button
+                variant="outline"
+                onClick={() => handleDownload(document.url, document.title)}
+                className="w-full"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Pobierz
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
-import { Input } from "./ui/input";
+import React, { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -10,117 +9,123 @@ import {
 } from "./ui/tooltip";
 import { Button } from "./ui/button";
 import TransportMapSelector from "./TransportMapSelector";
-import { LatLng } from "use-places-autocomplete";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2, Navigation, X } from "lucide-react";
+// @ts-expect-error - no type declarations for @mapbox/polyline
+import * as polyline from "@mapbox/polyline";
+import { Badge } from "./ui/badge";
+import { calculateSearchRadius } from "@/lib/geo-utils";
 
-type Props = {};
+type LatLng = { lat: number; lng: number };
 
-const SearchNearby = (props: Props) => {
-  const router = useRouter();
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-  const searchParams =
-    useSearchParams() ||
-    new URLSearchParams({
-      from: "",
-      to: "",
-    });
+type Props = {
+  onRouteFound: (
+    polylinePoints: [number, number][],
+    routeLengthKm: number
+  ) => void;
+  onRouteClear: () => void;
+};
 
-  const [searchString, setSearchString] = useState<string>(
-    searchParams.toString()
-  );
-
+const SearchNearby = ({ onRouteFound, onRouteClear }: Props) => {
   const [from, setFrom] = useState<LatLng | null>(null);
   const [to, setTo] = useState<LatLng | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [activeRoute, setActiveRoute] = useState<{
+    radiusKm: number;
+  } | null>(null);
 
-  const [fromString, setFromString] = useState<string | null>(
-    searchParams.get("from")
-  );
-  const [toString, setToString] = useState<string | null>(
-    searchParams.get("to")
-  );
+  const handleSearch = async () => {
+    if (!from || !to || !MAPBOX_TOKEN) return;
 
-  useEffect(() => {
-    setFromString(searchParams.get("from"));
-    setToString(searchParams.get("to"));
-  }, [searchParams]);
+    setLoading(true);
+    try {
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from.lng},${from.lat};${to.lng},${to.lat}?geometries=polyline&access_token=${MAPBOX_TOKEN}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-  useEffect(() => {
-    if (fromString) {
-      setFrom({
-        lat: parseFloat(fromString.split(",")[0]),
-        lng: parseFloat(fromString.split(",")[1]),
-      });
+      if (!data.routes || data.routes.length === 0) return;
+
+      const route = data.routes[0];
+      const decoded = polyline.decode(route.geometry) as [number, number][];
+      const routeLengthKm = route.distance / 1000;
+      const radiusKm = calculateSearchRadius(routeLengthKm);
+
+      setActiveRoute({ radiusKm });
+      onRouteFound(decoded, routeLengthKm);
+    } catch (error) {
+      console.error("Błąd pobierania trasy:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [fromString]);
-
-  useEffect(() => {
-    if (toString) {
-      setTo({
-        lat: parseFloat(toString.split(",")[0]),
-        lng: parseFloat(toString.split(",")[1]),
-      });
-    }
-  }, [toString]);
-
-  const handleFromChange = (from: LatLng) => {
-    setFrom(from);
-    if (fromString === `${from.lat},${from.lng}`) return;
-    else
-      setSearchString(
-        searchString.replace(
-          `from=${fromString}`,
-          `from=${from.lat},${from.lng}`
-        )
-      );
   };
 
-  const handleToChange = (to: LatLng) => {
-    setTo(to);
-    if (toString === `${to.lat},${to.lng}`) return;
-    else
-      setSearchString(
-        searchString.replace(`to=${toString}`, `to=${to.lat},${to.lng}`)
-      );
-  };
-
-  const handleSearch = () => {
-    router.push(`/transport?${searchString}`);
+  const handleClear = () => {
+    setFrom(null);
+    setTo(null);
+    setActiveRoute(null);
+    onRouteClear();
   };
 
   return (
-    <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-4 py-7 px-3">
-      <div className="w-full flex flex-col gap-4">
-        <div className="w-full flex flex-row gap-4">
+    <div className="space-y-2">
+      <div className="flex flex-col sm:flex-row w-full gap-3 py-4">
+        <div className="flex flex-1 flex-col sm:flex-row gap-3">
           <TransportMapSelector
-            setPlace={handleFromChange}
+            setPlace={(place) => setFrom(place)}
             placeholder="Skąd"
           />
-          <TransportMapSelector setPlace={handleToChange} placeholder="Dokąd" />
+          <TransportMapSelector
+            setPlace={(place) => setTo(place)}
+            placeholder="Dokąd"
+          />
+        </div>
+        <div className="flex gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={handleSearch}
+                  disabled={!from || !to || loading}
+                  className="sm:w-auto w-full gap-2"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Navigation className="w-4 h-4" />
+                  )}
+                  Szukaj przy trasie
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>
+                  Wyszukaj ogłoszenia, których lokalizacje znajdują się w pobliżu
+                  Twojej trasy. Wyszukane zostaną wyniki w odległości ok. 10%
+                  długości Twojej trasy, jednak nie bliżej niż 5km i nie dalej
+                  niż 50km od trasy.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {activeRoute && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClear}
+              className="text-gray-500"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
-
-      <div className="flex justify-center flex-col items-center w-full gap-4">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className="w-full hover:bg-neutral-800 bg-transparent border-2 hover:text-white border-neutral-800 text-black"
-                onClick={handleSearch}
-              >
-                Szukaj przy trasie
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <p>
-                Wyszukaj ogłoszenia, których lokalizacje znajdują się w pobliżu
-                Twojej trasy. Wyszukane zostaną wyniki w odległości ok. 10%
-                długości Twojej trasy licząc w linii prostej, jednak nie bliżej
-                niż 5km i nie dalej niż 50km od trasy.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      {activeRoute && (
+        <Badge variant="secondary" className="text-xs font-normal gap-1.5">
+          <Navigation className="w-3 h-3" />
+          Szukanie w promieniu {Math.round(activeRoute.radiusKm)} km od trasy
+        </Badge>
+      )}
     </div>
   );
 };

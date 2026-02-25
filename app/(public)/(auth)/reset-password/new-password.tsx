@@ -178,7 +178,7 @@ const NewPassword = (props: Props) => {
                 )}
               </Button>
             </div>
-            <div className="w-full flex justify-center items-center transition-all duration-500 bg-neutral-800">
+            <div className="w-full flex justify-center items-center transition-all duration-500 rounded-md">
               {form.formState.isSubmitting ? (
                 <Button
                   className="w-full"

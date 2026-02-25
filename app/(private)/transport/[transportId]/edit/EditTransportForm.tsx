@@ -18,11 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ComboBox } from "@/components/ComboBox";
-import SelectBox from "@/components/SelectBox";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/DatePicker";
 import TransportObjectsCard from "@/components/TransportObjectsCard";
-import TransportMapSelector from "@/components/TransportMapSelector";
 import NewTransportMapCard from "@/components/NewTransportMapCard";
 import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
@@ -33,54 +31,31 @@ import CurrentTransportMap from "./CurrentMap";
 import { CategoryComboBox } from "@/components/CategoryComboBox";
 import { Loader2 } from "lucide-react";
 
-type DirectionsResult = google.maps.DirectionsResult;
-type LatLngLiteral = google.maps.LatLngLiteral;
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const formSchema = z
   .object({
     category: z
-      .string({
-        required_error: "Wybierz kategorię.",
-      })
-      .min(1, {
-        message: "Wybierz kategorię.",
-      }),
+      .string({ required_error: "Wybierz kategorię." })
+      .min(1, { message: "Wybierz kategorię." }),
     vehicle: z
-      .string({
-        required_error: "Wybierz typ pojazdu.",
-      })
-      .min(1, {
-        message: "Wybierz typ pojazdu.",
-      }),
+      .string({ required_error: "Wybierz typ pojazdu." })
+      .min(1, { message: "Wybierz typ pojazdu." }),
     description: z
-      .string({
-        required_error: "Podaj opis.",
-      })
-      .min(1, {
-        message: "Podaj opis.",
-      }),
+      .string({ required_error: "Podaj opis." })
+      .min(1, { message: "Podaj opis." }),
     sendDate: z
-      .date({
-        required_error: "Podaj datę wysyłki.",
-      })
-      .min(new Date(), {
-        message: "Nieprawidłowa data wysyłki.",
-      }),
+      .date({ required_error: "Podaj datę wysyłki." })
+      .min(new Date(), { message: "Nieprawidłowa data wysyłki." }),
     sendTime: z
-      .string({
-        required_error: "Podaj godzinę wysyłki.",
-      })
-      .min(1, {
-        message: "Podaj godzinę wysyłki.",
-      }),
+      .string({ required_error: "Podaj godzinę wysyłki." })
+      .min(1, { message: "Podaj godzinę wysyłki." }),
     receiveDate: z
       .date({ required_error: "Podaj datę dostawy." })
-      .min(new Date(), {
-        message: "Nieprawidłowa data dostawy.",
-      }),
-    receiveTime: z.string({ required_error: "Podaj godzinę dostawy." }).min(1, {
-      message: "Podaj godzinę dostawy.",
-    }),
+      .min(new Date(), { message: "Nieprawidłowa data dostawy." }),
+    receiveTime: z
+      .string({ required_error: "Podaj godzinę dostawy." })
+      .min(1, { message: "Podaj godzinę dostawy." }),
   })
   .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
@@ -98,21 +73,33 @@ type Objects = {
   amount: number;
 };
 
-type Destination = {
-  lat: number;
-  lng: number;
+type Destination = { lat: number; lng: number };
+
+type DirectionsData = {
+  distance: { text: string; value: number };
+  duration: { text: string; value: number };
+  start_address: string;
+  end_address: string;
+  polyline: string;
 };
 
 type School = {
   id: string;
-  administrators: {
-    id: string;
-  }[];
+  administrators: { id: string }[];
 };
 
-type Settings = {
-  id: string;
-  name: string;
+type Settings = { id: string; name: string };
+
+const formatDistance = (meters: number) => {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+};
+
+const formatDuration = (seconds: number) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h === 0) return `${m} min`;
+  return `${h} godz ${m} min`;
 };
 
 export function EditTransportForm({
@@ -131,16 +118,25 @@ export function EditTransportForm({
     receiveTime: string;
   };
 }) {
-  const [alert, setAlert] = React.useState<{
-    error: string;
-  }>({ error: "" });
+  const [alert, setAlert] = React.useState<{ error: string }>({ error: "" });
   const { toast } = useToast();
   const router = useRouter();
-  const { data, status } = useSession();
+  const { data } = useSession();
 
-  const [directionsLeg, setDirectionsLeg] =
-    React.useState<google.maps.DirectionsLeg>();
-  const [directions, setDirections] = React.useState<DirectionsResult>();
+  // Initialize directionsData from the existing transport
+  const [directionsData, setDirectionsData] =
+    React.useState<DirectionsData | null>(() => {
+      if (transport.distance && transport.duration) {
+        return {
+          distance: transport.distance as { text: string; value: number },
+          duration: transport.duration as { text: string; value: number },
+          start_address: transport.start_address || "",
+          end_address: transport.end_address || "",
+          polyline: (transport as any).polyline || "",
+        };
+      }
+      return null;
+    });
 
   const [objects, setObjects] = React.useState<Objects[]>([]);
   const [startDestination, setStartDestination] = React.useState<
@@ -149,6 +145,13 @@ export function EditTransportForm({
   const [endDestination, setEndDestination] = React.useState<
     Destination | undefined
   >(undefined);
+
+  // Refs for addresses — initialized from existing transport, updated when user picks a new place
+  const startAddressRef = React.useRef<string>(transport.start_address || "");
+  const endAddressRef = React.useRef<string>(transport.end_address || "");
+
+  // Track whether the first direction-fetch should be skipped (initial load)
+  const skipInitialFetch = React.useRef(true);
 
   React.useEffect(() => {
     if (transport.objects) {
@@ -162,30 +165,40 @@ export function EditTransportForm({
 
   React.useEffect(() => {
     if (!startDestination || !endDestination) return;
-    fetchDirections(startDestination as LatLngLiteral);
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
+    fetchDirections(startDestination, endDestination);
   }, [startDestination, endDestination]);
 
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!endDestination || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: endDestination,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-          setDirectionsLeg(result.routes[0].legs[0]);
-        }
+  const fetchDirections = async (start: Destination, end: Destination) => {
+    if (!MAPBOX_TOKEN) return;
+    try {
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=polyline&access_token=${MAPBOX_TOKEN}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.routes?.[0]) {
+        const route = json.routes[0];
+        setDirectionsData({
+          distance: {
+            text: formatDistance(route.distance),
+            value: route.distance,
+          },
+          duration: {
+            text: formatDuration(route.duration),
+            value: route.duration,
+          },
+          start_address: startAddressRef.current,
+          end_address: endAddressRef.current,
+          polyline: route.geometry,
+        });
       }
-    );
+    } catch (error) {
+      console.error("Error fetching Mapbox directions:", error);
+    }
   };
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -199,14 +212,10 @@ export function EditTransportForm({
     },
   });
 
-  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const objectsWithoutId = objects.map((object) => {
-      const { id, ...rest } = object;
-      return rest;
-    });
+    const objectsWithoutId = objects.map(({ id, ...rest }) => rest);
 
-    if (!directionsLeg || !directions) {
+    if (!directionsData || !startDestination || !endDestination) {
       setAlert({ error: "Nie wybrano trasy." });
       return toast({
         title: "Błąd",
@@ -223,11 +232,11 @@ export function EditTransportForm({
         start: startDestination,
         finish: endDestination,
       },
-      distance: directionsLeg.distance,
-      duration: directionsLeg.duration,
-      start_address: directionsLeg.start_address,
-      end_address: directionsLeg.end_address,
-      polyline: directions.routes[0].overview_polyline,
+      distance: directionsData.distance,
+      duration: directionsData.duration,
+      start_address: directionsData.start_address,
+      end_address: directionsData.end_address,
+      polyline: directionsData.polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
@@ -261,33 +270,22 @@ export function EditTransportForm({
   };
 
   const alertBox = (
-    <div className="alert alert-error">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="stroke-current shrink-0 h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
+    <div className="flex items-center gap-3 p-4 rounded-lg border border-red-200 bg-red-50 text-red-800 text-sm">
       <span>{alert.error}</span>
     </div>
   );
 
   return (
-    <div className="space-y-8">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8"
-          id="transport-form"
-        >
-          <div className="w-full grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-8">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+        id="transport-form"
+      >
+        {/* Basic info section */}
+        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
+          <h2 className="text-base font-semibold">Podstawowe informacje</h2>
+          <div className="w-full grid sm:grid-cols-2 grid-cols-1 gap-6">
             <FormField
               control={form.control}
               name="category"
@@ -313,7 +311,7 @@ export function EditTransportForm({
               name="vehicle"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Typ pojazdu transportwoego*</FormLabel>
+                  <FormLabel>Typ pojazdu transportowego*</FormLabel>
                   <FormControl>
                     <ComboBox
                       data={vehicles}
@@ -347,7 +345,12 @@ export function EditTransportForm({
               </FormItem>
             )}
           />
-          <div className="w-full grid-cols-1 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        </div>
+
+        {/* Dates section */}
+        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
+          <h2 className="text-base font-semibold">Termin transportu</h2>
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <FormField
               control={form.control}
               name="sendDate"
@@ -419,8 +422,10 @@ export function EditTransportForm({
               )}
             />
           </div>
-        </form>
-      </Form>
+        </div>
+      </form>
+
+      {/* Map section */}
       <Tabs defaultValue="current" className="space-y-4">
         <TabsList>
           <TabsTrigger value="current">Obecna trasa</TabsTrigger>
@@ -435,20 +440,30 @@ export function EditTransportForm({
             setStartDestination={setStartDestination}
             startDestination={startDestination}
             endDestination={endDestination}
+            setStartAddress={(addr) => {
+              startAddressRef.current = addr;
+            }}
+            setEndAddress={(addr) => {
+              endAddressRef.current = addr;
+            }}
           />
         </TabsContent>
       </Tabs>
+
       {alert.error !== "" && alertBox}
+
+      {/* Objects section */}
       <TransportObjectsCard
         objects={objects}
         setObjects={setObjects}
         edit={true}
       />
+
+      {/* Submit */}
       <div className="w-full flex justify-end items-center gap-4">
         <Button
           type="button"
           variant="outline"
-          className="w-full"
           onClick={() => router.back()}
         >
           Anuluj
@@ -456,12 +471,11 @@ export function EditTransportForm({
         <Button
           type="button"
           onClick={form.handleSubmit(onSubmit)}
-          className="w-full"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? (
-            <div className="flex flex-row items-center justify-center">
-              <Loader2 className="animate-spin" size={16} />
+            <div className="flex items-center gap-2">
+              <Loader2 className="animate-spin w-4 h-4" />
               <span>Zapisywanie...</span>
             </div>
           ) : (
@@ -469,6 +483,6 @@ export function EditTransportForm({
           )}
         </Button>
       </div>
-    </div>
+    </Form>
   );
 }

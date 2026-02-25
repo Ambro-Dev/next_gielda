@@ -1,45 +1,45 @@
-import Link from "next/link";
 import React from "react";
-import { Button } from "@/components/ui/button";
-import SearchNearby from "../SearchNearby";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 
-type Props = {};
-
-const TransportsSkeleton = (props: Props) => {
-  const renderSkeletons = Array.from({ length: 4 }).map((_, index) => (
+const TransportsSkeleton = () => {
+  const renderSkeletons = Array.from({ length: 6 }).map((_, index) => (
     <div
       key={index}
-      className="flex h-[600px] w-full flex-col transition-all duration-500 hover:scale-[102%] hover:shadow-md gap-6"
+      className="flex flex-col rounded-lg border border-gray-200 overflow-hidden"
     >
-      <div className="h-1/2  bg-neutral-300 rounded-md" />
-      <div className="h-44 px-5 py-3">
-        <div className="grid mb-6 grid-cols-2 items-center justify-around w-full gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="w-full h-10 bg-neutral-300 rounded-md" />
-          ))}
+      <div className="h-48 bg-gray-200 animate-pulse" />
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
+        <div className="flex gap-2">
+          <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
+          <div className="h-6 bg-gray-200 rounded w-16 animate-pulse" />
         </div>
+        <div className="flex gap-4">
+          <div className="h-3 bg-gray-200 rounded w-20 animate-pulse" />
+          <div className="h-3 bg-gray-200 rounded w-20 animate-pulse" />
+        </div>
+        <div className="h-4 bg-gray-200 rounded w-28 animate-pulse mt-2" />
       </div>
-      <div className="w-full h-12 bg-neutral-300 rounded-md" />
     </div>
   ));
+
   return (
     <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
-      <Link href="/transport/add">
-        <Button
-          className="rounded-full bg-amber-500 w-full transition-all duration-500"
-          size="lg"
-        >
-          Dodaj ogłoszenie
-        </Button>
-      </Link>
-      <SearchNearby />
-      <div className="flex lg:flex-row flex-col w-full gap-4">
-        <div className="lg:w-1/5 lg:visible collapse w-0 lg:min-h-screen h-0 bg-neutral-300 rounded-md" />
-        <div className="grid sm:grid-cols-2 grid-cols-1 w-full gap-8 md:px-0 px-5">
-          {renderSkeletons}
+      {/* Search nearby placeholder */}
+      <div className="flex flex-col sm:flex-row w-full gap-3 py-4">
+        <div className="flex flex-1 flex-col sm:flex-row gap-3">
+          <div className="h-10 bg-gray-200 rounded flex-1 animate-pulse" />
+          <div className="h-10 bg-gray-200 rounded flex-1 animate-pulse" />
         </div>
+        <div className="h-10 bg-gray-200 rounded w-40 animate-pulse" />
+      </div>
+      {/* Filter bar skeleton */}
+      <div className="flex items-center gap-3 py-4 border-b border-gray-200 mb-6">
+        <div className="h-9 bg-gray-200 rounded w-28 animate-pulse" />
+        <div className="h-9 bg-gray-200 rounded w-28 animate-pulse" />
+        <div className="h-9 bg-gray-200 rounded w-20 animate-pulse" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
+        {renderSkeletons}
       </div>
     </div>
   );

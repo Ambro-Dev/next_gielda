@@ -17,8 +17,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies with npm ci for faster, reliable builds
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev for building)
+RUN npm ci --legacy-peer-deps && npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -45,10 +45,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Copy environment variables for build (required for NEXT_PUBLIC_ vars)
-ARG NEXT_PUBLIC_GOOGLE_MAP_API_KEY
+ARG NEXT_PUBLIC_MAPBOX_TOKEN
 ARG NEXT_PUBLIC_SERVER_URL
 ARG NEXTAUTH_URL
-ENV NEXT_PUBLIC_GOOGLE_MAP_API_KEY=$NEXT_PUBLIC_GOOGLE_MAP_API_KEY
+ENV NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 

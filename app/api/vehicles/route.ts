@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
 
-  const { description, size, userId, type, name, place } = body;
+  const { description, size, type, name, place } = body;
 
-  if (!description || !size || !userId || !type || !name || !place) {
+  if (!description || !size || !type || !name || !place) {
     return NextResponse.json(
       {
         error:
-          "Brakuje wymaganych pól (pola wymagane: typ pojazdu, wymiary, ID użytkownika, opis, miejsce, nazwa)",
+          "Brakuje wymaganych pól (pola wymagane: typ pojazdu, wymiary, opis, miejsce, nazwa)",
       },
       { status: 400 }
     );
   }
+
+  const userId = session.user.id;
 
   const vehicle = await prisma.usersVehicles.create({
     data: {
@@ -63,6 +69,9 @@ type VehiclesTableType = {
 };
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const vehicles = await prisma.usersVehicles.findMany({
     include: {
       user: true,

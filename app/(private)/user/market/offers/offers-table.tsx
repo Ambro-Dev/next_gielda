@@ -1,21 +1,12 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import Map from "@/components/Map";
+import { Badge } from "@/components/ui/badge";
 import Directions from "@/components/Directions";
-import { Card } from "@/components/ui/card";
 import { ExtendedOffer } from "./page";
 import Link from "next/link";
 import { useMessages } from "@/app/context/message-provider";
+import { Package } from "lucide-react";
 
 export function OffersTable({
   data,
@@ -26,62 +17,62 @@ export function OffersTable({
 }) {
   const { offers, offerMessages } = useMessages();
 
+  const hasNotification = (itemId: string) =>
+    offers?.find((offer) => offer.id === itemId) ||
+    offerMessages?.find((message) => message.offer?.id === itemId);
+
+  if (!data?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+        <Package className="w-10 h-10 mb-3" />
+        <p className="text-sm">Brak ofert</p>
+      </div>
+    );
+  }
+
   return (
-    <Table>
-      <TableCaption>{title}</TableCaption>
-      <TableBody>
-        {data?.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell className="sm:px-0 px-1">
-              <Card
-                className={`${
-                  (offers?.find((offer) => offer.id === item.id) ||
-                    offerMessages?.find(
-                      (message) => message.offer?.id === item.id
-                    )) &&
-                  "drop-shadow-md"
-                } relative flex md:flex-row flex-col md:justify-between items-center gap-4 p-3`}
-              >
-                {(offers?.find((offer) => offer.id === item.id) ||
-                  offerMessages?.find(
-                    (message) => message.offer?.id === item.id
-                  )) && (
-                  <div className="absolute flex flex-row items-center gap-1 top-0 right-1 z-50">
-                    <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-sm font-semibold">Nowa</span>
-                  </div>
+    <div className="space-y-3">
+      {data.map((item) => (
+        <div
+          key={item.id}
+          className="border border-gray-200 rounded-lg shadow-sm p-4 hover:bg-gray-50/50 transition-colors"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="space-y-2 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Directions transport={item.transport} />
+                {hasNotification(item.id) && (
+                  <Badge variant="destructive" className="text-xs">
+                    Nowa
+                  </Badge>
                 )}
-                <div>
-                  <Map
-                    transport={item.transport}
-                    className="flex md:w-[200px] w-[300px] h-[200px]"
-                  />
-                </div>
-                <div className="w-full flex flex-col items-center justify-center gap-4">
-                  <Directions transport={item.transport} />
-                  <Card className="w-full p-3">
-                    <div className="w-full flex flex-row gap-8 justify-between items-center">
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-semibold">
-                          Oferta od: <span>{item.creator.username}</span>
-                        </span>
-                        <span className="font-light text-ellipsis overflow-hidden line-clamp-1">
-                          Kwota brutto: {item.brutto} {item.currency}
-                        </span>
-                      </div>
-                      <Link
-                        href={`/transport/${item.transport.id}/offer/${item.id}`}
-                      >
-                        <Button>Zobacz</Button>
-                      </Link>
-                    </div>
-                  </Card>
-                </div>
-              </Card>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                <span>
+                  Od:{" "}
+                  <span className="font-medium">{item.creator.username}</span>
+                </span>
+                <span>
+                  Kwota:{" "}
+                  <span className="font-medium">
+                    {item.brutto} {item.currency}
+                  </span>
+                  <span className="text-xs text-gray-400 ml-1">brutto</span>
+                </span>
+              </div>
+            </div>
+
+            <Link
+              href={`/transport/${item.transport.id}/offer/${item.id}`}
+              className="shrink-0"
+            >
+              <Button variant="outline" size="sm">
+                Zobacz
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

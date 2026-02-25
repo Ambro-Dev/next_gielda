@@ -1,9 +1,12 @@
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-type Props = {};
+export default async function Home() {
+  const session = await auth();
 
-const Home = (props: Props) => {
-  redirect("/transport");
-};
-
-export default Home;
+  if (session) {
+    redirect("/transport");
+  } else {
+    redirect("/signin");
+  }
+}

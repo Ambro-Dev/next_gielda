@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { Search } from "@/components/dashboard/search";
 import TeamSwitcher from "@/components/dashboard/team-switcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUp, School, Truck, Users } from "lucide-react";
+import { School, Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 
 export const metadata: Metadata = {
@@ -33,49 +33,50 @@ const getData = async (): Promise<Data> => {
 export default async function SchoolManagement() {
   const data = await getData();
   return (
-    <div className="flex flex-col">
-      <div className="border-b">
-        <div className="flex h-16 items-center px-4">
-          <TeamSwitcher schoolId="" />
-          <div className="ml-auto flex items-center space-x-4">
-            <Search />
-          </div>
-        </div>
-      </div>
-      <div className="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4 p-8 pt-6">
-        <div className="grid">
-          <ArrowUp size={24} className="ml-10" />
-          <p className="text-sm">
-            Wybierz lub wyszukaj istniejącą szkołę z listy rozwijanej lub dodaj
-            nową
+    <div className="py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Panel administratora
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Zarządzaj szkołami, transportami i użytkownikami.
           </p>
         </div>
-        <Card className="grid">
+        <div className="flex items-center gap-3">
+          <TeamSwitcher schoolId="" />
+          <Search />
+        </div>
+      </div>
+      <div className="grid lg:grid-cols-3 sm:grid-cols-3 grid-cols-1 gap-4">
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Szkoły</CardTitle>
-            <School size={24} />
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Szkoły
+            </CardTitle>
+            <School size={20} className="text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.schools}</div>
           </CardContent>
         </Card>
-        <Card className="grid">
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-gray-500">
               Wszystkie transporty
             </CardTitle>
-            <Truck size={24} />
+            <Truck size={20} className="text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.transports}</div>
           </CardContent>
         </Card>
-        <Card className="grid">
+        <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-gray-500">
               Wszystkich studentów
             </CardTitle>
-            <Users size={24} />
+            <Users size={20} className="text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.students}</div>

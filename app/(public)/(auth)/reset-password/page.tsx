@@ -5,9 +5,9 @@ import { axiosInstance } from "@/lib/axios";
 import { notFound, redirect } from "next/navigation";
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     token: string;
-  };
+  }>;
 };
 
 const checkToken = async (token: string) => {
@@ -25,12 +25,12 @@ const checkToken = async (token: string) => {
   }
 };
 
-const Page = async ({ searchParams }: Props) => {
-  const { token } = searchParams;
+const Page = async ({ searchParams: searchParamsPromise }: Props) => {
+  const { token } = await searchParamsPromise;
   await checkToken(token);
   return (
-    <div className="flex w-full h-full lg:p-10 p-5 justify-center items-center">
-      <Card className="p-5 mx-auto h-full w-full sm:w-4/5 md:w-3/5 xl:w-2/5 space-y-4">
+    <div className="flex w-full min-h-[calc(100vh-8rem)] items-center justify-center p-4 sm:p-6 lg:p-10">
+      <Card className="p-5 mx-auto w-full sm:w-4/5 md:w-3/5 xl:w-2/5 space-y-4 shadow-card-lg">
         <CardHeader>
           <h2 className="text-xl font-bold tracking-tight">Nadaj nowe hasło</h2>
         </CardHeader>

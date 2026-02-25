@@ -23,11 +23,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "maps.googleapis.com",
-        port: "",
-      },
-      {
-        protocol: "https",
         hostname: "lh3.googleusercontent.com",
         port: "",
       },
@@ -42,7 +37,6 @@ const nextConfig = {
         port: "",
       },
     ],
-    domains: ["uploadthing.com"],
     // Optimize images for production
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const transportId = req.nextUrl.searchParams.get("transportId");
 
   if (!transportId) {
@@ -69,6 +74,11 @@ export async function GET(req: NextRequest) {
       },
       sendDate: true,
       receiveDate: true,
+      start_address: true,
+      end_address: true,
+      distance: true,
+      duration: true,
+      polyline: true,
     },
   });
 

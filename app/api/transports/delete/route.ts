@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 
 export async function PUT(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
 
-  const { adminId, schoolId } = body;
-
-  if (!adminId) {
-    return NextResponse.json({ error: "Brakuje ID admina", status: 400 });
-  }
+  const { schoolId } = body;
+  const adminId = session.user.id;
 
   const isAdmin = await prisma.user.findUnique({
     where: {

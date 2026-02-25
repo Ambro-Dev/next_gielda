@@ -1,8 +1,17 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const POST = async (req: NextRequest) => {
+  const ip = req.headers.get("x-forwarded-for") || "unknown";
+  if (!checkRateLimit(`reset-password:${ip}`, 5, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Zbyt wiele prób. Spróbuj ponownie za 15 minut." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json();
 
   const { token, password, passwordConfirmation } = body;
@@ -14,7 +23,7 @@ export const POST = async (req: NextRequest) => {
   if (password !== passwordConfirmation) {
     return NextResponse.json(
       { message: "Hasła się nie zgadzają" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -43,7 +52,7 @@ export const POST = async (req: NextRequest) => {
   if (compare) {
     return NextResponse.json(
       { message: "Nowe hasło musi być inne niż stare hasło" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -68,6 +77,6 @@ export const POST = async (req: NextRequest) => {
     {
       message: "Hasło zostało zmienione",
     },
-    { status: 200 }
+    { status: 200 },
   );
 };

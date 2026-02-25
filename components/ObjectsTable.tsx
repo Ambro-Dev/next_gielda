@@ -30,6 +30,7 @@ type Props = {
 
 export function ObjectsTable({ data, edit, handleDelete }: Props) {
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableCaption>Lista dodanych przedmiotów</TableCaption>
       <TableHeader>
@@ -67,5 +68,6 @@ export function ObjectsTable({ data, edit, handleDelete }: Props) {
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

@@ -9,19 +9,18 @@ import * as z from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 import { useSocket } from "@/app/context/socket-provider";
 import { toast } from "@/components/ui/use-toast";
+import { Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 const schema = z.object({
   message: z.string().min(1, "Wiadomość nie może być pusta"),
@@ -32,7 +31,7 @@ type Props = {
 };
 
 const NewMessage = (props: Props) => {
-  const { data, status } = useSession();
+  const { data } = useSession();
   const [sending, setSending] = React.useState(false);
   const { socket } = useSocket();
 
@@ -48,7 +47,7 @@ const NewMessage = (props: Props) => {
   React.useEffect(() => {
     if (!socket) return;
 
-    socket.on(`conversation:${props.conversation.id}:message`, (data: any) => {
+    socket.on(`conversation:${props.conversation.id}:message`, () => {
       router.refresh();
     });
 
@@ -81,32 +80,46 @@ const NewMessage = (props: Props) => {
     setSending(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      form.handleSubmit(onSubmit)();
+    }
+  };
+
   return (
-    <div className="px-5">
+    <div className="border-t border-gray-200 bg-white px-4 py-3">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-row items-center justify-between space-x-6"
+          className="flex items-end gap-2"
         >
-          <div className="w-full">
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Nowa wiadomość</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormDescription>Wpisz treść wiadomości</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+              <FormItem className="flex-1 space-y-0">
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Napisz wiadomość..."
+                    className="min-h-[40px] max-h-[120px] resize-none text-sm border-gray-200 focus-visible:ring-primary/20"
+                    rows={1}
+                    onKeyDown={handleKeyDown}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <Button className="mb-2" type="submit" disabled={sending}>
-            {sending ? "Wysyłanie..." : "Wyślij"}
+          <Button
+            type="submit"
+            size="icon"
+            disabled={sending}
+            className="h-10 w-10 flex-shrink-0"
+          >
+            <Send className="w-4 h-4" />
           </Button>
         </form>
       </Form>

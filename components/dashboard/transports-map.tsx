@@ -4,7 +4,7 @@ import React from "react";
 
 const TransportsMap = ({ transports }: { transports: Transport[] }) => {
   return (
-    <div className="grid md:grid-cols-2 grid-cols-1 gap-8 lg:w-4/5 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
       {transports &&
         transports.map((item) => {
           return <CardWithMap key={item.id} transport={item} />;

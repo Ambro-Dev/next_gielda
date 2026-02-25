@@ -202,9 +202,29 @@ export default async function handler(
             .json({ error: "Nie udało się wysłać wiadomości" });
         }
 
-        const recieverKey = `user:${receiverId}:messages`;
+        const receiverUser = await prisma.user.findUnique({
+          where: { id: receiverId },
+        });
 
-        res?.socket?.server?.io?.emit(recieverKey, newMessage);
+        const messageWithUser = {
+          ...newMessage,
+          sender: { id: user.id, username: user.username, email: user.email },
+          receiver: {
+            id: receiverUser?.id,
+            username: receiverUser?.username,
+            email: receiverUser?.email,
+          },
+          conversation: { id: existingConversation.id },
+        };
+
+        res?.socket?.server?.io?.emit(
+          `user:${receiverId}:message`,
+          messageWithUser
+        );
+        res?.socket?.server?.io?.emit(
+          `conversation:${existingConversation.id}:message`,
+          newMessage
+        );
 
         return res.status(201).json({ message: newMessage });
       }
@@ -250,9 +270,29 @@ export default async function handler(
           .json({ error: "Nie udało się wysłać wiadomości" });
       }
 
-      const recieverKey = `user:${receiverId}:messages`;
+      const receiverUser2 = await prisma.user.findUnique({
+        where: { id: receiverId },
+      });
 
-      res?.socket?.server?.io?.emit(recieverKey, newMessage);
+      const messageWithUser2 = {
+        ...newMessage,
+        sender: { id: user.id, username: user.username, email: user.email },
+        receiver: {
+          id: receiverUser2?.id,
+          username: receiverUser2?.username,
+          email: receiverUser2?.email,
+        },
+        conversation: { id: conversation.id },
+      };
+
+      res?.socket?.server?.io?.emit(
+        `user:${receiverId}:message`,
+        messageWithUser2
+      );
+      res?.socket?.server?.io?.emit(
+        `conversation:${conversation.id}:message`,
+        newMessage
+      );
 
       return res.status(201).json({ message: newMessage });
     }
@@ -287,9 +327,25 @@ export default async function handler(
       },
     });
 
-    const recieverKey = `user:${receiverId}:messages`;
+    const receiverUser3 = await prisma.user.findUnique({
+      where: { id: receiverId },
+    });
 
-    res?.socket?.server?.io?.emit(recieverKey, newMessage);
+    const messageWithUser3 = {
+      ...newMessage,
+      sender: { id: user.id, username: user.username, email: user.email },
+      receiver: {
+        id: receiverUser3?.id,
+        username: receiverUser3?.username,
+        email: receiverUser3?.email,
+      },
+      conversation: { id: conversation.id },
+    };
+
+    res?.socket?.server?.io?.emit(
+      `user:${receiverId}:message`,
+      messageWithUser3
+    );
 
     return res.status(201).json({ message: newMessage });
   } catch (error) {

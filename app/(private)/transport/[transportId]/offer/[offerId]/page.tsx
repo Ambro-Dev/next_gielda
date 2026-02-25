@@ -1,4 +1,4 @@
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios";
 import { Offer } from "@prisma/client";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import { getServerSession } from "next-auth";
+
 import React from "react";
 import EditForm from "./edit-offer";
 import GoBack from "../../../../../../components/ui/go-back";
@@ -22,12 +22,13 @@ import { notFound, redirect } from "next/navigation";
 
 import FilesCard from "./files-card";
 import ChatMessage from "./chat-message";
+import ClearNotifications from "./clear-notifications";
 
 type Props = {
-  params: {
+  params: Promise<{
     offerId: string;
     transportId: string;
-  };
+  }>;
 };
 
 export type OfferWithCreator = Offer & {
@@ -174,13 +175,11 @@ const formatDate = (date: Date) => {
 };
 
 const OfferCard = async (props: Props) => {
-  const offer: OfferWithCreator = await getOffer(
-    props.params.offerId,
-    props.params.transportId
-  );
-  const transport: Transport = await getTransport(props.params.transportId);
-  const session = await getServerSession(authOptions);
-  const files = await getOfferFiles(props.params.offerId);
+  const { offerId, transportId } = await props.params;
+  const offer: OfferWithCreator = await getOffer(offerId, transportId);
+  const transport: Transport = await getTransport(transportId);
+  const session = await auth();
+  const files = await getOfferFiles(offerId);
   const receiver =
     offer.creator.id === session?.user?.id
       ? transport.creator.id
@@ -196,6 +195,7 @@ const OfferCard = async (props: Props) => {
   }
   return (
     <Card className="mb-5">
+      <ClearNotifications offerId={offerId} />
       <CardHeader className="sm:p-5 pb-5 sm:flex sm:flex-row sm:justify-between grid grid-cols-2 gap-2">
         <div className="flex flex-wrap items-center col-span-2">
           <GoBack />
@@ -276,13 +276,13 @@ const OfferCard = async (props: Props) => {
                   </Label>
                   <Label className="flex flex-wrap gap-2">
                     <span>Data załadunku:</span>
-                    <span className="font-semibold text-amber-500">
+                    <span className="font-semibold text-gray-900">
                       {formatDate(offer.loadDate)}
                     </span>
                   </Label>
                   <Label className="flex flex-wrap gap-2">
                     <span>Data rozaładunku:</span>
-                    <span className="font-semibold text-amber-500">
+                    <span className="font-semibold text-gray-900">
                       {formatDate(offer.unloadDate)}
                     </span>
                   </Label>

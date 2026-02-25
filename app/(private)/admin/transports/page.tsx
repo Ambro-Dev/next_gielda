@@ -78,15 +78,18 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <>
-      <h3 className="font-bold pt-5 pl-10 text-2xl">Opcje transportów</h3>
-      <div className="grid sm:grid-cols-2 grid-cols-1 gap-8 p-5">
+    <div className="py-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Opcje transportów</h1>
+        <p className="text-sm text-gray-500 mt-1">Zarządzaj pojazdami i kategoriami transportów.</p>
+      </div>
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
         {data.map((item) => (
           <React.Fragment key={item.title}>
             <OptionCard {...item} />
           </React.Fragment>
         ))}
       </div>
-    </>
+    </div>
   );
 }

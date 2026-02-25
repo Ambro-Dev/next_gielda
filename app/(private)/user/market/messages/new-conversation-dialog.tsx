@@ -33,6 +33,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 
 import {
@@ -151,32 +152,34 @@ const NewConversationDialog = (props: Props) => {
                               placeholder="Wyszukaj użytkownika..."
                               className="h-9"
                             />
-                            <CommandEmpty>
-                              Nie znaleziono użytkownika.
-                            </CommandEmpty>
-                            <CommandGroup>
-                              <ScrollArea className="max-h-[300px] overflow-auto">
-                                {users.map((user) => (
-                                  <CommandItem
-                                    value={user.label}
-                                    key={user.value}
-                                    onSelect={() => {
-                                      form.setValue("user", user.value);
-                                    }}
-                                  >
-                                    {user.label}
-                                    <CheckIcon
-                                      className={cn(
-                                        "ml-auto h-4 w-4",
-                                        user.value === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
-                              </ScrollArea>
-                            </CommandGroup>
+                            <CommandList>
+                              <CommandEmpty>
+                                Nie znaleziono użytkownika.
+                              </CommandEmpty>
+                              <CommandGroup>
+                                <ScrollArea className="max-h-[300px] overflow-auto">
+                                  {users.map((user) => (
+                                    <CommandItem
+                                      value={user.label}
+                                      key={user.value}
+                                      onSelect={() => {
+                                        form.setValue("user", user.value);
+                                      }}
+                                    >
+                                      {user.label}
+                                      <CheckIcon
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          user.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </ScrollArea>
+                              </CommandGroup>
+                            </CommandList>
                           </Command>
                         </PopoverContent>
                       </Popover>

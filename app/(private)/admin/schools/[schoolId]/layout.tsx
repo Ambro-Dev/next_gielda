@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import { MainNav } from "@/components/dashboard/main-nav";
@@ -14,22 +13,23 @@ export const metadata: Metadata = {
 
 export default async function SchoolLayout({
   children,
-  params,
+  params: paramsPromise,
 }: {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     schoolId: string;
-  };
+  }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const { schoolId } = await paramsPromise;
+  const session = await auth();
 
   if (!session) redirect("/signin");
   return (
     <div className="flex flex-col">
       <div className="border-b">
         <div className="flex h-16 items-center justify-between px-4">
-          <TeamSwitcher schoolId={params.schoolId} />
-          <MainNav schoolId={params.schoolId} />
+          <TeamSwitcher schoolId={schoolId} />
+          <MainNav schoolId={schoolId} />
         </div>
       </div>
       <>{children}</>

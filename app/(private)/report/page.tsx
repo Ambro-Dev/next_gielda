@@ -173,7 +173,7 @@ const Page = (props: Props) => {
       <Card
         className={`${
           status === "success" ? "max-w-lg" : "max-w-2xl"
-        } space-y-4 duration-500 transition-all`}
+        } border border-gray-200 shadow-sm space-y-4 duration-500 transition-all`}
       >
         {status === "success" ? (
           <>

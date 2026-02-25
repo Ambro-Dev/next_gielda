@@ -9,7 +9,7 @@
  */
 
 const { MongoClient } = require('mongodb');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function initAdmin() {
   const client = new MongoClient(process.env.DATABASE_URL || 'mongodb://mongo:27017/next_gielda?directConnection=true');

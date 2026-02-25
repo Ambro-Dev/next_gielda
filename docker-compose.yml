@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_GOOGLE_MAP_API_KEY=${NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
+        - NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN}
         - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
         - NEXTAUTH_URL=${NEXTAUTH_URL}
     container_name: next-gielda-app
@@ -37,7 +37,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - .env.local
     environment:
       - DATABASE_URL=mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/edugielda?authSource=admin&directConnection=true
       - NODE_ENV=production

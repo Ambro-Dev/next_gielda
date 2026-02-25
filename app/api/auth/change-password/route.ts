@@ -1,11 +1,16 @@
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
 
 export const PUT = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
 
-  const { oldPassword, newPassword, newPasswordConfirmation, userId } = body;
+  const { oldPassword, newPassword, newPasswordConfirmation } = body;
+  const userId = session.user.id;
 
   if (!oldPassword || oldPassword === "" || oldPassword === "undefined") {
     return NextResponse.json({
@@ -51,10 +56,6 @@ export const PUT = async (req: NextRequest) => {
     });
   }
 
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({ error: "Brakuje ID użytkownika", status: 400 });
-  }
-
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -70,7 +71,7 @@ export const PUT = async (req: NextRequest) => {
 
   const isPasswordValid = await bcrypt.compare(
     oldPassword,
-    user.hashedPassword
+    user.hashedPassword,
   );
 
   if (!isPasswordValid) {

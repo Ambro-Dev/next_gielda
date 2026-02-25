@@ -43,6 +43,23 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Server-side: forward cookies for authenticated API calls
+if (typeof window === 'undefined') {
+  axiosInstance.interceptors.request.use(async (config) => {
+    try {
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const cookieHeader = cookieStore.getAll().map((c: { name: string; value: string }) => `${c.name}=${c.value}`).join('; ');
+      if (cookieHeader) {
+        config.headers.Cookie = cookieHeader;
+      }
+    } catch {
+      // Not in a request context (e.g., build time)
+    }
+    return config;
+  });
+}
+
 // Add request interceptor to prevent external API calls during build
 axiosInstance.interceptors.request.use(
   (config) => {
