@@ -258,7 +258,7 @@ const ImportStudents = (props: Props) => {
                               htmlFor="import"
                               className={`col-span-1 border-[1px] rounded-md flex justify-center items-center transition duration-500 ${
                                 !file &&
-                                "cursor-pointer hover:border-amber-500 hover:border-2 hover:shadow-md hover:scale-[101%]"
+                                "cursor-pointer hover:border-gray-900 hover:border-2 hover:shadow-md hover:scale-[101%]"
                               } ${
                                 fileForm.formState.errors.file &&
                                 "border-red-500"

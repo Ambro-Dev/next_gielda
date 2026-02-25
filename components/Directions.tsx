@@ -1,50 +1,30 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-
+import React from "react";
 import { ExtendedTransport } from "@/app/(private)/user/market/page";
-
-import Image from "next/image";
-import { ArrowBigRight } from "lucide-react";
-
-type LatLngLiteral = google.maps.LatLngLiteral;
+import { ArrowRight } from "lucide-react";
 
 const Directions = ({ transport }: { transport: ExtendedTransport }) => {
-  const [directionsLeg, setDirectionsLeg] =
-    useState<google.maps.DirectionsLeg>();
+  const startAddress = (transport as any).start_address || "";
+  const endAddress = (transport as any).end_address || "";
 
-  useEffect(() => {
-    if (!transport.directions.start || !transport.directions.finish) return;
-    fetchDirections(transport.directions.start);
-  }, [transport.directions.start, transport.directions.finish]);
+  if (!startAddress && !endAddress) return null;
 
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!transport.directions.finish || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: transport.directions.finish,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirectionsLeg(result.routes[0].legs[0]);
-        }
-      }
-    );
-  };
   return (
-    <div className="flex flex-row pt-6 items-center">
-      <span className="text-sm font-bold text-center">
-        {directionsLeg?.start_address}
-      </span>
-      <ArrowBigRight className="mx-5" size={36} />
-      <span className="text-sm font-bold text-center">
-        {directionsLeg?.end_address}
-      </span>
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex items-center gap-1.5">
+        <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <span className="text-[8px] font-bold text-white">A</span>
+        </div>
+        <span className="font-medium">{startAddress}</span>
+      </div>
+      <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+      <div className="flex items-center gap-1.5">
+        <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+          <span className="text-[8px] font-bold text-white">B</span>
+        </div>
+        <span className="font-medium">{endAddress}</span>
+      </div>
     </div>
   );
 };

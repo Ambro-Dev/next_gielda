@@ -1,30 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const GET = async (req: NextRequest) => {
-  const userId = req.nextUrl.searchParams.get("userId");
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({
-      error: "Brakuje parametru schoolId",
-      status: 400,
-    });
-  }
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "school_admin" && session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json({ error: "Użytkownik nie istnieje", status: 404 });
-  }
+  const userId = session.user.id;
 
   const school = await prisma.school.findFirst({
     where: {
       administrators: {
         some: {
-          id: user.id,
+          id: userId,
         },
       },
     },

@@ -1,7 +1,6 @@
 import React from "react";
 import { ExtendedTransport } from "../page";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { OffersTable } from "./offers-table";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";
@@ -35,7 +34,7 @@ const getUserOffers = async (userId: string) => {
 };
 
 const MarketOffers = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const offers = await getUserOffers(String(session?.user?.id));
   return (
     <div>

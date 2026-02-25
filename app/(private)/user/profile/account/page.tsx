@@ -1,7 +1,5 @@
-import { Separator } from "@/components/ui/separator";
 import { ProfileForm } from "./profile-form";
-import { authOptions } from "@/utils/authOptions";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
 
@@ -19,18 +17,17 @@ const getProfile = async (userId: String) => {
 };
 
 export default async function SettingsProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) redirect("/signin");
   const profile = await getProfile(session.user.id);
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Profil</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-500">
           Tak widzą Cię inni użytkownicy.
         </p>
       </div>
-      <Separator />
       <ProfileForm profile={profile.user} />
     </div>
   );

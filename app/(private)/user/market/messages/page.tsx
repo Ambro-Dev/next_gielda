@@ -1,5 +1,4 @@
-import { authOptions } from "@/utils/authOptions";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import React from "react";
 import { ExtendedTransport } from "../page";
 import { MessagesTable } from "./messages-table";
@@ -56,7 +55,7 @@ const getUsers = async (
 };
 
 const MarketMessages = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const conversations = await getConversations(String(session?.user?.id));
   const users = await getUsers(String(session?.user?.id));
 

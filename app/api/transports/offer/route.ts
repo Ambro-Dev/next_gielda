@@ -1,7 +1,13 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
 
   const {
@@ -13,10 +19,11 @@ export const POST = async (req: NextRequest) => {
     unloadDate,
     unloadTime,
     contactNumber,
-    creatorId,
     transportId,
     message,
   } = body;
+
+  const creatorId = session.user.id;
 
   if (
     !(
@@ -104,6 +111,11 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const PUT = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
 
   const {
@@ -116,8 +128,9 @@ export const PUT = async (req: NextRequest) => {
     unloadDate,
     unloadTime,
     contactNumber,
-    creatorId,
   } = body;
+
+  const creatorId = session.user.id;
 
   if (
     !(

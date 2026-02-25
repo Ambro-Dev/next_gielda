@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
 
-  const { userId, oldPassword, newPassword } = body;
+  const { oldPassword, newPassword } = body;
 
-  if (!userId || !oldPassword || !newPassword) {
+  const userId = session.user.id;
+
+  if (!oldPassword || !newPassword) {
     return NextResponse.json({ error: "Brakuje danych" }, { status: 422 });
   }
 
@@ -20,13 +26,13 @@ export const POST = async (req: NextRequest) => {
   if (!user) {
     return NextResponse.json(
       { error: "Nie znaleziono użytkownika" },
-      { status: 422 }
+      { status: 422 },
     );
   }
 
   const isPasswordValid = await bcrypt.compare(
     oldPassword,
-    user.hashedPassword
+    user.hashedPassword,
   );
 
   if (!isPasswordValid) {
@@ -46,6 +52,6 @@ export const POST = async (req: NextRequest) => {
 
   return NextResponse.json(
     { message: "Hasło zmienione prawidłowo" },
-    { status: 200 }
+    { status: 200 },
   );
 };

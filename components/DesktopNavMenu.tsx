@@ -1,13 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,14 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SocketIndicator } from "@/components/ui/socket-indicator";
 import {
+  Bell,
   Bug,
-  Home,
-  Loader2,
   LogOut,
-  Menu,
   MessageSquare,
   Paperclip,
   PenBox,
+  Plus,
   Settings,
   Truck,
   User,
@@ -36,7 +28,7 @@ import {
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { School } from "@prisma/client";
-import { Session } from "next-auth/core/types";
+import { Session } from "next-auth";
 import { useMessages } from "@/app/context/message-provider";
 import { useRouter } from "next/navigation";
 
@@ -52,17 +44,12 @@ const DesktopNavMenu = (props: Props) => {
   const router = useRouter();
   const isAuth = data?.user ? true : false;
 
-  const avatar = (
-    <Avatar className="flex w-full">
-      <AvatarFallback className=" px-2 text-sm">
-        {data?.user.username}
-      </AvatarFallback>
-    </Avatar>
-  );
+  const totalNotifications =
+    offers.length + messages.length + offerMessages.length;
 
   const untilExpire = () => {
     if (school?.accessExpires) {
-      const date = new Date(school?.accessExpires);
+      const date = new Date(school.accessExpires);
       const now = new Date();
       const diff = date.getTime() - now.getTime();
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -73,216 +60,230 @@ const DesktopNavMenu = (props: Props) => {
       if (days > 0) return `${days} dni`;
       if (days === 0 && hours > 0) return `${hours} godz.`;
       if (days === 0 && hours === 0 && minutes > 0) return `${minutes} min.`;
-      if (days === 0 && hours === 0 && minutes === 0) return "Wygasło";
-    } else {
-      return "Nieokreślony";
+      return "Wygasło";
     }
+    return "Nieokreślony";
   };
 
+  if (!isAuth) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link
+          href="/transport"
+          className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+        >
+          Giełda
+        </Link>
+        <Link href="/signin">
+          <Button variant="brand" size="sm">
+            Zaloguj się
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <NavigationMenu>
-      <NavigationMenuList className="gap-4">
-        {data?.user.role === "school_admin" && (
-          <NavigationMenuItem>
-            <Link href="/school" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                <Button>Zarządzaj szkołą</Button>
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        )}
-        {data?.user?.role === "admin" && (
-          <NavigationMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild className="relative">
-                <div>
-                  {reports.length > 0 && (
-                    <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                      {reports.length}
-                    </div>
-                  )}
-                  <Button>Panel administracyjny </Button>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuGroup>
-                  {menu.map((item) => (
-                    <div key={item.title}>
-                      <DropdownMenuItem
-                        className="flex flex-col w-full justify-center items-start gap-2"
-                        onClick={() => router.replace(item.href)}
-                      >
-                        <div className="flex justify-between w-full">
-                          <span className="font-bold">{item.title}</span>
-                          {reports.length > 0 &&
-                            item.href === "/admin/reports" && (
-                              <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                                {reports.length}
-                              </div>
-                            )}
-                        </div>
-                        <span>{item.description}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </div>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </NavigationMenuItem>
-        )}
-        <NavigationMenuItem className="text-amber-500 font-bold hover:font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm ">
-          <Link href="/transport/add" legacyBehavior passHref>
-            <NavigationMenuLink>Dodaj ogłoszenie</NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
+    <div className="flex items-center gap-1">
+      {/* Main nav links */}
+      <Link
+        href="/transport"
+        className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+      >
+        Giełda
+      </Link>
+      <Link
+        href="/vehicles"
+        className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+      >
+        Pojazdy
+      </Link>
+      <Link
+        href="/user/market"
+        className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+      >
+        Moja giełda
+      </Link>
+      <Link
+        href="/documents"
+        className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+      >
+        Dokumenty
+      </Link>
 
-        {!isAuth ? (
-          <>
-            <NavigationMenuItem>
-              <Link href="/" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Giełda transportowa
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/signin" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Zaloguj się
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          </>
-        ) : (
-          <>
-            <NavigationMenuItem>
-              <Link href="/" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Giełda transportowa
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+      {/* School admin */}
+      {data?.user.role === "school_admin" && (
+        <Link
+          href="/school"
+          className="px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors"
+        >
+          Zarządzaj szkołą
+        </Link>
+      )}
 
-            {school && (
-              <NavigationMenuItem className="text-sm">
-                Dostęp wygaśnie za:{" "}
-                <Suspense
-                  fallback={<Loader2 className="h-8 w-8 animate-spin" />}
+      {/* Admin panel dropdown */}
+      {data?.user?.role === "admin" && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="relative px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors">
+              Admin
+              {reports.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-semibold flex items-center justify-center text-white bg-red-500 rounded-full">
+                  {reports.length}
+                </span>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuGroup>
+              {menu.map((item) => (
+                <DropdownMenuItem
+                  key={item.title}
+                  className="flex flex-col items-start gap-1 cursor-pointer"
+                  onClick={() => router.replace(item.href)}
                 >
-                  <span className="font-semibold text-red-500">
-                    {untilExpire()}
-                  </span>
-                </Suspense>
-              </NavigationMenuItem>
-            )}
-            <NavigationMenuItem className="hover:cursor-pointer">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="relative">
-                    {offers.length + messages.length + offerMessages.length >
-                      0 && (
-                      <div className="absolute z-10 -top-2 -right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                        {offers.length + messages.length + offerMessages.length}
-                      </div>
+                  <div className="flex justify-between w-full">
+                    <span className="font-medium">{item.title}</span>
+                    {reports.length > 0 && item.href === "/admin/reports" && (
+                      <span className="w-4 h-4 text-[9px] font-semibold flex items-center justify-center text-white bg-red-500 rounded-full">
+                        {reports.length}
+                      </span>
                     )}
-
-                    <Button variant="outline" className="rounded-full p-3 h-12">
-                      <Menu size={24} />
-                    </Button>
                   </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel className="flex flex-wrap justify-between">
-                    {data?.user.username} <SocketIndicator />
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/vehicles")}
-                    >
-                      <Truck className="mr-2 h-4 w-4" />
-                      <span>Dostępne pojazdy</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/user/market")}
-                    >
-                      <Home className="mr-2 h-4 w-4" />
-                      <span>Moja giełda</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/documents")}
-                    >
-                      <Paperclip className="mr-2 h-4 w-4" />
-                      <span>Dokumenty do pobrania</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/user/profile/account")}
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profil</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/user/profile/settings")}
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Ustawienia</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer relative hover:bg-amber-400"
-                      onClick={() => router.replace("/user/market/messages")}
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      {messages.length > 0 && (
-                        <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                          {messages.length}
-                        </div>
-                      )}
-                      <span>Wiadomości</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer relative hover:bg-amber-400"
-                      onClick={() => router.replace("/user/market/offers")}
-                    >
-                      <PenBox className="mr-2 h-4 w-4" />
-                      {offers.length + offerMessages.length > 0 && (
-                        <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                          {offers.length + offerMessages.length}
-                        </div>
-                      )}
-                      <span>Oferty</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-zinc-200 text-red-600 font-semibold"
-                      onClick={() => router.replace("/report")}
-                    >
-                      <Bug className="mr-2 h-4 w-4 " />
-                      <span>Zgłoś uwagę</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut()}
-                    className="hover:cursor-pointer hover:bg-neutral-200"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Wyloguj</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </NavigationMenuItem>
-          </>
-        )}
-      </NavigationMenuList>
-    </NavigationMenu>
+                  <span className="text-xs text-gray-500">
+                    {item.description}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
+      {/* Access expiry */}
+      {school && (
+        <span className="px-2 text-xs text-white/50">
+          Dostęp:{" "}
+          <span className="font-medium text-red-500">{untilExpire()}</span>
+        </span>
+      )}
+
+      <div className="w-px h-5 bg-white/20 mx-2" />
+
+      {/* Add transport button */}
+      <Link href="/transport/add">
+        <Button variant="brand" size="sm" className="gap-1.5">
+          <Plus size={14} />
+          Dodaj ogłoszenie
+        </Button>
+      </Link>
+
+      {/* Notifications bell */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="relative p-2 text-white/70 hover:text-white rounded-md hover:bg-white/10 transition-colors">
+            <Bell size={18} />
+            {totalNotifications > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-semibold flex items-center justify-center text-white bg-red-500 rounded-full">
+                {totalNotifications}
+              </span>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48" align="end">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.replace("/user/market/messages")}
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            <span>Wiadomości</span>
+            {messages.length > 0 && (
+              <span className="ml-auto text-xs font-medium text-red-500">
+                {messages.length}
+              </span>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.replace("/user/market/offers")}
+          >
+            <PenBox className="mr-2 h-4 w-4" />
+            <span>Oferty</span>
+            {offers.length + offerMessages.length > 0 && (
+              <span className="ml-auto text-xs font-medium text-red-500">
+                {offers.length + offerMessages.length}
+              </span>
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* User avatar dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 p-1 rounded-md hover:bg-white/10 transition-colors">
+            <Avatar className="h-7 w-7 ring-2 ring-primary/50">
+              <AvatarFallback className="text-xs bg-primary/20 text-white font-semibold">
+                {data?.user.username?.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-52" align="end">
+          <DropdownMenuLabel className="flex items-center justify-between">
+            <span className="truncate">{data?.user.username}</span>
+            <SocketIndicator />
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.replace("/user/profile/account")}
+            >
+              <User className="mr-2 h-4 w-4" />
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.replace("/user/profile/settings")}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Ustawienia
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.replace("/vehicles")}
+            >
+              <Truck className="mr-2 h-4 w-4" />
+              Dostępne pojazdy
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.replace("/documents")}
+            >
+              <Paperclip className="mr-2 h-4 w-4" />
+              Dokumenty
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer text-red-600"
+            onClick={() => router.replace("/report")}
+          >
+            <Bug className="mr-2 h-4 w-4" />
+            Zgłoś uwagę
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => signOut()}
+            className="cursor-pointer"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Wyloguj
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

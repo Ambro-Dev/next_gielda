@@ -188,7 +188,7 @@ export const OptionCard = (params: OptionParams) => {
     }
   };
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col border border-gray-200 shadow-sm">
       <CardHeader className="p-5">
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

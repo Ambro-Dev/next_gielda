@@ -17,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ComboBox } from "@/components/ComboBox";
-import SelectBox from "@/components/SelectBox";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "../../../../components/DatePicker";
 import TransportObjectsCard from "../../../../components/TransportObjectsCard";
@@ -29,53 +28,31 @@ import { CategoryComboBox } from "@/components/CategoryComboBox";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
-type DirectionsResult = google.maps.DirectionsResult;
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const formSchema = z
   .object({
     category: z
-      .string({
-        required_error: "Wybierz kategorię.",
-      })
-      .min(1, {
-        message: "Wybierz kategorię.",
-      }),
+      .string({ required_error: "Wybierz kategorię." })
+      .min(1, { message: "Wybierz kategorię." }),
     vehicle: z
-      .string({
-        required_error: "Wybierz typ pojazdu.",
-      })
-      .min(1, {
-        message: "Wybierz typ pojazdu.",
-      }),
+      .string({ required_error: "Wybierz typ pojazdu." })
+      .min(1, { message: "Wybierz typ pojazdu." }),
     description: z
-      .string({
-        required_error: "Podaj opis.",
-      })
-      .min(1, {
-        message: "Podaj opis.",
-      }),
+      .string({ required_error: "Podaj opis." })
+      .min(1, { message: "Podaj opis." }),
     sendDate: z
-      .date({
-        required_error: "Podaj datę wysyłki.",
-      })
-      .min(new Date(), {
-        message: "Nieprawidłowa data wysyłki.",
-      }),
+      .date({ required_error: "Podaj datę wysyłki." })
+      .min(new Date(), { message: "Nieprawidłowa data wysyłki." }),
     sendTime: z
-      .string({
-        required_error: "Podaj godzinę wysyłki.",
-      })
-      .min(1, {
-        message: "Podaj godzinę wysyłki.",
-      }),
+      .string({ required_error: "Podaj godzinę wysyłki." })
+      .min(1, { message: "Podaj godzinę wysyłki." }),
     receiveDate: z
       .date({ required_error: "Podaj datę dostawy." })
-      .min(new Date(), {
-        message: "Nieprawidłowa data dostawy.",
-      }),
-    receiveTime: z.string({ required_error: "Podaj godzinę dostawy." }).min(1, {
-      message: "Podaj godzinę dostawy.",
-    }),
+      .min(new Date(), { message: "Nieprawidłowa data dostawy." }),
+    receiveTime: z
+      .string({ required_error: "Podaj godzinę dostawy." })
+      .min(1, { message: "Podaj godzinę dostawy." }),
   })
   .refine((data) => data.sendDate < data.receiveDate, {
     message: "Data dostawy musi być równa lub późniejsza niż data wysyłki.",
@@ -93,24 +70,34 @@ type Objects = {
   amount: number;
 };
 
-type Destination = {
-  lat: number;
-  lng: number;
+type Destination = { lat: number; lng: number };
+
+type DirectionsData = {
+  distance: { text: string; value: number };
+  duration: { text: string; value: number };
+  start_address: string;
+  end_address: string;
+  polyline: string;
 };
 
 type School = {
   id: string;
-  administrators: {
-    id: string;
-  }[];
+  administrators: { id: string }[];
 };
 
-type Settings = {
-  id: string;
-  name: string;
+type Settings = { id: string; name: string };
+
+const formatDistance = (meters: number) => {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
 };
 
-type LatLngLiteral = google.maps.LatLngLiteral;
+const formatDuration = (seconds: number) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h === 0) return `${m} min`;
+  return `${h} godz ${m} min`;
+};
 
 export function AddTransportForm({
   school,
@@ -124,40 +111,49 @@ export function AddTransportForm({
   const [alert, setAlert] = React.useState<{ error: string }>({ error: "" });
   const { toast } = useToast();
   const router = useRouter();
-  const { data, status } = useSession();
+  const { data } = useSession();
 
-  const [directionsLeg, setDirectionsLeg] =
-    React.useState<google.maps.DirectionsLeg>();
-  const [directions, setDirections] = React.useState<DirectionsResult>();
-
+  const [directionsData, setDirectionsData] =
+    React.useState<DirectionsData | null>(null);
   const [startDestination, setStartDestination] =
     React.useState<Destination | null>(null);
   const [endDestination, setEndDestination] =
     React.useState<Destination | null>(null);
 
+  // Refs for addresses — updated synchronously when user picks a place
+  const startAddressRef = React.useRef<string>("");
+  const endAddressRef = React.useRef<string>("");
+
   React.useEffect(() => {
     if (!startDestination || !endDestination) return;
-    fetchDirections(startDestination as LatLngLiteral);
+    fetchDirections(startDestination, endDestination);
   }, [startDestination, endDestination]);
 
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!endDestination || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: endDestination,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-          setDirectionsLeg(result.routes[0].legs[0]);
-        }
+  const fetchDirections = async (start: Destination, end: Destination) => {
+    if (!MAPBOX_TOKEN) return;
+    try {
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=polyline&access_token=${MAPBOX_TOKEN}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.routes?.[0]) {
+        const route = json.routes[0];
+        setDirectionsData({
+          distance: {
+            text: formatDistance(route.distance),
+            value: route.distance,
+          },
+          duration: {
+            text: formatDuration(route.duration),
+            value: route.duration,
+          },
+          start_address: startAddressRef.current,
+          end_address: endAddressRef.current,
+          polyline: route.geometry,
+        });
       }
-    );
+    } catch (error) {
+      console.error("Error fetching Mapbox directions:", error);
+    }
   };
 
   const [objects, setObjects] = React.useState<Objects[]>([]);
@@ -172,12 +168,13 @@ export function AddTransportForm({
   });
 
   const alertBox = (
-    <div className="alert alert-error">
+    <div className="flex items-center gap-3 p-4 rounded-lg border border-red-200 bg-red-50 text-red-800 text-sm">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="stroke-current shrink-0 h-6 w-6"
+        className="shrink-0 h-5 w-5"
         fill="none"
         viewBox="0 0 24 24"
+        stroke="currentColor"
       >
         <path
           strokeLinecap="round"
@@ -191,12 +188,9 @@ export function AddTransportForm({
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const objectsWithoutId = objects.map((object) => {
-      const { id, ...rest } = object;
-      return rest;
-    });
+    const objectsWithoutId = objects.map(({ id, ...rest }) => rest);
 
-    if (!directionsLeg || !directions) {
+    if (!directionsData || !startDestination || !endDestination) {
       setAlert({ error: "Nie wybrano trasy." });
       return toast({
         title: "Błąd",
@@ -212,20 +206,17 @@ export function AddTransportForm({
         start: startDestination,
         finish: endDestination,
       },
-      distance: directionsLeg.distance,
-      duration: directionsLeg.duration,
-      start_address: directionsLeg.start_address,
-      end_address: directionsLeg.end_address,
-      polyline: directions.routes[0].overview_polyline,
+      distance: directionsData.distance,
+      duration: directionsData.duration,
+      start_address: directionsData.start_address,
+      end_address: directionsData.end_address,
+      polyline: directionsData.polyline,
       creator: data?.user?.id,
       school: school ? school : undefined,
     };
 
     try {
-      const response = await axiosInstance.post(
-        "/api/transports",
-        newTransport
-      );
+      const response = await axiosInstance.post("/api/transports", newTransport);
       if (response.data.status === 201) {
         toast({
           title: "Sukces",
@@ -249,14 +240,16 @@ export function AddTransportForm({
   };
 
   return (
-    <div className="space-y-8">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8"
-          id="transport-form"
-        >
-          <div className="w-full grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-8">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+        id="transport-form"
+      >
+        {/* Basic info section */}
+        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
+          <h2 className="text-base font-semibold">Podstawowe informacje</h2>
+          <div className="w-full grid sm:grid-cols-2 grid-cols-1 gap-6">
             <FormField
               control={form.control}
               name="category"
@@ -312,7 +305,12 @@ export function AddTransportForm({
               </FormItem>
             )}
           />
-          <div className="w-full grid-cols-1 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        </div>
+
+        {/* Dates section */}
+        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
+          <h2 className="text-base font-semibold">Termin transportu</h2>
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <FormField
               control={form.control}
               name="sendDate"
@@ -378,35 +376,48 @@ export function AddTransportForm({
               )}
             />
           </div>
-        </form>
-      </Form>
+        </div>
+      </form>
+
+      {/* Map section */}
       <NewTransportMapCard
         setEndDestination={setEndDestination}
         setStartDestination={setStartDestination}
+        setStartAddress={(addr) => {
+          startAddressRef.current = addr;
+        }}
+        setEndAddress={(addr) => {
+          endAddressRef.current = addr;
+        }}
       />
+
       {alert.error !== "" && alertBox}
+
+      {/* Objects section */}
       <TransportObjectsCard
         objects={objects}
         setObjects={setObjects}
         edit={true}
       />
-      <div className="w-full flex justify-end items-center">
+
+      {/* Submit */}
+      <div className="flex justify-end">
         <Button
           type="button"
           onClick={form.handleSubmit(onSubmit)}
-          className="w-full"
+          className="sm:w-auto w-full px-8"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? (
-            <div className="flex flex-row items-center justify-center">
-              <Loader2 className="animate-spin" />
-              <span className="ml-2">Dodawanie...</span>
+            <div className="flex items-center gap-2">
+              <Loader2 className="animate-spin w-4 h-4" />
+              <span>Dodawanie...</span>
             </div>
           ) : (
             "Dodaj ogłoszenie"
           )}
         </Button>
       </div>
-    </div>
+    </Form>
   );
 }

@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.user.id;
   const conversationId = req.nextUrl.searchParams.get("conversationId");
-  const userId = req.nextUrl.searchParams.get("userId");
 
   if (
     !conversationId ||
     conversationId === "" ||
     conversationId === "undefined"
   ) {
-    return NextResponse.json({ error: "Brak parametru ID" }, { status: 400 });
-  }
-
-  if (!userId || userId === "" || userId === "undefined") {
     return NextResponse.json({ error: "Brak parametru ID" }, { status: 400 });
   }
 

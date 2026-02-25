@@ -159,17 +159,17 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
   };
 
   return (
-    <Card className="border-none">
-      <CardHeader className="text-center">
-        <CardTitle>Przedmioty do transportu</CardTitle>
-        <CardDescription>
-          Dodaj wszystkie przedmioty podlegające pod transport.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="border border-gray-200 rounded-lg p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold">Przedmioty do transportu</h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Dodaj wszystkie przedmioty podlegające pod transport.
+          </p>
+        </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="flex w-full justify-center items-center my-3">
+            <Button variant="outline" size="sm" className="shrink-0">
               Dodaj przedmiot
             </Button>
           </DialogTrigger>
@@ -324,10 +324,10 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
 
-        <ObjectsTable data={objects} edit={edit} handleDelete={handleDelete} />
-      </CardContent>
-    </Card>
+      <ObjectsTable data={objects} edit={edit} handleDelete={handleDelete} />
+    </div>
   );
 };
 

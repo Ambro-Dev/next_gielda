@@ -7,9 +7,9 @@ import {
   Environment,
   Lightformer,
   OrbitControls,
-  AccumulativeShadows,
-  RandomizedLight,
+  ContactShadows,
   PerspectiveCamera,
+  Grid,
 } from "@react-three/drei";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export const VehicleVizualization = ({
       document
         .querySelector("canvas")
         .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream")
+        .replace("image/png", "image/octet-stream"),
     );
     link.click();
   };
@@ -61,19 +61,19 @@ export const VehicleVizualization = ({
       vehicleType.includes("large")
         ? [0, 0, -5]
         : vehicleType.includes("medium")
-        ? [0, 0, -2]
-        : vehicleType.includes("small")
-        ? [0, 0, 0]
-        : [0, 0, 0]
+          ? [0, 0, -2]
+          : vehicleType.includes("small")
+            ? [0, 0, 0]
+            : [0, 0, 0],
     );
     setZoom(
       vehicleType.includes("large")
         ? 2.8
         : vehicleType.includes("medium")
-        ? 3.5
-        : vehicleType.includes("small")
-        ? 4
-        : 4
+          ? 3.5
+          : vehicleType.includes("small")
+            ? 4
+            : 4,
     );
   }, [vehicleType]);
 
@@ -104,88 +104,75 @@ export const VehicleVizualization = ({
       <Canvas
         shadows
         orthographic
-        gl={{ preserveDrawingBuffer: true }}
+        gl={{
+          preserveDrawingBuffer: true,
+          powerPreference: "high-performance",
+          antialias: true,
+        }}
         className="w-full h-full rounded-md"
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener("webglcontextlost", (e) => {
+            e.preventDefault();
+            console.warn("WebGL Context Lost");
+          });
+        }}
       >
-        <color attach="background" args={["#f3f4f6"]} />
-        <mesh position={position}>
+        <color attach="background" args={["#f8fafc"]} />
+
+        <ambientLight intensity={0.5} />
+        <directionalLight
+          position={[10, 10, 5]}
+          intensity={1}
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+        />
+
+        <group position={position}>
           <VehicleModel args={vehicleSize} />
-        </mesh>
+        </group>
 
         <OrbitControls
           autoRotate={true}
-          autoRotateSpeed={-0.2}
-          zoomSpeed={0.25}
+          autoRotateSpeed={0.5}
+          zoomSpeed={0.5}
           minZoom={10}
           maxZoom={200}
-          enablePan={false}
+          enablePan={true}
           dampingFactor={0.05}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={Math.PI / 2}
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI / 2 - 0.05}
         />
         <PerspectiveCamera
           makeDefault
-          position={[10, 20, 20]}
-          fov={60}
+          position={[15, 15, 15]}
+          fov={45}
           zoom={zoom}
         />
-        {/** The environment is just a bunch of shapes emitting light. This is needed for the clear-coat */}
-        <Environment resolution={32}>
-          <group rotation={[-Math.PI / 4, -0.3, 0]}>
-            <Lightformer
-              intensity={20}
-              rotation-x={Math.PI / 2}
-              position={[0, 5, -9]}
-              scale={[10, 10, 1]}
-            />
-            <Lightformer
-              intensity={2}
-              rotation-y={Math.PI / 2}
-              position={[-5, 1, -1]}
-              scale={[10, 2, 1]}
-            />
-            <Lightformer
-              intensity={2}
-              rotation-y={Math.PI / 2}
-              position={[-5, -1, -1]}
-              scale={[10, 2, 1]}
-            />
-            <Lightformer
-              intensity={2}
-              rotation-y={-Math.PI / 2}
-              position={[10, 1, 0]}
-              scale={[20, 2, 1]}
-            />
-            <Lightformer
-              type="ring"
-              intensity={2}
-              rotation-y={Math.PI / 2}
-              position={[-0.1, 0, -5]}
-              scale={10}
-            />
-          </group>
-        </Environment>
-        <AccumulativeShadows
-          frames={100}
-          color={shadow}
-          colorBlend={5}
-          toneMapped={true}
-          alphaTest={0.9}
-          opacity={0.4}
+
+        <Environment preset="city" />
+
+        <ContactShadows
+          position={[0, -0.01, 0]}
+          opacity={0.6}
           scale={30}
-          position={[0, 0.01, 0]}
-        >
-          <RandomizedLight
-            amount={4}
-            radius={10}
-            ambient={0.5}
-            intensity={1}
-            position={[0, 10, -10]}
-            size={15}
-            mapSize={1024}
-            bias={0.0001}
-          />
-        </AccumulativeShadows>
+          blur={2}
+          far={10}
+          resolution={256}
+          color="#000000"
+        />
+
+        <Grid
+          position={[0, -0.02, 0]}
+          args={[50, 50]}
+          cellSize={1}
+          cellThickness={0.5}
+          cellColor="#e2e8f0"
+          sectionSize={5}
+          sectionThickness={1}
+          sectionColor="#cbd5e1"
+          fadeDistance={30}
+          fadeStrength={1}
+        />
       </Canvas>
     </div>
   );

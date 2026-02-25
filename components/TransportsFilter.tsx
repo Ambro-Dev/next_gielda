@@ -1,46 +1,89 @@
 "use client";
 
-import React, { use, useEffect, useMemo } from "react";
-import Lottie from "lottie-react";
+import React, { useCallback, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import Link from "next/link";
 import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
-import {
-  ReadonlyURLSearchParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { Filter } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronDown, Filter, X } from "lucide-react";
 
 import noResults from "@/assets/animations/no-results.json";
 import noOffers from "@/assets/animations/no-offers.json";
 import SearchNearby from "./SearchNearby";
+import {
+  distanceToPolyline,
+  calculateSearchRadius,
+} from "@/lib/geo-utils";
 
 type Props = {
   categories: Tags[];
   vehicles: Tags[];
   transports: Transport[];
+};
+
+const FilterDropdown = ({
+  label,
+  items,
+  selectedIds,
+  onToggle,
+}: {
+  label: string;
+  items: Tags[];
+  selectedIds: string[];
+  onToggle: (id: string) => void;
+}) => {
+  const activeCount = selectedIds.length;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-sm font-normal"
+        >
+          {label}
+          {activeCount > 0 && (
+            <span className="ml-1 w-5 h-5 text-[10px] font-semibold flex items-center justify-center bg-primary text-white rounded-full">
+              {activeCount}
+            </span>
+          )}
+          <ChevronDown size={14} className="text-muted-foreground" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-2" align="start">
+        <div className="flex flex-col gap-1">
+          {items
+            .filter((item) => item._count.transports > 0)
+            .map((item) => (
+              <label
+                key={item.id}
+                className="flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+              >
+                <Checkbox
+                  checked={selectedIds.includes(item.id)}
+                  onCheckedChange={() => onToggle(item.id)}
+                />
+                <span className="capitalize flex-1">{item.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  {item._count.transports}
+                </span>
+              </label>
+            ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 };
 
 const TransportsFilter = (props: Props) => {
@@ -67,6 +110,11 @@ const TransportsFilter = (props: Props) => {
     searchParams.getAll("vehicle")
   );
 
+  const [routePolyline, setRoutePolyline] = React.useState<
+    [number, number][] | null
+  >(null);
+  const [routeLengthKm, setRouteLengthKm] = React.useState<number>(0);
+
   const [filteredTransports, setFilteredTransports] =
     React.useState<Transport[]>(transports);
 
@@ -76,8 +124,9 @@ const TransportsFilter = (props: Props) => {
     setSelectedVehicles(searchParams.getAll("vehicle"));
   }, [searchParams]);
 
+  // Filter transports by category, vehicle, and route
   useEffect(() => {
-    const filteredTransports = transports.filter((transport) => {
+    let filtered = transports.filter((transport) => {
       if (selectedCategories.length === 0 && selectedVehicles.length === 0) {
         return true;
       }
@@ -96,8 +145,27 @@ const TransportsFilter = (props: Props) => {
       );
     });
 
-    setFilteredTransports(filteredTransports);
-  }, [searchParams]);
+    // Route proximity filter
+    if (routePolyline && routePolyline.length > 0) {
+      const radius = calculateSearchRadius(routeLengthKm);
+      filtered = filtered
+        .map((t) => {
+          const start = t.directions?.start;
+          if (!start) return { transport: t, distance: Infinity };
+          const dist = distanceToPolyline(
+            start.lat,
+            start.lng,
+            routePolyline
+          );
+          return { transport: t, distance: dist };
+        })
+        .filter((item) => item.distance <= radius)
+        .sort((a, b) => a.distance - b.distance)
+        .map((item) => item.transport);
+    }
+
+    setFilteredTransports(filtered);
+  }, [searchParams, routePolyline, routeLengthKm, transports, selectedCategories, selectedVehicles]);
 
   useEffect(() => {
     if (selectedVehicles.length === 0) {
@@ -135,179 +203,107 @@ const TransportsFilter = (props: Props) => {
     }
   }
 
+  function clearFilters() {
+    setSelectedCategories([]);
+    setSelectedVehicles([]);
+    setRoutePolyline(null);
+    setRouteLengthKm(0);
+    router.push("/transport");
+  }
+
+  const handleRouteFound = useCallback(
+    (polylinePoints: [number, number][], lengthKm: number) => {
+      setRoutePolyline(polylinePoints);
+      setRouteLengthKm(lengthKm);
+    },
+    []
+  );
+
+  const handleRouteClear = useCallback(() => {
+    setRoutePolyline(null);
+    setRouteLengthKm(0);
+  }, []);
+
+  const hasActiveFilters =
+    selectedCategories.length > 0 ||
+    selectedVehicles.length > 0 ||
+    routePolyline !== null;
+
   return (
-    <div className="flex flex-col w-full xl:px-0 px-3 pb-10">
-      <Link href="/transport/add">
-        <Button
-          className="rounded-full bg-amber-500 w-full transition-all duration-500"
-          size="lg"
-        >
-          Dodaj ogłoszenie
+    <div className="flex flex-col w-full pb-10">
+      {/* Search nearby */}
+      <SearchNearby
+        onRouteFound={handleRouteFound}
+        onRouteClear={handleRouteClear}
+      />
+
+      {/* Horizontal filter bar */}
+      <div className="flex flex-wrap items-center gap-2 py-4 border-b border-gray-100">
+        <Filter size={16} className="text-muted-foreground" />
+
+        <FilterDropdown
+          label="Kategoria"
+          items={categories}
+          selectedIds={selectedCategories}
+          onToggle={handleCategoryChange}
+        />
+
+        <FilterDropdown
+          label="Typ pojazdu"
+          items={vehicles}
+          selectedIds={selectedVehicles}
+          onToggle={handleVehicleChange}
+        />
+
+        <Button variant="brand" size="sm" onClick={handleSearch}>
+          Szukaj
         </Button>
-      </Link>
-      <SearchNearby />
-      <div className="flex lg:flex-row flex-col w-full gap-4">
-        <Card className="lg:w-1/5 lg:visible collapse w-0 lg:h-auto h-0">
-          <ScrollArea className="h-auto w-full rounded-md border lg:visible">
-            <h3 className="flex justify-center items-center text-center my-5 font-semibold text-sm uppercase">
-              Filtruj ogłoszenia
-            </h3>
-            <div className="p-4 flex lg:flex-col flex-row ">
-              <h4 className="mb-4 text-sm font-semibold leading-none">
-                Kategorie ogłoszeń
-              </h4>
-              {categories &&
-                categories
-                  .filter((category) => category._count.transports > 0)
-                  .map((category) => (
-                    <React.Fragment key={category.id}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          onCheckedChange={() =>
-                            handleCategoryChange(category.id)
-                          }
-                          checked={selectedCategories.includes(category.id)}
-                        />
-                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                          {category.name} {`(${category._count.transports})`}
-                        </label>
-                      </div>
-                      <Separator className="my-2" />
-                    </React.Fragment>
-                  ))}
-            </div>
-            <div className="p-4 flex lg:flex-col flex-row ">
-              <h4 className="mb-4 text-sm font-semibold leading-none">
-                Typy pojazdów
-              </h4>
-              {vehicles &&
-                vehicles
-                  .filter((vehicle) => vehicle._count.transports > 0)
-                  .map((vehicle) => (
-                    <React.Fragment key={vehicle.id}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          onCheckedChange={() =>
-                            handleVehicleChange(vehicle.id)
-                          }
-                          checked={selectedVehicles.includes(vehicle.id)}
-                        />
-                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                          {vehicle.name} {`(${vehicle._count.transports})`}
-                        </label>
-                      </div>
-                      <Separator className="my-2" />
-                    </React.Fragment>
-                  ))}
-            </div>
-            <Button className="flex mx-auto w-40 my-5" onClick={handleSearch}>
-              Szukaj
-            </Button>
-          </ScrollArea>
-        </Card>
-        <div className="lg:collapse visible lg:w-0 w-full">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <Filter size={20} className="mr-2" />
-                Filtruj
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <ScrollArea className="h-auto w-full rounded-md border">
-                <div className="p-4">
-                  <h4 className="mb-4 text-sm font-semibold leading-none">
-                    Kategorie ogłoszeń
-                  </h4>
-                  {categories &&
-                    categories.map((category) => (
-                      <React.Fragment key={category.id}>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            onCheckedChange={() =>
-                              handleCategoryChange(category.id)
-                            }
-                            checked={selectedCategories.includes(category.id)}
-                          />
-                          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                            {category.name} {`(${category._count.transports})`}
-                          </label>
-                        </div>
-                        <Separator className="my-2" />
-                      </React.Fragment>
-                    ))}
-                </div>
-                <div className="p-4">
-                  <h4 className="mb-4 text-sm font-semibold leading-none">
-                    Typy pojazdów
-                  </h4>
-                  {vehicles &&
-                    vehicles.map((vehicle) => (
-                      <React.Fragment key={vehicle.id}>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            onCheckedChange={() =>
-                              handleVehicleChange(vehicle.id)
-                            }
-                            checked={selectedVehicles.includes(vehicle.id)}
-                          />
-                          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
-                            {vehicle.name} {`(${vehicle._count.transports})`}
-                          </label>
-                        </div>
-                        <Separator className="my-2" />
-                      </React.Fragment>
-                    ))}
-                </div>
-                <Button
-                  className="flex mx-auto w-40 my-5"
-                  onClick={handleSearch}
-                >
-                  Szukaj
-                </Button>
-              </ScrollArea>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <>
-          {transports.length === 0 ? (
-            <Card className="w-full">
-              <CardHeader className="w-full justify-center items-center py-10">
-                <h3 className="text-xl text-center">
-                  Brak ogłoszeń do wyświetlenia
-                </h3>
-              </CardHeader>
-              <CardContent className="flex justify-center items-center">
-                <Lottie
-                  animationData={noOffers}
-                  className="flex justify-center items-center w-60"
-                  loop={true}
-                />
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              {filteredTransports.length === 0 && transports.length > 0 ? (
-                <Card className="w-full">
-                  <CardHeader className="w-full justify-center items-center py-10">
-                    <h3 className="text-xl text-center">
-                      Brak ogłoszeń dla wybranych parametrów wyszukiwania
-                    </h3>
-                  </CardHeader>
-                  <CardContent className="flex justify-center items-center">
-                    <Lottie
-                      animationData={noResults}
-                      className="flex justify-center items-center"
-                      loop={true}
-                    />
-                  </CardContent>
-                </Card>
-              ) : (
-                <TransportsMap transports={filteredTransports} />
-              )}
-            </>
-          )}
-        </>
+
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="text-gray-500 gap-1"
+          >
+            <X size={14} />
+            Wyczyść filtry
+          </Button>
+        )}
+
+        <span className="ml-auto text-sm text-muted-foreground">
+          {filteredTransports.length}{" "}
+          {filteredTransports.length === 1 ? "ogłoszenie" : "ogłoszeń"}
+        </span>
+      </div>
+
+      {/* Results */}
+      <div className="pt-6">
+        {transports.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Lottie
+              animationData={noOffers}
+              className="w-48"
+              loop={true}
+            />
+            <p className="mt-4 text-muted-foreground">
+              Brak ogłoszeń do wyświetlenia
+            </p>
+          </div>
+        ) : filteredTransports.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Lottie
+              animationData={noResults}
+              className="w-48"
+              loop={true}
+            />
+            <p className="mt-4 text-muted-foreground">
+              Brak ogłoszeń dla wybranych filtrów
+            </p>
+          </div>
+        ) : (
+          <TransportsMap transports={filteredTransports} />
+        )}
       </div>
     </div>
   );

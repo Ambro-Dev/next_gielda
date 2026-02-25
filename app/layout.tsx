@@ -1,10 +1,15 @@
 import TopBar from "@/components/TopBar";
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Barlow } from "next/font/google";
+
+const barlow = Barlow({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-barlow",
+});
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "./context/authProvider";
-import { GoogleApiProvider } from "./context/googleApiProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "./context/socket-provider";
 import MessageProvider from "./context/message-provider";
@@ -28,26 +33,24 @@ export default async function RootLayout({
   return (
     <NextAuthProvider>
       <html lang="pl">
-        <body>
-          <GoogleApiProvider>
-            <MessageProvider>
-              <SocketProvider>
-                <NextSSRPlugin
-                  routerConfig={extractRouterConfig(ourFileRouter)}
-                />
-                <main className="relative flex min-h-screen w-full flex-col bg-gray-100">
-                  <Toaster />
-                  <TopBar />
+        <body className={`${barlow.variable} font-sans`}>
+          <MessageProvider>
+            <SocketProvider>
+              <NextSSRPlugin
+                routerConfig={extractRouterConfig(ourFileRouter)}
+              />
+              <main className="relative flex min-h-screen w-full flex-col bg-background">
+                <Toaster />
+                <TopBar />
 
-                  <div className="lg:pt-36 pt-20 flex-grow mx-auto max-w-7xl px-1 w-full">
-                    {children}
-                  </div>
+                <div className="pt-20 flex-grow mx-auto max-w-7xl px-3 w-full">
+                  {children}
+                </div>
 
-                  <Footer />
-                </main>
-              </SocketProvider>
-            </MessageProvider>
-          </GoogleApiProvider>
+                <Footer />
+              </main>
+            </SocketProvider>
+          </MessageProvider>
         </body>
       </html>
     </NextAuthProvider>

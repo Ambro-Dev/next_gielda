@@ -26,9 +26,9 @@ type Transport = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     schoolId: string;
-  };
+  }>;
 };
 
 const getSchoolTransports = async (schoolId: string) => {
@@ -42,9 +42,8 @@ const getSchoolTransports = async (schoolId: string) => {
 };
 
 const SchoolTransports = async (props: Props) => {
-  const transportsData = await getSchoolTransports(
-    String(props.params.schoolId)
-  );
+  const { schoolId } = await props.params;
+  const transportsData = await getSchoolTransports(schoolId);
 
   const transports = await transportsData.map((transport: Transport) => {
     const formatedDate = new Date(transport.createdAt).toLocaleDateString(
@@ -64,7 +63,7 @@ const SchoolTransports = async (props: Props) => {
     <TransportsTable
       columns={columns}
       transports={transports}
-      school={props.params.schoolId}
+      school={schoolId}
     />
   );
 };

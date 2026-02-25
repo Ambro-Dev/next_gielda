@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import { OfferWithCreator } from "./contact-card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
 
 const formatDate = (date: Date) => {
@@ -31,15 +30,15 @@ type Props = {
 
 export function OffersTable({ transportId, data, user, owner }: Props) {
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableCaption>Lista złożonych ofert</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Nazwa użytkownika</TableHead>
+          <TableHead>Nazwa użytkownika</TableHead>
           <TableHead>Dane oferty</TableHead>
-          <TableHead className="text-right w-[100px]">
-            Proponowana cena
-          </TableHead>
+          <TableHead className="text-right">Proponowana cena</TableHead>
+          <TableHead className="w-[80px]"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -50,40 +49,44 @@ export function OffersTable({ transportId, data, user, owner }: Props) {
             </TableCell>
             <TableCell>
               {owner === user || item.creator.id === user ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1 text-sm">
                   <span>
-                    Data załadunku: {formatDate(item.loadDate)} -{" "}
+                    Załadunek: {formatDate(item.loadDate)} -{" "}
                     {formatDate(item.unloadDate)}
                   </span>
-                  <span>Termin dostawy: w ciągu {item.unloadTime} dni</span>
+                  <span className="text-gray-500">
+                    Dostawa: w ciągu {item.unloadTime} dni
+                  </span>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <span>...</span>
-                </div>
+                <span className="text-gray-400">...</span>
               )}
             </TableCell>
             <TableCell className="text-right">
               {owner === user || item.creator.id === user ? (
-                <div className="flex flex-col gap-2">
-                  <span>
+                <div>
+                  <span className="font-medium">
                     {item.brutto} {item.currency}
                   </span>
-                  <span className="text-xs text-gray-500">brutto</span>
-
-                  <Link href={`/transport/${transportId}/offer/${item.id}`}>
-                    <Button>Wyświetl</Button>
-                  </Link>
+                  <span className="text-xs text-gray-500 ml-1">brutto</span>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <span>...</span>
-                </div>
+                <span className="text-gray-400">...</span>
+              )}
+            </TableCell>
+            <TableCell>
+              {(owner === user || item.creator.id === user) && (
+                <Link href={`/transport/${transportId}/offer/${item.id}`}>
+                  <Button variant="outline" size="sm">
+                    Wyświetl
+                  </Button>
+                </Link>
               )}
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

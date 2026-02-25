@@ -1,13 +1,21 @@
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import sendResetPassword from "@/app/lib/resetPassword";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const POST = async (req: NextRequest) => {
   const email = req.nextUrl.searchParams.get("email");
 
   if (!email) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  if (!checkRateLimit(`forgot-password:${email}`, 3, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Zbyt wiele prób. Spróbuj ponownie za 15 minut." },
+      { status: 429 },
+    );
   }
 
   const user = await prisma.user.findFirst({
@@ -17,7 +25,7 @@ export const POST = async (req: NextRequest) => {
   if (!user) {
     return NextResponse.json(
       { message: "Nie ma użytkownika z tym adresem email" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -39,7 +47,7 @@ export const POST = async (req: NextRequest) => {
         {
           message: "Hasło było resetowane kilka minut temu, spróbuj za 15 min",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
     await prisma.resetToken.delete({
@@ -56,10 +64,10 @@ export const POST = async (req: NextRequest) => {
           id: user.id,
         },
       },
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
+      expires: new Date(Date.now() + 1000 * 60 * 30), // 30 min
       token: bcrypt.hashSync(
         user.email + Date.now() + process.env.RESET_TOKEN_SALT,
-        10
+        10,
       ),
     },
   });
@@ -74,6 +82,6 @@ export const POST = async (req: NextRequest) => {
 
   return NextResponse.json(
     { message: "Wysłano email z linkiem do resetu hasła" },
-    { status: 200 }
+    { status: 200 },
   );
 };

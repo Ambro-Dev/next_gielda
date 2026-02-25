@@ -15,11 +15,15 @@ import {
 } from "@/components/ui/form";
 import React from "react";
 
+type LatLng = { lat: number; lng: number };
+
 type NewTransportMapCardProps = {
-  setStartDestination: (position: google.maps.LatLngLiteral) => void;
-  setEndDestination: (position: google.maps.LatLngLiteral) => void;
-  startDestination?: google.maps.LatLngLiteral;
-  endDestination?: google.maps.LatLngLiteral;
+  setStartDestination: (position: LatLng) => void;
+  setEndDestination: (position: LatLng) => void;
+  setStartAddress?: (address: string) => void;
+  setEndAddress?: (address: string) => void;
+  startDestination?: LatLng;
+  endDestination?: LatLng;
 };
 
 const formSchema = z.object({
@@ -36,6 +40,8 @@ const formSchema = z.object({
 const NewTransportMapCard = ({
   setStartDestination,
   setEndDestination,
+  setStartAddress,
+  setEndAddress,
   startDestination,
   endDestination,
 }: NewTransportMapCardProps) => {
@@ -60,10 +66,12 @@ const NewTransportMapCard = ({
   }, [form.watch("finish")]);
 
   return (
-    <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-8 py-10">
+    <div className="border border-gray-200 rounded-lg p-6 space-y-6">
+      <h2 className="text-base font-semibold">Trasa transportu</h2>
+      <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-6">
       <div className="flex items-center justify-center">
         <Form {...form}>
-          <form className="space-y-8 w-full">
+          <form className="space-y-6 w-full">
             <FormField
               control={form.control}
               name="start"
@@ -71,7 +79,10 @@ const NewTransportMapCard = ({
                 <FormItem className="flex flex-col">
                   <FormLabel>Miejsce wysyłki</FormLabel>
                   <FormControl>
-                    <TransportMapSelector setPlace={field.onChange} />
+                    <TransportMapSelector
+                      setPlace={field.onChange}
+                      setAddress={setStartAddress}
+                    />
                   </FormControl>
                   <FormDescription>
                     Wybierz miejsce wysyłki (Forma wyszukiwania{" "}
@@ -88,7 +99,10 @@ const NewTransportMapCard = ({
                 <FormItem className="flex flex-col">
                   <FormLabel>Miejsce odbioru</FormLabel>
                   <FormControl>
-                    <TransportMapSelector setPlace={field.onChange} />
+                    <TransportMapSelector
+                      setPlace={field.onChange}
+                      setAddress={setEndAddress}
+                    />
                   </FormControl>
                   <FormDescription>
                     Wybierz miejsce odbioru (Forma wyszukiwania{" "}
@@ -101,11 +115,12 @@ const NewTransportMapCard = ({
           </form>
         </Form>
       </div>
-      <div className="w-full">
+      <div className="w-full rounded-lg overflow-hidden min-h-[300px]">
         <MapWithDirections
           start={form.watch("start")}
           finish={form.watch("finish")}
         />
+      </div>
       </div>
     </div>
   );

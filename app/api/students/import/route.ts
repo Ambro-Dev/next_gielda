@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import generator from "generate-password";
 import prisma from "@/lib/prismadb";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import sendPasswordToNewUser from "@/app/lib/sendPasswordToNewUser";
+import { auth } from "@/auth";
 
 type Student = {
   imie: string;
@@ -12,13 +13,20 @@ type Student = {
 };
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "school_admin" && session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   try {
     const body = await req.json();
 
     const { school, students } = body;
 
     if (!school || !students) {
-      return NextResponse.json({ error: "Brakuje wymaganych pól", status: 400 });
+      return NextResponse.json({
+        error: "Brakuje wymaganych pól",
+        status: 400,
+      });
     }
 
     const schoolExists = await prisma.school.findUnique({
@@ -30,7 +38,10 @@ export const POST = async (req: NextRequest) => {
     }
 
     if (!students.length) {
-      return NextResponse.json({ error: "Nie znaleziono uczniów", status: 404 });
+      return NextResponse.json({
+        error: "Nie znaleziono uczniów",
+        status: 404,
+      });
     }
 
     const countStudents = await prisma.student.count({
@@ -84,7 +95,7 @@ export const POST = async (req: NextRequest) => {
           where: { email: student.user.create.email },
         });
         return { student, emailTaken: !!emailTaken };
-      })
+      }),
     );
 
     const correctStudents = emailCheckResults
@@ -143,19 +154,26 @@ export const POST = async (req: NextRequest) => {
               password,
               name: student.name,
             }).catch((emailError) => {
-              console.error("Failed to send email to", student.user.create.email, emailError);
+              console.error(
+                "Failed to send email to",
+                student.user.create.email,
+                emailError,
+              );
             });
 
             return {
               name_surname: `${student.name} ${student.surname}`,
-              password: password,
               username: username,
               email: student.user.create.email,
               created: true,
             };
           }
         } catch (createError) {
-          console.error("Failed to create student", student.user.create.email, createError);
+          console.error(
+            "Failed to create student",
+            student.user.create.email,
+            createError,
+          );
           return {
             name_surname: `${student.name} ${student.surname}`,
             username: username,
@@ -164,20 +182,20 @@ export const POST = async (req: NextRequest) => {
             error: "Nie udało się utworzyć ucznia",
           };
         }
-      })
+      }),
     );
 
     const results = [...invalidStudents, ...createdStudents].filter(Boolean);
 
     return NextResponse.json(
       { message: "Utworzono uczniów", results },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Import error:", error);
     return NextResponse.json(
       { error: "Wystąpił błąd podczas importu", status: 500 },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

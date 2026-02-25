@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 import { Object } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const {
     sendDate,
@@ -15,7 +21,6 @@ export const POST = async (req: NextRequest) => {
     receiveTime,
     description,
     objects,
-    creator,
     directions,
     duration,
     distance,
@@ -23,6 +28,8 @@ export const POST = async (req: NextRequest) => {
     end_address,
     polyline,
   } = body;
+
+  const creator = session.user.id;
 
   if (
     !sendDate ||
@@ -130,6 +137,11 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   // Update expired transports
   try {
     await prisma.transport.updateMany({

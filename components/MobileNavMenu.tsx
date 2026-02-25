@@ -1,40 +1,33 @@
 "use client";
+
 import React from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
 import Link from "next/link";
-import { SheetClose, SheetTrigger } from "@/components/ui/sheet";
+import { SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SocketIndicator } from "@/components/ui/socket-indicator";
 import {
   Bug,
+  ChevronRight,
   LogOut,
   MessageSquare,
-  Paperclip,
   PenBox,
+  Plus,
   Settings,
   User,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { School } from "@prisma/client";
-import { Session } from "next-auth/core/types";
+import { Session } from "next-auth";
 import { useMessages } from "@/app/context/message-provider";
-import { useRouter } from "next/navigation";
 import { Separator } from "./ui/separator";
 
 type Props = {
@@ -43,26 +36,41 @@ type Props = {
   menu: { title: string; href: string; description: string }[];
 };
 
+const NavLink = ({
+  href,
+  children,
+  badge,
+}: {
+  href: string;
+  children: React.ReactNode;
+  badge?: number;
+}) => (
+  <SheetClose asChild>
+    <Link
+      href={href}
+      className="flex items-center justify-between w-full px-3 py-2.5 text-sm text-gray-700 hover:text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
+    >
+      <span>{children}</span>
+      <div className="flex items-center gap-2">
+        {badge !== undefined && badge > 0 && (
+          <span className="w-5 h-5 text-[10px] font-semibold flex items-center justify-center text-white bg-red-500 rounded-full">
+            {badge}
+          </span>
+        )}
+        <ChevronRight size={14} className="text-gray-400" />
+      </div>
+    </Link>
+  </SheetClose>
+);
+
 const MobileNavMenu = (props: Props) => {
   const { school, data, menu } = props;
   const { offers, messages, offerMessages, reports } = useMessages();
-  const router = useRouter();
   const isAuth = data?.user ? true : false;
-
-  const avatar = (
-    <div className="flex flex-col justify-center items-center space-y-2">
-      <Avatar className="w-16 h-16">
-        <AvatarFallback className="text-sm">
-          {data?.user.username.substring(0, 1).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <span>{data?.user.username}</span>
-    </div>
-  );
 
   const untilExpire = () => {
     if (school?.accessExpires) {
-      const date = new Date(school?.accessExpires);
+      const date = new Date(school.accessExpires);
       const now = new Date();
       const diff = date.getTime() - now.getTime();
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -73,231 +81,151 @@ const MobileNavMenu = (props: Props) => {
       if (days > 0) return `${days} dni`;
       if (days === 0 && hours > 0) return `${hours} godz.`;
       if (days === 0 && hours === 0 && minutes > 0) return `${minutes} min.`;
-      if (days === 0 && hours === 0 && minutes === 0) return "Wygasło";
-    } else {
-      return "Nieokreślony";
+      return "Wygasło";
     }
+    return "Nieokreślony";
   };
 
   return (
-    <NavigationMenu>
-      <NavigationMenuList className="gap-4 flex-col">
+    <nav className="flex flex-col w-full gap-1">
+      {/* User info */}
+      {isAuth && (
+        <>
+          <div className="flex items-center gap-3 px-3 py-3">
+            <Avatar className="h-10 w-10 ring-2 ring-primary/30">
+              <AvatarFallback className="text-sm bg-primary/10 text-primary font-semibold">
+                {data?.user.username?.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{data?.user.username}</span>
+              <div className="flex items-center gap-1.5">
+                <SocketIndicator />
+                {school && (
+                  <span className="text-xs text-gray-500">
+                    Dostęp:{" "}
+                    <span className="font-medium text-red-500">
+                      {untilExpire()}
+                    </span>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <Separator />
+        </>
+      )}
+
+      {/* Add transport CTA */}
+      {isAuth && (
+        <div className="px-3 py-2">
+          <SheetClose asChild>
+            <Link href="/transport/add" className="block">
+              <Button variant="brand" size="sm" className="w-full gap-1.5">
+                <Plus size={14} />
+                Dodaj ogłoszenie
+              </Button>
+            </Link>
+          </SheetClose>
+        </div>
+      )}
+
+      {/* Navigation links */}
+      <div className="flex flex-col">
+        <NavLink href="/transport">Giełda transportowa</NavLink>
         {isAuth && (
           <>
-            <NavigationMenuItem className="hover:cursor-pointer">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="relative">
-                    {offers.length + messages.length + offerMessages.length >
-                      0 && (
-                      <div className="absolute z-10 -top-2 -right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                        {offers.length + messages.length + offerMessages.length}
-                      </div>
-                    )}
-                    {avatar}
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel className="flex flex-wrap justify-between">
-                    Moje konto <SocketIndicator />
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/user/profile/account")}
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      <SheetClose asChild>
-                        <span>Profil</span>
-                      </SheetClose>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-amber-400"
-                      onClick={() => router.replace("/user/profile/settings")}
-                    >
-                      <Settings className="mr-2 h-4 w-4" />
-                      <SheetClose asChild>
-                        <span>Ustawienia</span>
-                      </SheetClose>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer relative hover:bg-amber-400"
-                      onClick={() => router.replace("/user/market/messages")}
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      {messages.length > 0 && (
-                        <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                          {messages.length}
-                        </div>
-                      )}
-                      <SheetClose asChild>
-                        <span>Wiadomości</span>
-                      </SheetClose>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer relative hover:bg-amber-400"
-                      onClick={() => router.replace("/user/market/offers")}
-                    >
-                      <PenBox className="mr-2 h-4 w-4" />
-                      {offers.length + offerMessages.length > 0 && (
-                        <div className="absolute z-10 right-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                          {offers.length + offerMessages.length}
-                        </div>
-                      )}
-                      <SheetClose asChild>
-                        <span>Oferty</span>
-                      </SheetClose>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="hover:cursor-pointer hover:bg-zinc-200 text-red-600 font-semibold"
-                      onClick={() => router.replace("/report")}
-                    >
-                      <Bug className="mr-2 h-4 w-4 " />
-                      <SheetClose asChild>
-                        <span>Zgłoś uwagę</span>
-                      </SheetClose>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut()}
-                    className="hover:cursor-pointer hover:bg-neutral-200"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <SheetClose asChild>
-                      <span>Wyloguj</span>
-                    </SheetClose>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </NavigationMenuItem>
-            <Separator />
+            <NavLink href="/vehicles">Dostępne pojazdy</NavLink>
+            <NavLink href="/user/market">Moja giełda</NavLink>
+            <NavLink href="/documents">Dokumenty do pobrania</NavLink>
+            <NavLink
+              href="/user/market/messages"
+              badge={messages.length}
+            >
+              Wiadomości
+            </NavLink>
+            <NavLink
+              href="/user/market/offers"
+              badge={offers.length + offerMessages.length}
+            >
+              Oferty
+            </NavLink>
           </>
         )}
-        {data?.user.role === "school_admin" && (
-          <NavigationMenuItem>
-            <Link href="/school" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                <SheetClose asChild>
-                  <Button>Zarządzaj szkołą</Button>
-                </SheetClose>
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-        )}
-        {data?.user?.role === "admin" && (
-          <NavigationMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild className="relative">
-                <div>
-                  {reports.length > 0 && (
-                    <div className="absolute z-10 -right-2 -top-2 w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                      {reports.length}
-                    </div>
-                  )}
-                  <Button>Panel administracyjny</Button>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" side="bottom">
-                <DropdownMenuGroup>
-                  {menu.map((item) => (
-                    <div key={item.title}>
-                      <SheetClose asChild>
-                        <DropdownMenuItem
-                          className="flex flex-col w-full justify-center items-start gap-2"
-                          onClick={() => router.replace(item.href)}
-                        >
-                          <div className="flex justify-between w-full">
-                            <span className="font-bold">{item.title}</span>
-                            {reports.length > 0 &&
-                              item.href === "/admin/reports" && (
-                                <div className="w-5 text-[10px] font-semibold h-5 flex justify-center text-white items-center bg-red-500 rounded-full">
-                                  {reports.length}
-                                </div>
-                              )}
-                          </div>
-                          <span>{item.description}</span>
-                        </DropdownMenuItem>
-                      </SheetClose>
-                      <DropdownMenuSeparator />
-                    </div>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </NavigationMenuItem>
-        )}
-        <NavigationMenuItem className="text-amber-500 font-bold hover:bg-amber-500 py-2 px-3 transition-all duration-500 rounded-md hover:text-black text-sm hover:font-semibold">
-          <Link href="/transport/add" legacyBehavior passHref>
-            <NavigationMenuLink>
-              <SheetClose asChild>
-                <p>Dodaj ogłoszenie</p>
-              </SheetClose>
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link href="/" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              <SheetTrigger asChild>
-                <p>Giełda transportowa</p>
-              </SheetTrigger>
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-        {!isAuth ? (
-          <NavigationMenuItem>
-            <Link href="/signin" legacyBehavior passHref>
-              <SheetTrigger asChild>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Zaloguj się
-                </NavigationMenuLink>
-              </SheetTrigger>
-            </Link>
-          </NavigationMenuItem>
-        ) : (
-          <>
-            <NavigationMenuItem>
-              <Link href="/vehicles" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <SheetTrigger asChild>
-                    <p>Dostępne pojazdy</p>
-                  </SheetTrigger>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/user/market" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <SheetTrigger asChild>
-                    <span>Moja giełda</span>
-                  </SheetTrigger>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/documents" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  <SheetTrigger asChild>
-                    <span>Dokumenty do pobrania</span>
-                  </SheetTrigger>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+      </div>
 
-            {school && (
-              <NavigationMenuItem className="text-sm">
-                Dostęp wygaśnie za:{" "}
-                <span className="font-semibold text-red-500">
-                  {untilExpire()}
-                </span>
-              </NavigationMenuItem>
-            )}
-          </>
-        )}
-      </NavigationMenuList>
-    </NavigationMenu>
+      {/* Admin / School admin */}
+      {data?.user.role === "school_admin" && (
+        <>
+          <Separator />
+          <NavLink href="/school">Zarządzaj szkołą</NavLink>
+        </>
+      )}
+
+      {data?.user?.role === "admin" && (
+        <>
+          <Separator />
+          <div className="px-3 py-1.5">
+            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              Administracja
+            </span>
+          </div>
+          {menu.map((item) => (
+            <NavLink
+              key={item.title}
+              href={item.href}
+              badge={
+                item.href === "/admin/reports" ? reports.length : undefined
+              }
+            >
+              {item.title}
+            </NavLink>
+          ))}
+        </>
+      )}
+
+      {/* User actions */}
+      {isAuth && (
+        <>
+          <Separator />
+          <NavLink href="/user/profile/account">Profil</NavLink>
+          <NavLink href="/user/profile/settings">Ustawienia</NavLink>
+          <SheetClose asChild>
+            <Link
+              href="/report"
+              className="flex items-center w-full px-3 py-2.5 text-sm text-red-600 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <Bug className="mr-2 h-4 w-4" />
+              Zgłoś uwagę
+            </Link>
+          </SheetClose>
+          <Separator />
+          <button
+            onClick={() => signOut()}
+            className="flex items-center w-full px-3 py-2.5 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Wyloguj
+          </button>
+        </>
+      )}
+
+      {/* Sign in for unauthenticated */}
+      {!isAuth && (
+        <>
+          <Separator />
+          <div className="px-3 py-2">
+            <SheetClose asChild>
+              <Link href="/signin" className="block">
+                <Button variant="outline" size="sm" className="w-full">
+                  Zaloguj się
+                </Button>
+              </Link>
+            </SheetClose>
+          </div>
+        </>
+      )}
+    </nav>
   );
 };
 

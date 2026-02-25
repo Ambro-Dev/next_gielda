@@ -1,25 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 
 export const GET = async (req: NextRequest) => {
-  const userId = req.nextUrl.searchParams.get("userId");
-
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({ error: "Brakuje ID użytkownika", status: 400 });
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json({
-      error: "Nie znaleziono użytkownika",
-      status: 404,
-    });
-  }
+  const userId = session.user.id;
 
   const transports = await prisma.transport.findMany({
     where: {
@@ -55,6 +44,11 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
+      polyline: true,
+      start_address: true,
+      end_address: true,
+      distance: true,
+      duration: true,
       sendTime: true,
       receiveTime: true,
       vehicle: {

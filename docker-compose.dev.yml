@@ -1,0 +1,45 @@
+# Development Docker Compose - MongoDB only
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+#   npm run dev
+#
+# MongoDB will be available at: mongodb://localhost:27017/edugielda?directConnection=true
+
+services:
+  mongodb-dev:
+    image: mongo:7.0
+    container_name: fenilo-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    command: mongod --replSet rs0 --bind_ip_all
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  mongo-init:
+    image: mongo:7.0
+    container_name: fenilo-mongo-init
+    depends_on:
+      mongodb-dev:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      mongosh --host mongodb-dev:27017 --eval '
+        try {
+          rs.status();
+          print("Replica set already initialized");
+        } catch(e) {
+          rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] });
+          print("Replica set initialized");
+        }
+      '
+
+volumes:
+  mongodb_dev_data:
+    driver: local

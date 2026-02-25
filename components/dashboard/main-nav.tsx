@@ -44,7 +44,7 @@ export function MainNav({
             pathname === `/admin/schools/${schoolId}` ? selected : notSelected
           }
         >
-          Panel gówny
+          Panel główny
         </Link>
         <Link
           href={`/admin/schools/${schoolId}/students`}
@@ -100,7 +100,7 @@ export function MainNav({
                       : notSelected
                   }
                 >
-                  Panel gówny
+                  Panel główny
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

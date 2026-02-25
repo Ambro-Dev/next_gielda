@@ -1,37 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
 
-  const { place, content, userId, file } = body;
+  const { place, content, file } = body;
+  const userId = session.user.id;
 
   if (!place || !content) {
     return NextResponse.json(
       { error: "Brakuje wymaganych pól" },
       { status: 400 }
-    );
-  }
-
-  if (!userId) {
-    return NextResponse.json(
-      { error: "Użytkownik nie jest zalogowany" },
-      { status: 400 }
-    );
-  }
-
-  const userExists = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
-  if (!userExists) {
-    return NextResponse.json(
-      {
-        error: "Nie znaleziono użytkownika",
-      },
-      {
-        status: 404,
-      }
     );
   }
 
@@ -70,6 +53,9 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const reports = await prisma.report.findMany({
     select: {
       id: true,

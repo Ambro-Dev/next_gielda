@@ -18,9 +18,9 @@ import React from "react";
 import AdminsCarousel from "./components/AdminsCarousel";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     schoolId: string;
-  };
+  }>;
 }
 
 type SchoolWithTransports = {
@@ -74,8 +74,9 @@ const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
   }
 };
 
-export default async function SchoolPage({ params }: PageProps) {
-  const data = await getSchool(params.schoolId);
+export default async function SchoolPage({ params: paramsPromise }: PageProps) {
+  const { schoolId } = await paramsPromise;
+  const data = await getSchool(schoolId);
 
   const timeToExpire = GetExpireTimeLeft(data.school.accessExpires);
 
@@ -108,7 +109,7 @@ export default async function SchoolPage({ params }: PageProps) {
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="col-span-2 gap-4">
-              <Card className="carousel flex flex-row">
+              <Card className="border border-gray-200 shadow-sm">
                 {data.school.administrators.length > 0 ? (
                   <AdminsCarousel administrators={data.school.administrators} />
                 ) : (
@@ -117,14 +118,14 @@ export default async function SchoolPage({ params }: PageProps) {
                       Jednostka nie posiada administratora, dodaj go.
                       Administrator będzie miał możliwość zarządzania jednostką.
                     </p>
-                    <AddSchoolAdmin schoolId={params.schoolId} />
+                    <AddSchoolAdmin schoolId={schoolId} />
                   </div>
                 )}
               </Card>
               {data.school.administrators.length > 0 && (
                 <div className="w-full pt-2">
                   <AddSchoolAdmin
-                    schoolId={params.schoolId}
+                    schoolId={schoolId}
                     className="w-full"
                     size="default"
                     variant="secondary"
@@ -133,12 +134,12 @@ export default async function SchoolPage({ params }: PageProps) {
               )}
             </div>
 
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-gray-500">
                   Transporty
                 </CardTitle>
-                <Truck size={24} className="text-muted-foreground" />
+                <Truck size={20} className="text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -146,12 +147,12 @@ export default async function SchoolPage({ params }: PageProps) {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-gray-500">
                   Konta uczniów
                 </CardTitle>
-                <Users size={24} className="text-muted-foreground" />
+                <Users size={20} className="text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -161,7 +162,7 @@ export default async function SchoolPage({ params }: PageProps) {
             </Card>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="col-span-2 p-2">
+            <Card className="col-span-2 border border-gray-200 shadow-sm">
               <CardHeader>
                 <CardTitle>Ostatnie transporty</CardTitle>
                 <CardDescription>Transporty ostatnio dodane</CardDescription>

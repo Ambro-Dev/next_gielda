@@ -1,4 +1,3 @@
-import { CardContent } from "@/components/ui/card";
 import GoBack from "@/components/ui/go-back";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios";
@@ -14,9 +13,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 type Props = {
-  params: {
+  params: Promise<{
     reportId: string;
-  };
+  }>;
 };
 
 type ReportWithUser = Report & {
@@ -51,7 +50,7 @@ const getReport = async (reportId: string): Promise<ReportWithUser> => {
 };
 
 const Page = async (props: Props) => {
-  const { reportId } = props.params;
+  const { reportId } = await props.params;
 
   if (reportId.length !== 24) notFound();
 
@@ -64,14 +63,17 @@ const Page = async (props: Props) => {
   const labelStyle = "text-sm font-semibold text-gray-500";
 
   return (
-    <div>
-      <CardContent className="sm:p-6 p-3">
-        <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:space-y-0 space-y-6 sm:gap-6 gap-0">
+    <div className="py-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Szczegóły zgłoszenia</h1>
+        <p className="text-sm text-gray-500 mt-1">Informacje o zgłoszeniu i użytkowniku.</p>
+      </div>
+      <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:space-y-0 space-y-6 sm:gap-6 gap-0">
           <div className="md:col-span-1 sm:col-span-2 col-span-1 row-span-2 grid grid-cols-1 gap-6">
-            <div className="border-2 drop-shadow-md rounded-lg py-2">
-              <div className="flex flex-row gap-4 px-5 items-center pb-2">
-                <User2 className="w-12 h-12" />
-                <span className="text-lg font-semibold">Dane użytkownika</span>
+            <div className="border border-gray-200 shadow-sm rounded-lg py-2">
+              <div className="flex flex-row gap-3 px-5 items-center pb-2">
+                <User2 className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-semibold">Dane użytkownika</span>
               </div>
               <Separator />
               <div className="flex flex-col space-y-2 px-5 py-2 gap-2">
@@ -106,10 +108,10 @@ const Page = async (props: Props) => {
                 </div>
               </div>
             </div>
-            <div className="border-2 drop-shadow-md rounded-lg py-2">
-              <div className="flex flex-row gap-4 px-5 items-center pb-2">
-                <School2 className="w-12 h-12" />
-                <span className="text-lg font-semibold">Dane szkoły</span>
+            <div className="border border-gray-200 shadow-sm rounded-lg py-2">
+              <div className="flex flex-row gap-3 px-5 items-center pb-2">
+                <School2 className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-semibold">Dane szkoły</span>
               </div>
               <Separator />
               <div className="flex flex-col space-y-2 px-5 py-2 gap-4">
@@ -136,7 +138,7 @@ const Page = async (props: Props) => {
               </div>
             </div>
           </div>
-          <div className="relative sm:col-span-2 col-span-1 sm:row-span-2 border-2 rounded-xl flex justify-center items-center text-center max-h-[500px]">
+          <div className="relative sm:col-span-2 col-span-1 sm:row-span-2 border border-gray-200 shadow-sm rounded-lg flex justify-center items-center text-center max-h-[500px]">
             {report.fileUrl ? (
               <Image
                 src={report.fileUrl}
@@ -163,10 +165,10 @@ const Page = async (props: Props) => {
               </>
             )}
           </div>
-          <div className="border-2 md:col-span-3 sm:col-span-2 col-span-1 drop-shadow-md rounded-lg py-2">
-            <div className="flex flex-row gap-4 px-5 items-center pb-2">
-              <Package className="w-12 h-12" />
-              <span className="text-lg font-semibold">
+          <div className="border border-gray-200 shadow-sm md:col-span-3 sm:col-span-2 col-span-1 rounded-lg py-2">
+            <div className="flex flex-row gap-3 px-5 items-center pb-2">
+              <Package className="w-5 h-5 text-gray-400" />
+              <span className="text-sm font-semibold">
                 Szczegóły zgłoszenia
               </span>
             </div>
@@ -198,7 +200,6 @@ const Page = async (props: Props) => {
             </Button>
           </Link>
         </div>
-      </CardContent>
     </div>
   );
 };

@@ -1,12 +1,9 @@
 import React from "react";
 
-import { Card } from "@/components/ui/card";
 import { AddUserForm } from "./add-user-form";
 import { DataTable } from "./all-users-table";
 import { User, columns } from "./columns";
 import { axiosInstance } from "@/lib/axios";
-
-type Props = {};
 
 async function getUsers(): Promise<User[]> {
   try {
@@ -19,15 +16,16 @@ async function getUsers(): Promise<User[]> {
   }
 }
 
-async function UsersPage({}: Props) {
+async function UsersPage() {
   const data = await getUsers();
   return (
-    <div className="flex flex-col">
-      <div className="flex p-5">
-        <h3 className="text-3xl font-bold tracking-tight">Użytkownicy</h3>
+    <div className="py-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Użytkownicy</h1>
+        <p className="text-sm text-gray-500 mt-1">Zarządzaj kontami użytkowników.</p>
       </div>
       <DataTable columns={columns} data={data} />
-      <div className="w-full px-10 pb-10">
+      <div className="w-full pb-6">
         <AddUserForm />
       </div>
     </div>

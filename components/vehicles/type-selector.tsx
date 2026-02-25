@@ -1,22 +1,19 @@
 "use client";
 
-import React from "react";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectLabel,
-  SelectGroup,
-  SelectSeparator,
-} from "@/components/ui/select";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Vehicle } from "@/lib/types/vehicles";
+import { cn } from "@/lib/utils";
+import { Check, ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 type Props = {
   vehicles: Vehicle;
+  selectedVehicleId?: string;
   setSelectedVehicle: React.Dispatch<
     React.SetStateAction<{
       id: string;
@@ -33,11 +30,17 @@ type Props = {
   >;
 };
 
-const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
+const TypeSelector = ({
+  vehicles,
+  selectedVehicleId,
+  setSelectedVehicle,
+}: Props) => {
+  const [openCategory, setOpenCategory] = useState<string | null>("Naczepy");
+
   const categoryList = [
     {
-      name: "Przyczepki samochodowe",
-      vehicles: vehicles.carTrailer,
+      name: "Naczepy",
+      vehicles: vehicles.trailers,
     },
     {
       name: "Samochody ciężarowe",
@@ -52,77 +55,75 @@ const TypeSelector = ({ vehicles, setSelectedVehicle }: Props) => {
       vehicles: vehicles.bus,
     },
     {
-      name: "Naczepy",
-      vehicles: vehicles.trailers,
+      name: "Przyczepki samochodowe",
+      vehicles: vehicles.carTrailer,
     },
   ];
 
-  return (
-    <Select
-      onValueChange={(value) => {
-        const vehicle = Object.values(vehicles).flatMap((vehicles) =>
-          vehicles.filter((vehicle) => vehicle.name === value)
-        )[0];
-        setSelectedVehicle(vehicle);
-      }}
-    >
-      <SelectTrigger className="w-full sm:py-24 md:py-14 py-32 items-center">
-        <SelectValue placeholder="Typ pojazdu" />
-      </SelectTrigger>
-      <SelectContent className="overflow-y-auto overflow-x-auto max-h-[500px] lg:max-w-xl">
-        {categoryList.map((category) => (
-          <React.Fragment key={category.name}>
-            <SelectGroup>
-              <SelectLabel>{category.name}</SelectLabel>
-              {category.vehicles.map((vehicle) => (
-                <SelectItem key={vehicle.id} value={vehicle.name}>
-                  <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6 ">
-                    <Image
-                      src={vehicle.icon}
-                      alt={vehicle.name}
-                      width={200}
-                      height={133}
-                      priority
-                      className="h-auto w-auto max-w-[200px]"
-                    />
-                    <div className="items-center flex font-semibold">
-                      <span>{vehicle.name}</span>
-                    </div>
-                    <div className="grid md:grid-cols-1 grid-cols-3 md:col-span-1 sm:col-span-2 col-span-1 items-center py-5 font-semibold">
-                      <span>
-                        {vehicle.id.includes("tanker")
-                          ? "Promień beczki"
-                          : "Wyskość"}
-                        : <span className="font-normal">{vehicle.size[1]}</span>
-                      </span>
-                      {vehicle.id.includes("tanker") ? null : (
-                        <span>
-                          Długość:{" "}
-                          <span className="font-normal">{vehicle.size[2]}</span>
-                        </span>
-                      )}
+  const handleSelect = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+  };
 
-                      <span>
-                        {vehicle.id.includes("tanker")
-                          ? "Długość"
-                          : "Szerokość"}
-                        :{" "}
-                        <span className="font-normal">
-                          {vehicle.id === "medium_tanker"
-                            ? vehicle.size[2]
-                            : vehicle.size[0]}
-                        </span>
-                      </span>
+  return (
+    <div className="w-full space-y-2">
+      {categoryList.map((category) => (
+        <Collapsible
+          key={category.name}
+          open={openCategory === category.name}
+          onOpenChange={(isOpen) =>
+            setOpenCategory(isOpen ? category.name : null)
+          }
+          className="border rounded-lg bg-card overflow-hidden"
+        >
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 font-medium hover:bg-muted/50 transition-colors">
+            <span>{category.name}</span>
+            <ChevronDown
+              className={cn(
+                "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                openCategory === category.name ? "rotate-180" : "",
+              )}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="p-4 pt-0 border-t bg-muted/10">
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {category.vehicles.map((vehicle) => {
+                const isSelected = selectedVehicleId === vehicle.id;
+                return (
+                  <div
+                    key={vehicle.id}
+                    onClick={() => handleSelect(vehicle)}
+                    className={cn(
+                      "relative flex flex-col items-center p-3 border rounded-lg cursor-pointer transition-all hover:border-primary/50 hover:bg-primary/5",
+                      isSelected
+                        ? "border-primary bg-primary/10 ring-1 ring-primary"
+                        : "bg-background",
+                    )}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-0.5">
+                        <Check className="w-3 h-3" />
+                      </div>
+                    )}
+                    <div className="h-20 w-full relative mb-2 flex items-center justify-center">
+                      <Image
+                        src={vehicle.icon}
+                        alt={vehicle.name}
+                        width={120}
+                        height={80}
+                        className="object-contain max-h-full drop-shadow-sm"
+                      />
                     </div>
+                    <span className="text-xs font-medium text-center line-clamp-2 h-8 flex items-center">
+                      {vehicle.name}
+                    </span>
                   </div>
-                </SelectItem>
-              ))}
-            </SelectGroup>
-            <SelectSeparator />
-          </React.Fragment>
-        ))}
-      </SelectContent>
-    </Select>
+                );
+              })}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      ))}
+    </div>
   );
 };
 

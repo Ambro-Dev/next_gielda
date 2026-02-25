@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
@@ -16,7 +15,7 @@ export default async function SchoolManage({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) redirect("/signin");
   if (session.user.role !== "school_admin") redirect("/");

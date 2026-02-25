@@ -310,7 +310,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.microsoft.com/pl-pl/help/10607/microsoft-edge-view-delete-browser-history"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Edge
@@ -319,7 +319,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.microsoft.com/pl-pl/help/278835/how-to-delete-cookie-files-in-internet-explorer"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Internet Explorer
@@ -328,7 +328,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.google.com/chrome/answer/95647?hl=pl"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Chrome
@@ -337,7 +337,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.mozilla.org/pl/kb/usuwanie-ciasteczek"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Firefox
@@ -346,7 +346,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.apple.com/pl-pl/guide/safari/sfri11471/mac"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Safari
@@ -355,7 +355,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://help.opera.com/pl/latest/web-preferences/#cookies"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Opera
@@ -367,7 +367,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.google.com/chrome/answer/95647?hl=pl"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Android
@@ -376,7 +376,7 @@ const ProvacyPolicy = (props: Props) => {
                 <li>
                   <a
                     href="https://support.apple.com/pl-pl/HT201265"
-                    className="hover:text-amber-500"
+                    className="hover:text-gray-900"
                     target="_blank"
                   >
                     Safari (iOS)

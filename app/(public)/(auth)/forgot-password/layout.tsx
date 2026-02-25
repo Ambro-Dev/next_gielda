@@ -1,6 +1,5 @@
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
 
@@ -16,7 +15,7 @@ export default async function LoginLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (session) redirect("/");
 

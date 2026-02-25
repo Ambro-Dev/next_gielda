@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 const createAdminSchema = z.object({
@@ -14,36 +14,34 @@ const createAdminSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, email, password, name, surname } = createAdminSchema.parse(body);
+    const { username, email, password, name, surname } =
+      createAdminSchema.parse(body);
 
     // Check if any admin already exists
     const existingAdmin = await prisma.user.findFirst({
       where: {
-        role: "admin"
-      }
+        role: "admin",
+      },
     });
 
     if (existingAdmin) {
       return NextResponse.json(
         { error: "Administrator już istnieje w systemie" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check if username or email already exists
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { username },
-          { email }
-        ]
-      }
+        OR: [{ username }, { email }],
+      },
     });
 
     if (existingUser) {
       return NextResponse.json(
         { error: "Użytkownik o tej nazwie lub emailu już istnieje" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -61,33 +59,37 @@ export async function POST(request: NextRequest) {
         surname,
         emailVerified: new Date(),
         isBlocked: false,
-      }
+      },
     });
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log("✅ First admin user created successfully:", adminUser.username);
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "✅ First admin user created successfully:",
+        adminUser.username,
+      );
     }
 
-    return NextResponse.json({ 
-      message: "Administrator został utworzony pomyślnie",
-      username: adminUser.username,
-      email: adminUser.email
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        message: "Administrator został utworzony pomyślnie",
+        username: adminUser.username,
+        email: adminUser.email,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("❌ Error creating first admin user:", error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Nieprawidłowe dane", details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { error: "Nie udało się utworzyć administratora" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

@@ -33,14 +33,6 @@ app.prepare().then(() => {
         return;
       }
 
-      // Handle Socket.IO requests
-      if (pathname === "/api/socket/io") {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "text/plain");
-        res.end("Socket.IO endpoint");
-        return;
-      }
-
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error("Error occurred handling", req.url, err);
@@ -58,6 +50,9 @@ app.prepare().then(() => {
       methods: ["GET", "POST"]
     }
   });
+
+  // Share io instance globally so Pages API routes can emit events
+  global.io = io;
 
   // Socket.IO connection handling
   io.on('connection', (socket) => {

@@ -1,7 +1,13 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const transportId = req.nextUrl.searchParams.get("transportId");
 
   if (!transportId || transportId === "" || transportId === "undefined") {

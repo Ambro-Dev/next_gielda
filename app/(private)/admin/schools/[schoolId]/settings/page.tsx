@@ -6,9 +6,9 @@ import SchoolInfoCard from "./components/SchoolInfoCard";
 import SchoolAdminCard from "./components/SchoolAdminCard";
 
 type Props = {
-  params: {
+  params: Promise<{
     schoolId: string;
-  };
+  }>;
 };
 
 export type School = {
@@ -74,9 +74,10 @@ const lastSevenDays = () => {
 };
 
 const Page = async (props: Props) => {
-  if (props.params.schoolId.length !== 24) return notFound();
+  const { schoolId } = await props.params;
+  if (schoolId.length !== 24) return notFound();
 
-  const schoolData = await getSchool(props.params.schoolId);
+  const schoolData = await getSchool(schoolId);
 
   if (!schoolData) return notFound();
 

@@ -190,11 +190,7 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   return (
     <Dialog open={offerOpen} onOpenChange={setOfferOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="rounded-full hover:bg-amber-500 transition-all duration-500"
-          size="lg"
-          disabled={!transport.isAvailable}
-        >
+        <Button size="sm" disabled={!transport.isAvailable}>
           Złóż ofertę
         </Button>
       </DialogTrigger>

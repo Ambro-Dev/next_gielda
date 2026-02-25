@@ -1,21 +1,21 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prismadb";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
-
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: "credentials",
-      credentials: {},
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
-        const { username, password } = credentials as {
-          username: string;
-          password: string;
-        };
+        const username = credentials?.username as string;
+        const password = credentials?.password as string;
 
         if (!username || !password) throw new Error("Brakuje danych");
 
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
 
         const passwordMatch = await bcrypt.compare(
           password,
-          user.hashedPassword
+          user.hashedPassword,
         );
 
         if (!passwordMatch) throw new Error("Invalid password");
@@ -62,31 +62,27 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
-      const dbUser = await prisma.user.findUnique({
-        where: { email: token.email },
-      });
-
-      if (!dbUser) {
-        token.id = user!.id;
-        return token;
+    async jwt({ token, user }) {
+      if (user) {
+        // Only on sign-in: store user data in token
+        token.id = user.id;
+        token.role = (user as any).role;
+        token.username = (user as any).username;
+        token.email = user.email;
       }
-
-      return {
-        id: dbUser.id,
-        role: dbUser.role,
-        username: dbUser.username,
-        email: dbUser.email,
-      };
+      return token;
     },
-    async session({ token, session, user }) {
+    async session({ token, session }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.username = token.username;
-        session.user.email = token.email;
+        session.user.id = token.id as string;
+        session.user.role = token.role as any;
+        session.user.username = token.username as string;
+        session.user.email = token.email!;
       }
       return session;
     },
   },
-};
+  pages: {
+    signIn: "/signin",
+  },
+});

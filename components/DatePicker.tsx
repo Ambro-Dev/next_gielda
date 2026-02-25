@@ -82,8 +82,8 @@ export function DatePicker({
               borderRadius: "0.375rem",
             },
           }}
-          initialFocus
-          locale={pl}
+          autoFocus
+          locale={pl as any}
           disabled={(date) => date < new Date()}
         />
       </PopoverContent>

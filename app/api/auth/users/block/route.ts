@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const PUT = async (req: NextRequest) => {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.role !== "admin" && session.user.role !== "school_admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const body = await req.json();
 
   const userId = body.userId;

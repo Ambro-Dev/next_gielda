@@ -1,7 +1,6 @@
 import React from "react";
 import { OffersTable } from "../offers-table";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { axiosInstance } from "@/lib/axios";
 
 type Props = {};
@@ -20,7 +19,7 @@ const getUserOffers = async (userId: string) => {
 };
 
 const Page = async (props: Props) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const offers = await getUserOffers(String(session?.user?.id));
   return (
     <div>

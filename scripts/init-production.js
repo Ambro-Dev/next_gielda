@@ -9,7 +9,7 @@
  */
 
 const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const prisma = new PrismaClient();
@@ -203,8 +203,8 @@ NEXTAUTH_PUBLIC_SITE_URL="https://yourdomain.com"
 NEXT_PUBLIC_SERVER_URL="https://yourdomain.com"
 NODE_ENV="production"
 
-# Google Maps API
-NEXT_PUBLIC_GOOGLE_MAP_API_KEY="your-google-maps-api-key-here"
+# Mapbox
+NEXT_PUBLIC_MAPBOX_TOKEN="your-mapbox-public-token-here"
 
 # Email Configuration
 EMAIL_SERVER="smtp://username:password@smtp.gmail.com:587"

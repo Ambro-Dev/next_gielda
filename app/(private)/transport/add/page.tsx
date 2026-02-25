@@ -2,10 +2,9 @@
 export const dynamic = 'force-dynamic';
 
 import { AddTransportForm } from "@/app/(private)/transport/add/AddTransportForm";
-import { authOptions } from "@/utils/authOptions";
-import { Card, CardContent } from "@/components/ui/card";
+import { auth } from "@/auth";
 import { axiosInstance } from "@/lib/axios";
-import { getServerSession } from "next-auth";
+
 import { redirect } from "next/navigation";
 
 type Settings = {
@@ -59,7 +58,7 @@ const getSchool = async (userId: String) => {
 };
 
 const AddTransportPage = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) redirect("/signin");
 
@@ -82,16 +81,20 @@ const AddTransportPage = async () => {
   }));
 
   return (
-    <div className="flex w-full h-full pt-5 pb-10">
-      <Card className="w-full h-full pt-5">
-        <CardContent>
-          <AddTransportForm
-            school={school}
-            vehicles={vehiclesNames}
-            categories={categoriesNames}
-          />
-        </CardContent>
-      </Card>
+    <div className="py-6 space-y-6 pb-10">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Nowe ogłoszenie transportowe
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Wypełnij formularz, aby dodać nowe zlecenie transportowe.
+        </p>
+      </div>
+      <AddTransportForm
+        school={school}
+        vehicles={vehiclesNames}
+        categories={categoriesNames}
+      />
     </div>
   );
 };

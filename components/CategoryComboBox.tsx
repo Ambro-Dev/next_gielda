@@ -11,6 +11,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -63,32 +64,35 @@ export function CategoryComboBox({
       <PopoverContent className="w-full p-0">
         <Command defaultValue={defaulValue}>
           <CommandInput placeholder="Wybierz..." />
-          <CommandEmpty>Nie znaleziono.</CommandEmpty>
-          <CommandGroup className="max-h-[400px] overflow-auto">
-            {data.map((item) => (
-              <CommandItem
-                key={item.id}
-                onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
-                  onChange(currentValue === value ? "" : item.id);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === item.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {item.name}
+          <CommandList>
+            <CommandEmpty>Nie znaleziono.</CommandEmpty>
+            <CommandGroup className="max-h-[400px] overflow-auto">
+              {data.map((item) => (
+                <CommandItem
+                  key={item.id}
+                  value={item.name}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue);
+                    onChange(currentValue === value ? "" : item.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === item.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {item.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandGroup>
+              <CommandItem>
+                <CategoryDialog />
               </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup>
-            <CommandItem>
-              <CategoryDialog />
-            </CommandItem>
-          </CommandGroup>
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

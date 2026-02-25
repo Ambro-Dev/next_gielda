@@ -22,8 +22,7 @@ import { Offer } from "@prisma/client";
 import { OffersTable } from "./offers-table";
 import { Transport } from "./page";
 import { axiosInstance } from "@/lib/axios";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -50,52 +49,41 @@ const TransportContactCard = async ({
   transport: Transport;
 }) => {
   const offers: OfferWithCreator[] = await getTransportOffers(transport.id);
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   return (
-    <Card className="p-3">
-      <CardHeader className="space-y-4">
-        <CardTitle>
-          <div className="flex sm:flex-row flex-col w-full items-end space-y-4">
-            <div className="flex flex-col w-full h-full justify-end">
-              <span>Oferty</span>
-              <Separator className="h-[3px] mt-3 bg-amber-500 w-1/5" />
+    <Card className="border border-gray-200 shadow-sm">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <CardTitle className="text-base font-semibold">Oferty</CardTitle>
+          {session?.user.id !== transport.creator.id && (
+            <div className="flex flex-row gap-3">
+              {session?.user ? (
+                <MessageForm
+                  transportId={transport.id}
+                  transportOwnerId={transport.creator.id}
+                />
+              ) : (
+                <Link href="/signin">
+                  <Button size="sm">Napisz wiadomość</Button>
+                </Link>
+              )}
+              {session?.user ? (
+                <OfferForm transport={transport} />
+              ) : (
+                <Link href="/signin">
+                  <Button
+                    size="sm"
+                    disabled={!transport.isAvailable}
+                  >
+                    Złóż ofertę
+                  </Button>
+                </Link>
+              )}
             </div>
-            {session?.user.id !== transport.creator.id && (
-              <div className="flex flex-row w-full sm:justify-end gap-8">
-                {session?.user ? (
-                  <MessageForm
-                    transportId={transport.id}
-                    transportOwnerId={transport.creator.id}
-                  />
-                ) : (
-                  <Link href="/signin">
-                    <Button
-                      className="rounded-full hover:bg-amber-500 transition-all duration-500"
-                      size="lg"
-                    >
-                      Napisz wiadomość
-                    </Button>
-                  </Link>
-                )}
-                {session?.user ? (
-                  <OfferForm transport={transport} />
-                ) : (
-                  <Link href="/signin">
-                    <Button
-                      className="rounded-full hover:bg-amber-500 transition-all duration-500"
-                      size="lg"
-                      disabled={!transport.isAvailable}
-                    >
-                      Złóż ofertę
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-        </CardTitle>
+          )}
+        </div>
         {session?.user.id !== transport.creator.id && (
-          <CardDescription className="sm:text-end">
+          <CardDescription>
             {transport.isAvailable ? (
               <span>
                 Oferty można składać od pojawienia się ogłoszenia do zakończenia

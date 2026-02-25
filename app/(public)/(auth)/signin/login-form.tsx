@@ -244,7 +244,7 @@ export function LoginForm() {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-amber-600 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
             <UserPlus className="inline-block mr-2" />
             Utwórz pierwszego administratora
           </h3>
@@ -341,7 +341,7 @@ export function LoginForm() {
               )}
             />
             
-            <div className="w-full flex justify-center items-center transition-all duration-500 bg-neutral-800">
+            <div className="w-full flex justify-center items-center transition-all duration-500 rounded-md">
               {isCreatingAdmin ? (
                 <Button className="w-full" disabled>
                   <LoaderIcon className="animate-spin mr-2" />
@@ -395,12 +395,12 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <Link
               href="/forgot-password"
-              className="text-sm text-neutral-600 hover:text-amber-500"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               Zapomniałeś hasła?
             </Link>
           </div>
-          <div className="w-full flex justify-center items-center transition-all duration-500 bg-neutral-800">
+          <div className="w-full flex justify-center items-center transition-all duration-500 rounded-md">
             {loading ? (
               <Button className="w-full" disabled>
                 <LoaderIcon className="animate-spin mr-2" />

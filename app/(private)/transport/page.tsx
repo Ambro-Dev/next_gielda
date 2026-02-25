@@ -5,9 +5,8 @@ export const dynamic = 'force-dynamic';
 
 import { axiosInstance } from "@/lib/axios";
 
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import TransportsFilter from "@/components/TransportsFilter";
 import TransportsSkeleton from "@/components/ui/TransportsSkeleton";
 import { Transport as PrismaTransport } from "@prisma/client";
@@ -98,7 +97,7 @@ export default async function Home() {
   const categoriesData = getCategories();
   const vehiclesData = getVehicles();
   const transports = await getTransports();
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (session) {
     const status = await checkUserInfo(String(session?.user?.id));
     if (status === 402) {

@@ -1,28 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
+import { auth } from "@/auth";
 
 export const GET = async (req: NextRequest) => {
-  const userId = req.nextUrl.searchParams.get("userId");
-
-  if (!userId || userId === "" || userId === "undefined") {
-    return NextResponse.json({
-      error: "Brakuje parametru userId",
-      status: 400,
-    });
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json({
-      error: "Użytkownik o podanym id nie istnieje",
-      status: 404,
-    });
-  }
+  const userId = session.user.id;
 
   const offers = await prisma.offer.findMany({
     where: {

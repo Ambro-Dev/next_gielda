@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
-import { authOptions } from "@/utils/authOptions";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,9 +15,9 @@ export default async function LoginLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
-  if (session) redirect("/");
+  if (session) redirect("/transport");
 
   return <>{children}</>;
 }

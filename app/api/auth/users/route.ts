@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Role, User } from "@prisma/client";
 
 interface NewUserRequest {
@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
   if (userExists && userExists.length > 0 && Array.isArray(userExists)) {
     return NextResponse.json(
       { error: "User with this username or email already exists" },
-      { status: 422 }
+      { status: 422 },
     );
   }
 
@@ -49,7 +49,6 @@ export const POST = async (req: NextRequest) => {
       username: user.username,
       email: user.email,
       role: user.role,
-      password,
     },
     message: "Użytkownik dodany prawidłowo",
     status: 201,
@@ -72,7 +71,7 @@ export const GET = async (req: NextRequest) => {
     (user) =>
       user.username !== "admin" &&
       user.role !== "student" &&
-      user.role !== "school_admin"
+      user.role !== "school_admin",
   );
 
   if (!usersWithoutAdmin) {

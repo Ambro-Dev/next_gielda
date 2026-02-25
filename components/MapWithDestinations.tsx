@@ -1,148 +1,103 @@
 "use client";
 
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useEffect } from "react";
+import ReactMap, { Layer, Source, Marker } from "react-map-gl/mapbox";
 
-import { GoogleMap, Marker, DirectionsRenderer } from "@react-google-maps/api";
-
-type LatLngLiteral = google.maps.LatLngLiteral;
-type DirectionsResult = google.maps.DirectionsResult;
-type MapOptions = google.maps.MapOptions;
+type LatLng = { lat: number; lng: number };
 
 type Props = {
-  start: LatLngLiteral | null | undefined;
-  finish: LatLngLiteral | null | undefined;
+  start: LatLng | null | undefined;
+  finish: LatLng | null | undefined;
 };
 
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+interface RouteGeoJSON {
+  type: "Feature";
+  geometry: {
+    type: "LineString";
+    coordinates: number[][];
+  };
+  properties: Record<string, unknown>;
+}
+
 const MapWithDirections = ({ start, finish }: Props) => {
-  const mapRef = useRef<GoogleMap>();
+  const [routeData, setRouteData] = useState<RouteGeoJSON | null>(null);
 
-  const onLoad = useCallback((map: any) => (mapRef.current = map), []);
-
-  const [directions, setDirections] = useState<DirectionsResult>();
-
-  const options = useMemo<MapOptions>(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: false,
-      zoomControl: false,
-      fullscreenControl: false,
-      streetViewControl: false,
-      mapTypeControl: false,
-      disableDoubleClickZoom: true,
-      scrollwheel: false,
-      gestureHandling: "none",
-    }),
-    []
-  );
+  const centerLng = start && finish ? (start.lng + finish.lng) / 2 : 19.48;
+  const centerLat = start && finish ? (start.lat + finish.lat) / 2 : 52.07;
 
   useEffect(() => {
-    if (!start || !finish) return;
-    fetchDirections(start);
-  }, [start, finish]);
+    if (!start || !finish) {
+      setRouteData(null);
+      return;
+    }
 
-  const fetchDirections = async (start: LatLngLiteral) => {
-    if (!finish || !start) return;
-
-    const service = new google.maps.DirectionsService();
-
-    service.route(
-      {
-        origin: start,
-        destination: finish,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
+    const fetchRoute = async () => {
+      try {
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.routes?.[0]) {
+          setRouteData({
+            type: "Feature",
+            geometry: data.routes[0].geometry,
+            properties: {},
+          });
         }
+      } catch (error) {
+        console.error("Error fetching Mapbox route:", error);
       }
-    );
-  };
+    };
 
-  const localization = navigator.geolocation;
-  const [currentPosition, setCurrentPosition] = useState<LatLngLiteral>();
-
-  useEffect(() => {
-    if (!localization) return;
-
-    localization.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentPosition({ lat: latitude, lng: longitude });
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
-  }, [localization]);
-
-  const containerStyle = {
-    width: "100%",
-    height: "300px",
-    borderRadius: "0.5rem",
-  };
+    fetchRoute();
+  }, [start?.lat, start?.lng, finish?.lat, finish?.lng]);
 
   return (
-    <GoogleMap
-      zoom={9}
-      mapContainerClassName="map-container"
-      options={options}
-      onLoad={onLoad}
-      center={
-        currentPosition ||
-        start || {
-          lat: 52.229676,
-          lng: 21.012229,
-        }
-      }
-      mapContainerStyle={containerStyle}
+    <ReactMap
+      mapboxAccessToken={MAPBOX_TOKEN}
+      initialViewState={{
+        longitude: centerLng,
+        latitude: centerLat,
+        zoom: start && finish ? 7 : 5,
+      }}
+      style={{ width: "100%", height: "300px", borderRadius: "0.5rem" }}
+      mapStyle="mapbox://styles/mapbox/streets-v12"
+      interactive={false}
+      onLoad={(e) => (e.target as any).setLanguage?.("pl")}
     >
-      {directions && (
-        <DirectionsRenderer
-          directions={directions}
-          options={{
-            polylineOptions: {
-              strokeColor: "#1976D2",
-              strokeWeight: 5,
-              clickable: false,
-            },
-            markerOptions: {
-              zIndex: 100,
-              cursor: "default",
-            },
-          }}
-        />
+      {routeData && (
+        <Source id="route" type="geojson" data={routeData}>
+          <Layer
+            id="route-line"
+            type="line"
+            paint={{
+              "line-color": "#1976D2",
+              "line-width": 5,
+              "line-opacity": 0.9,
+            }}
+            layout={{
+              "line-cap": "round",
+              "line-join": "round",
+            }}
+          />
+        </Source>
       )}
-
-      {!directions && (
-        <>
-          {start && (
-            <Marker
-              position={start}
-              icon={{
-                url: "https://img.icons8.com/stickers/100/marker-a.png",
-                scaledSize: new google.maps.Size(30, 30),
-              }}
-            />
-          )}
-          {finish && (
-            <Marker
-              position={finish}
-              icon={{
-                url: "https://img.icons8.com/stickers/100/marker-b.png",
-                scaledSize: new google.maps.Size(24, 24),
-              }}
-            />
-          )}
-        </>
+      {start && (
+        <Marker longitude={start.lng} latitude={start.lat} anchor="bottom">
+          <div className="flex items-center justify-center w-7 h-7 bg-blue-600 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
+            A
+          </div>
+        </Marker>
       )}
-    </GoogleMap>
+      {finish && (
+        <Marker longitude={finish.lng} latitude={finish.lat} anchor="bottom">
+          <div className="flex items-center justify-center w-7 h-7 bg-red-500 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
+            B
+          </div>
+        </Marker>
+      )}
+    </ReactMap>
   );
 };
 

@@ -1,19 +1,19 @@
 "use client";
 
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
-
-import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
+import React, { useState, useEffect } from "react";
+import ReactMap, { Layer, Source, Marker } from "react-map-gl/mapbox";
 import { ExtendedTransport } from "@/app/(private)/user/market/page";
 
-type LatLngLiteral = google.maps.LatLngLiteral;
-type DirectionsResult = google.maps.DirectionsResult;
-type MapOptions = google.maps.MapOptions;
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+interface RouteGeoJSON {
+  type: "Feature";
+  geometry: {
+    type: "LineString";
+    coordinates: number[][];
+  };
+  properties: Record<string, unknown>;
+}
 
 const Map = ({
   transport,
@@ -22,81 +22,79 @@ const Map = ({
   transport: ExtendedTransport;
   className: string;
 }) => {
-  const mapRef = useRef<GoogleMap>();
+  const [routeData, setRouteData] = useState<RouteGeoJSON | null>(null);
 
-  const onLoad = useCallback((map: any) => (mapRef.current = map), []);
+  const start = transport.directions?.start;
+  const finish = transport.directions?.finish;
 
-  const [directions, setDirections] = useState<DirectionsResult>();
-
-  const options = useMemo<MapOptions>(
-    () => ({
-      disableDefaultUI: true,
-      clickableIcons: false,
-      zoomControl: false,
-      fullscreenControl: false,
-      streetViewControl: false,
-      mapTypeControl: false,
-      disableDoubleClickZoom: true,
-      scrollwheel: false,
-      gestureHandling: "none",
-    }),
-    []
-  );
+  const centerLng = start && finish ? (start.lng + finish.lng) / 2 : 19.48;
+  const centerLat = start && finish ? (start.lat + finish.lat) / 2 : 52.07;
 
   useEffect(() => {
-    if (!transport.directions.start || !transport.directions.finish) return;
-    const fetchDirections = async (start: LatLngLiteral) => {
-      if (!transport.directions.finish || !start) return;
+    if (!start || !finish) return;
 
-      const service = new google.maps.DirectionsService();
-
-      service.route(
-        {
-          origin: start,
-          destination: transport.directions.finish,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === "OK" && result) {
-            setDirections(result);
-          }
+    const fetchRoute = async () => {
+      try {
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.routes?.[0]) {
+          setRouteData({
+            type: "Feature",
+            geometry: data.routes[0].geometry,
+            properties: {},
+          });
         }
-      );
+      } catch (error) {
+        console.error("Error fetching Mapbox route:", error);
+      }
     };
-    fetchDirections(transport.directions.start);
-  }, [transport.directions.start, transport.directions.finish]);
 
-  const containerStyle = {
-    width: "100%",
-    height: "100%",
-    borderRadius: "0.5rem",
-  };
+    fetchRoute();
+  }, [start?.lat, start?.lng, finish?.lat, finish?.lng]);
+
   return (
     <div className={className}>
-      <GoogleMap
-        zoom={11}
-        mapContainerClassName="map-container"
-        options={options}
-        onLoad={onLoad}
-        mapContainerStyle={containerStyle}
+      <ReactMap
+        mapboxAccessToken={MAPBOX_TOKEN}
+        initialViewState={{
+          longitude: centerLng,
+          latitude: centerLat,
+          zoom: 7,
+        }}
+        style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        interactive={false}
+        onLoad={(e) => e.target.setLanguage("pl")}
       >
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              polylineOptions: {
-                strokeColor: "#1976D2",
-                strokeWeight: 5,
-                clickable: false,
-              },
-              markerOptions: {
-                zIndex: 100,
-                cursor: "default",
-              },
-            }}
-          />
+        {routeData && (
+          <Source id="route" type="geojson" data={routeData}>
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{
+                "line-color": "#1976D2",
+                "line-width": 5,
+                "line-opacity": 0.9,
+              }}
+              layout={{
+                "line-cap": "round",
+                "line-join": "round",
+              }}
+            />
+          </Source>
         )}
-      </GoogleMap>
+        {start && (
+          <Marker longitude={start.lng} latitude={start.lat} anchor="bottom">
+            <div className="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-md" />
+          </Marker>
+        )}
+        {finish && (
+          <Marker longitude={finish.lng} latitude={finish.lat} anchor="bottom">
+            <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-md" />
+          </Marker>
+        )}
+      </ReactMap>
     </div>
   );
 };
