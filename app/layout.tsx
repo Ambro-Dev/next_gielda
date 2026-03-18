@@ -2,6 +2,7 @@ import TopBar from "@/components/TopBar";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Barlow } from "next/font/google";
+import { auth } from "@/auth";
 
 const barlow = Barlow({
   subsets: ["latin", "latin-ext"],
@@ -30,8 +31,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
   return (
-    <NextAuthProvider>
+    <NextAuthProvider session={session}>
       <html lang="pl">
         <body className={`${barlow.variable} font-sans`}>
           <MessageProvider>
