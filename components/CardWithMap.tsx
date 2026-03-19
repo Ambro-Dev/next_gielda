@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Transport } from "@/app/(private)/transport/page";
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+import { MAPBOX_TOKEN, STATIC_MAP_STYLE } from "@/lib/map-config";
 
 const CardWithMap = ({ transport }: { transport: Transport }) => {
   const date = new Date(transport.sendDate);
@@ -28,11 +28,11 @@ const CardWithMap = ({ transport }: { transport: Transport }) => {
 
   const getMapboxStaticUrl = () => {
     if (!start || !finish || !MAPBOX_TOKEN) return null;
-    const markers = `pin-s-a+FCAC0C(${start.lng},${start.lat}),pin-s-b+1A1A2E(${finish.lng},${finish.lat})`;
+    const markers = `pin-s-a+D4850C(${start.lng},${start.lat}),pin-s-b+1A1A2E(${finish.lng},${finish.lat})`;
     const path = transport.polyline
-      ? `,path-5+FCAC0C-0.9(${encodeURIComponent(transport.polyline)})`
+      ? `,path-5+D4850C-0.9(${encodeURIComponent(transport.polyline)})`
       : "";
-    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${markers}${path}/auto/500x350@2x?language=pl&access_token=${MAPBOX_TOKEN}`;
+    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${markers}${path}/auto/500x350@2x?padding=60&access_token=${MAPBOX_TOKEN}`;
   };
 
   const mapUrl = getMapboxStaticUrl();

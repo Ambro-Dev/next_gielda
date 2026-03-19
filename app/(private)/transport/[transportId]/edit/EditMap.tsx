@@ -3,8 +3,13 @@
 import React, { useState, useEffect } from "react";
 import ReactMap, { Layer, Source, Marker } from "react-map-gl/mapbox";
 import { Transport } from "../page";
-
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+import {
+  MAPBOX_TOKEN,
+  MAP_STYLE,
+  applyPremiumEffects,
+  ROUTE_SIMPLE,
+} from "@/lib/map-config";
+import { RouteMarker } from "@/components/map/PremiumMarker";
 
 interface RouteGeoJSON {
   type: "Feature";
@@ -34,7 +39,7 @@ const EditMap = ({
 
     const fetchRoute = async () => {
       try {
-        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.routes?.[0]) {
@@ -60,41 +65,39 @@ const EditMap = ({
           longitude: centerLng,
           latitude: centerLat,
           zoom: 7,
+          pitch: 20,
         }}
-        style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
+        style={{ width: "100%", height: "100%", borderRadius: "0.75rem" }}
+        mapStyle={MAP_STYLE}
         interactive={false}
-        onLoad={(e) => e.target.setLanguage("pl")}
+        onLoad={(e) => {
+          const map = e.target;
+          applyPremiumEffects(map, {
+            terrain: true,
+            buildings: false,
+            fog: true,
+            sky: false,
+          });
+        }}
       >
         {routeData && (
           <Source id="route" type="geojson" data={routeData}>
             <Layer
               id="route-line"
               type="line"
-              paint={{
-                "line-color": "#1976D2",
-                "line-width": 5,
-                "line-opacity": 0.9,
-              }}
-              layout={{
-                "line-cap": "round",
-                "line-join": "round",
-              }}
+              paint={ROUTE_SIMPLE.paint}
+              layout={ROUTE_SIMPLE.layout}
             />
           </Source>
         )}
         {start && (
           <Marker longitude={start.lng} latitude={start.lat} anchor="bottom">
-            <div className="flex items-center justify-center w-7 h-7 bg-blue-600 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
-              A
-            </div>
+            <RouteMarker type="start" />
           </Marker>
         )}
         {finish && (
           <Marker longitude={finish.lng} latitude={finish.lat} anchor="bottom">
-            <div className="flex items-center justify-center w-7 h-7 bg-red-500 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
-              B
-            </div>
+            <RouteMarker type="end" />
           </Marker>
         )}
       </ReactMap>

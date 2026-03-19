@@ -69,9 +69,9 @@ const TopBar = () => {
   }, [data]);
 
   return (
-    <header className="fixed w-full bg-navy z-50 shadow-lg">
+    <header className="fixed w-full bg-navy/95 backdrop-blur-xl border-b border-white/5 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
           {/* Left: Mobile hamburger + Logo */}
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}

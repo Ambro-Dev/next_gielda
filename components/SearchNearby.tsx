@@ -40,7 +40,7 @@ const SearchNearby = ({ onRouteFound, onRouteClear }: Props) => {
 
     setLoading(true);
     try {
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from.lng},${from.lat};${to.lng},${to.lat}?geometries=polyline&access_token=${MAPBOX_TOKEN}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from.lng},${from.lat};${to.lng},${to.lat}?geometries=polyline&overview=full&access_token=${MAPBOX_TOKEN}`;
       const res = await fetch(url);
       const data = await res.json();
 

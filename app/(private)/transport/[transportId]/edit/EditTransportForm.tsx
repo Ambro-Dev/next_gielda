@@ -175,7 +175,7 @@ export function EditTransportForm({
   const fetchDirections = async (start: Destination, end: Destination) => {
     if (!MAPBOX_TOKEN) return;
     try {
-      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=polyline&access_token=${MAPBOX_TOKEN}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=polyline&overview=full&access_token=${MAPBOX_TOKEN}`;
       const res = await fetch(url);
       const json = await res.json();
       if (json.routes?.[0]) {

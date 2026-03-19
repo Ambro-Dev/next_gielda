@@ -71,6 +71,7 @@
     "eslint-plugin-react-hooks": "^5.0.0-canary-493f72b0a-20230727",
     "framer-motion": "^10.16.4",
     "framer-motion-carousel": "^2.0.4",
+    "geist": "^1.7.0",
     "generate-password": "^1.7.0",
     "leva": "^0.9.35",
     "lottie-react": "^2.4.0",

@@ -75,11 +75,12 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        card: "0 1px 3px hsl(39 20% 50% / 0.06), 0 1px 2px hsl(39 20% 50% / 0.04)",
         "card-hover":
-          "0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)",
+          "0 8px 25px hsl(39 20% 50% / 0.10), 0 3px 8px hsl(39 20% 50% / 0.06)",
         "card-lg":
-          "0 10px 25px rgba(0,0,0,0.07), 0 4px 10px rgba(0,0,0,0.04)",
+          "0 16px 40px hsl(39 20% 50% / 0.12), 0 6px 16px hsl(39 20% 50% / 0.06)",
+        glow: "0 0 20px hsl(39 85% 50% / 0.25)",
       },
       keyframes: {
         "accordion-down": {
@@ -110,6 +111,10 @@ const config = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "marker-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.25" },
+          "50%": { transform: "scale(1.8)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -119,6 +124,7 @@ const config = {
         "fade-in": "fade-in 0.3s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
         shimmer: "shimmer 2s linear infinite",
+        "marker-pulse": "marker-pulse 2s ease-out infinite",
       },
     },
   },

@@ -2,8 +2,8 @@
 
 import React from "react";
 import ReactMap, { Marker } from "react-map-gl/mapbox";
-
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+import { MAPBOX_TOKEN, MAP_STYLE, applyPremiumEffects } from "@/lib/map-config";
+import { VehicleMarker } from "@/components/map/PremiumMarker";
 
 const centerOfPoland = { lng: 19.480556, lat: 52.069167 };
 
@@ -19,10 +19,19 @@ function TransportMap<TData>({ data }: DataTableProps<TData>) {
         longitude: centerOfPoland.lng,
         latitude: centerOfPoland.lat,
         zoom: 5,
+        pitch: 20,
       }}
-      style={{ width: "100%", height: "100%", minHeight: "300px", borderRadius: "0.5rem" }}
-      mapStyle="mapbox://styles/mapbox/streets-v12"
-      onLoad={(e) => e.target.setLanguage("pl")}
+      style={{ width: "100%", height: "100%", minHeight: "300px", borderRadius: "0.75rem" }}
+      mapStyle={MAP_STYLE}
+      onLoad={(e) => {
+        const map = e.target;
+        applyPremiumEffects(map, {
+          terrain: true,
+          buildings: false,
+          fog: true,
+          sky: false,
+        });
+      }}
     >
       {data.map((item: any) => (
         item.place_lat && item.place_lng ? (
@@ -32,7 +41,7 @@ function TransportMap<TData>({ data }: DataTableProps<TData>) {
             latitude={item.place_lat}
             anchor="bottom"
           >
-            <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-md" />
+            <VehicleMarker />
           </Marker>
         ) : null
       ))}

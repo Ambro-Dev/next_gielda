@@ -4,8 +4,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import ReactMap, { Layer, Source, Marker, Popup } from "react-map-gl/mapbox";
 // @ts-ignore
 import polyline from "@mapbox/polyline";
-
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+import {
+  MAPBOX_TOKEN,
+  MAP_STYLE,
+  applyPremiumEffects,
+  ROUTE_HERO_GLOW,
+  ROUTE_HERO_LINE,
+} from "@/lib/map-config";
+import { RouteMarker } from "@/components/map/PremiumMarker";
 
 interface RouteGeoJSON {
   type: "Feature";
@@ -72,27 +78,29 @@ const TransportMap = ({
     }
   }, [start.lat, start.lng, finish.lat, finish.lng, startAddress, endAddress]);
 
-  // Decode stored polyline or fetch from API
+  // Always fetch full-resolution route from Mapbox Directions API
+  // Stored polyline uses overview=simplified (low-res), so we fetch fresh with overview=full
   useEffect(() => {
-    if (encodedPolyline) {
-      try {
-        const decoded = polyline.toGeoJSON(encodedPolyline);
-        setRouteData({
-          type: "Feature",
-          geometry: decoded,
-          properties: {},
-        });
-      } catch (e) {
-        console.error("Error decoding polyline:", e);
+    if (!start || !finish || !MAPBOX_TOKEN) {
+      // Fallback: decode stored polyline if API params missing
+      if (encodedPolyline) {
+        try {
+          const decoded = polyline.toGeoJSON(encodedPolyline);
+          setRouteData({
+            type: "Feature",
+            geometry: decoded,
+            properties: {},
+          });
+        } catch (e) {
+          console.error("Error decoding polyline:", e);
+        }
       }
       return;
     }
 
-    if (!start || !finish || !MAPBOX_TOKEN) return;
-
     const fetchRoute = async () => {
       try {
-        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${finish.lng},${finish.lat}?geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`;
         const res = await fetch(url);
         const data = await res.json();
         if (data.routes?.[0]) {
@@ -101,20 +109,40 @@ const TransportMap = ({
             geometry: data.routes[0].geometry,
             properties: {},
           });
+          return;
         }
       } catch (error) {
         console.error("Error fetching Mapbox route:", error);
+      }
+      // Fallback to stored polyline if fetch fails
+      if (encodedPolyline) {
+        try {
+          const decoded = polyline.toGeoJSON(encodedPolyline);
+          setRouteData({
+            type: "Feature",
+            geometry: decoded,
+            properties: {},
+          });
+        } catch (e) {
+          console.error("Error decoding polyline:", e);
+        }
       }
     };
 
     fetchRoute();
   }, [start.lat, start.lng, finish.lat, finish.lng, encodedPolyline]);
 
-  // Fit bounds to show both markers + popups
+  // Fit bounds + apply premium effects + camera animation
   const onMapLoad = useCallback(
     (e: any) => {
       const map = e.target;
-      map.setLanguage("pl");
+
+      applyPremiumEffects(map, {
+        terrain: true,
+        buildings: true,
+        fog: true,
+        sky: true,
+      });
 
       const sw: [number, number] = [
         Math.min(start.lng, finish.lng),
@@ -126,9 +154,19 @@ const TransportMap = ({
       ];
 
       map.fitBounds([sw, ne], {
-        padding: { top: 80, bottom: 40, left: 60, right: 60 },
-        maxZoom: 12,
+        padding: { top: 100, bottom: 50, left: 70, right: 70 },
+        maxZoom: 13,
+        duration: 1500,
       });
+
+      // Animate to 3D perspective after fitBounds
+      setTimeout(() => {
+        map.easeTo({
+          pitch: 40,
+          bearing: -15,
+          duration: 2000,
+        });
+      }, 1600);
     },
     [start.lat, start.lng, finish.lat, finish.lng]
   );
@@ -141,75 +179,72 @@ const TransportMap = ({
         latitude: centerLat,
         zoom: 6,
       }}
-      style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
-      mapStyle="mapbox://styles/mapbox/streets-v12"
+      style={{ width: "100%", height: "100%", borderRadius: "0.75rem" }}
+      mapStyle={MAP_STYLE}
       onLoad={onMapLoad}
     >
       {routeData && (
         <Source id="route" type="geojson" data={routeData}>
+          {/* Outer glow */}
+          <Layer
+            id="route-glow"
+            type="line"
+            paint={ROUTE_HERO_GLOW.paint}
+            layout={ROUTE_HERO_GLOW.layout}
+          />
+          {/* Inner route line */}
           <Layer
             id="route-line"
             type="line"
-            paint={{
-              "line-color": "#1976D2",
-              "line-width": 4,
-              "line-opacity": 0.85,
-            }}
-            layout={{
-              "line-cap": "round",
-              "line-join": "round",
-            }}
+            paint={ROUTE_HERO_LINE.paint}
+            layout={ROUTE_HERO_LINE.layout}
           />
         </Source>
       )}
 
       {/* Start marker + popup */}
-      <Marker longitude={start.lng} latitude={start.lat} anchor="center">
-        <div className="flex items-center justify-center w-7 h-7 bg-blue-600 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
-          A
-        </div>
+      <Marker longitude={start.lng} latitude={start.lat} anchor="bottom">
+        <RouteMarker type="start" />
       </Marker>
       {startLabel && (
         <Popup
           longitude={start.lng}
           latitude={start.lat}
           anchor="bottom"
-          offset={20}
+          offset={45}
           closeButton={false}
           closeOnClick={false}
-          className="map-popup"
+          className="map-popup map-popup--start"
         >
-          <div className="px-1 py-0.5">
-            <p className="text-xs font-semibold text-blue-600">Wysyłka</p>
+          <div className="px-3 py-2">
+            <p className="text-xs font-semibold text-[hsl(39,85%,50%)]">Wysyłka</p>
             <p className="text-xs font-medium text-gray-900">{startLabel}</p>
             {sendDate && (
-              <p className="text-[10px] text-gray-500">{formatDate(sendDate)}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">{formatDate(sendDate)}</p>
             )}
           </div>
         </Popup>
       )}
 
       {/* Finish marker + popup */}
-      <Marker longitude={finish.lng} latitude={finish.lat} anchor="center">
-        <div className="flex items-center justify-center w-7 h-7 bg-red-500 rounded-full border-2 border-white shadow-lg text-white text-xs font-bold">
-          B
-        </div>
+      <Marker longitude={finish.lng} latitude={finish.lat} anchor="bottom">
+        <RouteMarker type="end" />
       </Marker>
       {endLabel && (
         <Popup
           longitude={finish.lng}
           latitude={finish.lat}
           anchor="bottom"
-          offset={20}
+          offset={45}
           closeButton={false}
           closeOnClick={false}
-          className="map-popup"
+          className="map-popup map-popup--end"
         >
-          <div className="px-1 py-0.5">
-            <p className="text-xs font-semibold text-red-500">Dostawa</p>
+          <div className="px-3 py-2">
+            <p className="text-xs font-semibold text-[hsl(225,30%,14%)]">Dostawa</p>
             <p className="text-xs font-medium text-gray-900">{endLabel}</p>
             {receiveDate && (
-              <p className="text-[10px] text-gray-500">
+              <p className="text-[10px] text-gray-500 mt-0.5">
                 {formatDate(receiveDate)}
               </p>
             )}

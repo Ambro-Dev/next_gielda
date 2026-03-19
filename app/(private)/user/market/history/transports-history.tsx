@@ -29,11 +29,11 @@ const getMapUrl = (transport: ExtendedTransport) => {
   const start = transport.directions?.start;
   const finish = transport.directions?.finish;
   if (!start || !finish || !MAPBOX_TOKEN) return null;
-  const markers = `pin-s-a+FCAC0C(${start.lng},${start.lat}),pin-s-b+1A1A2E(${finish.lng},${finish.lat})`;
+  const markers = `pin-s-a+D4850C(${start.lng},${start.lat}),pin-s-b+1A1A2E(${finish.lng},${finish.lat})`;
   const path = transport.polyline
-    ? `,path-5+FCAC0C-0.9(${encodeURIComponent(transport.polyline)})`
+    ? `,path-5+D4850C-0.9(${encodeURIComponent(transport.polyline)})`
     : "";
-  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${markers}${path}/auto/400x200@2x?language=pl&access_token=${MAPBOX_TOKEN}`;
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${markers}${path}/auto/400x200@2x?padding=60&access_token=${MAPBOX_TOKEN}`;
 };
 
 export function TransportsHistory({ data }: { data: ExtendedTransport[] }) {
