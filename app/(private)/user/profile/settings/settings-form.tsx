@@ -141,6 +141,7 @@ export function AccountForm({
       userInfo.surname === ""
     )
       setShowAlert(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

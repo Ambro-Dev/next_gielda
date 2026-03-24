@@ -54,7 +54,8 @@ const NewMessage = (props: Props) => {
     return () => {
       socket.off(`offer:${props.offerId}:message`);
     };
-  }, [socket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, offerId, router]);
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {

@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { School, Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Example dashboard app using the components.",

@@ -66,6 +66,7 @@ const TopBar = () => {
     if (school) return;
     if (data?.user?.role === "student" || data?.user?.role === "school_admin")
       schoolData(String(data.user.id)).then((res) => setSchool(res));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (

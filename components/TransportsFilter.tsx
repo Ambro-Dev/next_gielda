@@ -172,12 +172,14 @@ const TransportsFilter = (props: Props) => {
     if (selectedVehicles.length === 0) {
       setSearchString(`${searchString.replace("vehicle", "")}`);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicles]);
 
   useEffect(() => {
     if (selectedCategories.length === 0) {
       setSearchString(`${searchString.replace("category", "")}`);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategories]);
 
   function handleSearch() {

@@ -158,6 +158,7 @@ const MessageProvider = ({ children }: { children: React.ReactNode }) => {
         setReports([]);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.user?.id]);
 
   return (

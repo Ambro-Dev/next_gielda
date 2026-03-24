@@ -34,6 +34,7 @@ const ClearNotifications = ({ offerId }: Props) => {
     setOfferMessages((prev) =>
       prev.filter((m) => m.offer?.id !== offerId)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offerId, data?.user?.id]);
 
   return null;

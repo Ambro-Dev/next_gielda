@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import { axiosInstance } from "@/lib/axios";
 import { TransportOptionsClient } from "./transport-options-client";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Opcje transportów",
   description: "Zarządzaj pojazdami i kategoriami transportów.",

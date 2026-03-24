@@ -157,6 +157,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socketInstance.off(`user:${userId}:offer:files`);
       socketInstance.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return (

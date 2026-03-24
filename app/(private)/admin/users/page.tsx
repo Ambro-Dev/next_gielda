@@ -5,6 +5,8 @@ import { DataTable } from "./all-users-table";
 import { User, columns } from "./columns";
 import { axiosInstance } from "@/lib/axios";
 
+export const dynamic = 'force-dynamic';
+
 async function getUsers(): Promise<User[]> {
   try {
     const res = await axiosInstance.get(`/api/auth/users`);

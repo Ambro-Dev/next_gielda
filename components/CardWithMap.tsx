@@ -204,7 +204,7 @@ const CardWithMap = ({ transport, priority }: { transport: Transport; priority?:
             <div className="flex justify-end mt-3 pt-3 border-t border-border/50">
               <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-200 flex items-center gap-1">
                 Zobacz szczegóły
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]" />
               </span>
             </div>
           </div>

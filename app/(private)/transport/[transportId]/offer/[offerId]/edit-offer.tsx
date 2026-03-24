@@ -185,6 +185,7 @@ const EditForm = ({
       const brutto = Number(netto) + (Number(netto) * Number(vat)) / 100;
       form.setValue("brutto", brutto);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.getValues("netto"), form.getValues("vat")]);
 
   return (

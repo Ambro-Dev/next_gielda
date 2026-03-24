@@ -68,12 +68,14 @@ const NewTransportMapCard = ({
     if (form.watch("start")) {
       setStartDestination(form.watch("start"));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("start")]);
 
   React.useEffect(() => {
     if (form.watch("finish")) {
       setEndDestination(form.watch("finish"));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("finish")]);
 
   return (

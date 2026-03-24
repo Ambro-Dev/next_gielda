@@ -3,8 +3,10 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prismadb";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     Credentials({
@@ -58,31 +60,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   debug: process.env.NODE_ENV === "development",
-  session: {
-    strategy: "jwt",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        // Only on sign-in: store user data in token
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.username = (user as any).username;
-        token.email = user.email;
-      }
-      return token;
-    },
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as any;
-        session.user.username = token.username as string;
-        session.user.email = token.email!;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/signin",
-  },
 });

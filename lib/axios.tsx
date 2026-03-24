@@ -1,7 +1,10 @@
 import axios from "axios";
 
-// Check if we're in build mode or if external APIs are disabled
-const isBuildMode = process.env.BUILD_MODE === "true" || process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_APIS === "true";
+// Check if we're in build mode
+const isBuildMode =
+  process.env.BUILD_MODE === "true" ||
+  process.env.NEXT_PUBLIC_DISABLE_EXTERNAL_APIS === "true" ||
+  process.env.NEXT_PHASE === "phase-production-build";
 
 // Get the base URL, defaulting to localhost if not set
 const getBaseURL = () => {
@@ -60,16 +63,11 @@ if (typeof window === 'undefined') {
   });
 }
 
-// Add request interceptor to prevent external API calls during build
+// During build, reject ALL requests immediately to prevent ECONNREFUSED errors
 axiosInstance.interceptors.request.use(
   (config) => {
     if (isBuildMode) {
-      // Block external API calls during build to prevent connection errors
-      // But allow internal API calls (same origin)
-      const isInternalCall = config.url?.startsWith('/api/') || config.url?.startsWith('/');
-      if (!isInternalCall) {
-        throw new Error('External API calls disabled during build');
-      }
+      throw new axios.Cancel('Build mode: request cancelled');
     }
     return config;
   },

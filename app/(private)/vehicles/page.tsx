@@ -1,5 +1,7 @@
 import { VehiclesTableType } from "@/lib/types/vehicles";
 import { axiosInstance } from "@/lib/axios";
+
+export const dynamic = 'force-dynamic';
 import { Card } from "@/components/ui/card";
 import GoBack from "@/components/ui/go-back";
 import { VehicleCard } from "@/components/vehicles/vehicle-card";

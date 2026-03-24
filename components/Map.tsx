@@ -56,6 +56,7 @@ const Map = ({
     };
 
     fetchRoute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [start?.lat, start?.lng, finish?.lat, finish?.lng]);
 
   return (

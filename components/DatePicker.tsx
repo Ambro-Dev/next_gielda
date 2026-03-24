@@ -32,6 +32,7 @@ export function DatePicker({
     if (date) {
       onChange(date);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
   return (

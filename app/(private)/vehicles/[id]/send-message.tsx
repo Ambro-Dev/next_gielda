@@ -71,6 +71,7 @@ const SendMessage = ({ userId, vehicleId }: Props) => {
         message: "Nie możesz wysłać wiadomości do siebie",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {

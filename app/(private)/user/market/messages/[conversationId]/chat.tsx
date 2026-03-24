@@ -50,6 +50,7 @@ const Chat = (props: Props) => {
     setMessages(messagesToRemove);
 
     chatRef.current.scrollTop = bottomRef.current.offsetTop;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.messages]);
 
   const today = new Date().toLocaleDateString();

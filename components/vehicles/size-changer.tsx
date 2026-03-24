@@ -110,6 +110,7 @@ export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {
           : selectedVehicle?.size[2],
       height: selectedVehicle?.size[1],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicle?.id]);
 
   return (
