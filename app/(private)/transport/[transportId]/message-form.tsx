@@ -34,6 +34,9 @@ import {
 type Props = {
   transportId: string;
   transportOwnerId: string;
+  triggerClassName?: string;
+  triggerVariant?: "default" | "brand" | "dark" | "outline" | "ghost" | "secondary" | "destructive" | "link";
+  triggerSize?: "default" | "sm" | "lg" | "icon";
 };
 
 const formSchema = z.object({
@@ -42,7 +45,7 @@ const formSchema = z.object({
   }),
 });
 
-const MessageForm = (props: Props) => {
+const MessageForm = ({ triggerClassName, triggerVariant = "brand", triggerSize = "lg", ...props }: Props) => {
   const [alert, setAlert] = React.useState({ error: "", conversation: "" });
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [showAlert, setShowAlert] = React.useState(false);
@@ -110,8 +113,8 @@ const MessageForm = (props: Props) => {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          Napisz wiadomość
+        <Button size={triggerSize} variant={triggerVariant} className={triggerClassName}>
+          Napisz wiadomosc
         </Button>
       </DialogTrigger>
 

@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,19 +16,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";
 
-type Transport = {
+export type Transport = {
   id: string;
-  createdAt: Date;
+  description: string;
+  createdAt: string;
   vehicle: string;
   category: string;
   creator: string;
@@ -70,7 +75,7 @@ export const columns: ColumnDef<Transport>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Nazwa użytkownika
+          Użytkownik
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -82,6 +87,32 @@ export const columns: ColumnDef<Transport>[] = [
       return (
         <Button
           variant="ghost"
+          className="hidden md:flex"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Opis
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    accessorKey: "description",
+    cell: ({ row }) => {
+      const desc = row.getValue("description") as string;
+      if (!desc) return <span className="hidden md:block text-muted-foreground text-sm">—</span>;
+      const truncated = desc.length > 50 ? desc.slice(0, 50) + "…" : desc;
+      return (
+        <span className="hidden md:block text-sm" title={desc}>
+          {truncated}
+        </span>
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="hidden sm:flex"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Pojazd
@@ -90,12 +121,18 @@ export const columns: ColumnDef<Transport>[] = [
       );
     },
     accessorKey: "vehicle",
+    cell: ({ row }) => (
+      <div className="hidden sm:block">
+        <Badge variant="secondary">{row.getValue("vehicle")}</Badge>
+      </div>
+    ),
   },
   {
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
+          className="hidden sm:flex"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Kategoria
@@ -104,6 +141,11 @@ export const columns: ColumnDef<Transport>[] = [
       );
     },
     accessorKey: "category",
+    cell: ({ row }) => (
+      <div className="hidden sm:block">
+        <Badge variant="outline">{row.getValue("category")}</Badge>
+      </div>
+    ),
   },
   {
     header: ({ column }) => {
@@ -126,12 +168,15 @@ export const columns: ColumnDef<Transport>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Ilość przedmiotów
+          Przedmioty
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     accessorKey: "objects",
+    cell: ({ row }) => (
+      <span className="font-medium">{row.getValue("objects")}</span>
+    ),
   },
   {
     id: "actions",
@@ -139,8 +184,8 @@ export const columns: ColumnDef<Transport>[] = [
       const transport = row.original;
 
       return (
-        <DropdownMenu>
-          <Dialog>
+        <AlertDialog>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Otwórz menu</span>
@@ -157,36 +202,38 @@ export const columns: ColumnDef<Transport>[] = [
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href={`/transport/${transport.id}`}>
-                  Przejdż do transportu
+                  Przejdź do transportu
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="font-bold text-red-500" asChild>
-                <DialogTrigger className="w-full">Usuń transport</DialogTrigger>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Czy na pewno chcesz usunąć transport?</DialogTitle>
-                <DialogDescription>
-                  Akcja ta usunie również wszystkie konwersacje i oferty
-                  związane z transportem, a po usunięciu transportu nie będzie
-                  można go przywrócić.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-x-4">
-                <DialogTrigger asChild>
-                  <Button variant="ghost">Anuluj</Button>
-                </DialogTrigger>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(transport.id)}
-                >
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem className="font-bold text-red-500">
                   Usuń transport
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </DropdownMenu>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Czy na pewno chcesz usunąć transport?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Akcja ta usunie również wszystkie konwersacje i oferty związane z
+                transportem, a po usunięciu transportu nie będzie można go
+                przywrócić.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anuluj</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => handleDelete(transport.id)}
+              >
+                Usuń transport
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       );
     },
   },

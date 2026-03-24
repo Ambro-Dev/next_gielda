@@ -27,8 +27,9 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { Label } from "@radix-ui/react-dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios";
+import { UserPlus, CheckCircle2, Copy } from "lucide-react";
 
 const noPolishCharsOrSpecialChars = /^[a-zA-Z0-9.]+$/;
 
@@ -111,11 +112,50 @@ type User = {
   role: string;
 } | null;
 
+function CopyField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  const { toast } = useToast();
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </Label>
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          value={value}
+          readOnly
+          className="bg-muted/50 text-sm"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 w-9 p-0 shrink-0"
+          onClick={() => {
+            navigator.clipboard.writeText(value);
+            toast({
+              title: "Skopiowano",
+              description: `${label} skopiowano do schowka.`,
+            });
+          }}
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
   const [createdUser, setCreatedUser] = React.useState<User>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const [open, setOpen] = React.useState(false);
   const [showNewSchoolDialog, setShowNewSchoolDialog] = React.useState(false);
 
   const form = useForm({
@@ -153,14 +193,17 @@ export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
   return (
     <Dialog open={showNewSchoolDialog} onOpenChange={setShowNewSchoolDialog}>
       <DialogTrigger asChild>
-        <Button>Dodaj studenta</Button>
+        <Button className="gap-2">
+          <UserPlus className="h-4 w-4" />
+          Dodaj ucznia
+        </Button>
       </DialogTrigger>
       <DialogContent>
         {!createdUser ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <DialogHeader>
-                <DialogTitle>Nowy użytkownik</DialogTitle>
+                <DialogTitle>Nowy uczeń</DialogTitle>
                 <DialogDescription>Uzupełnij wszystkie pola</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2 pb-4">
@@ -235,59 +278,37 @@ export const AddStudentForm = ({ schoolId }: { schoolId: string }) => {
             </form>
           </Form>
         ) : (
-          <div className="flex flex-col">
-            <div className="flex flex-col space-y-4">
-              <DialogHeader>
-                <DialogTitle>Użytkownik dodany</DialogTitle>
-                <DialogDescription>
-                  Skopiuj dane i wyślij do użytkownika
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-2 pb-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">
-                    Nazwa użytkownika
-                  </Label>
-                  <Input
-                    type="text"
-                    value={createdUser.username}
-                    readOnly
-                    className="bg-gray-100"
-                  />
+          <div className="flex flex-col gap-5">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Email</Label>
-                  <Input
-                    type="text"
-                    value={createdUser.email}
-                    readOnly
-                    className="bg-gray-100"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Hasło</Label>
-                  <Input
-                    type="text"
-                    value={createdUser.password}
-                    readOnly
-                    className="bg-gray-100"
-                  />
+                <div>
+                  <DialogTitle>Uczeń dodany</DialogTitle>
+                  <DialogDescription>
+                    Skopiuj dane i wyślij do ucznia
+                  </DialogDescription>
                 </div>
               </div>
+            </DialogHeader>
+            <div className="space-y-3">
+              <CopyField
+                label="Nazwa użytkownika"
+                value={createdUser.username}
+              />
+              <CopyField label="Email" value={createdUser.email} />
+              <CopyField label="Hasło" value={createdUser.password} />
             </div>
-            <div className="flex flex-col">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowNewSchoolDialog(false);
-                  setOpen(false);
-                  setCreatedUser(null);
-                  router.refresh();
-                }}
-              >
-                Gotowe
-              </Button>
-            </div>
+            <Button
+              onClick={() => {
+                setShowNewSchoolDialog(false);
+                setCreatedUser(null);
+                router.refresh();
+              }}
+            >
+              Gotowe
+            </Button>
           </div>
         )}
       </DialogContent>

@@ -204,6 +204,7 @@ export default async function SchoolManagement() {
     );
     return {
       id: transport.id,
+      description: transport.description ?? "",
       vehicle: transport.vehicle.name,
       category: transport.category.name,
       creator: transport.creator.username,

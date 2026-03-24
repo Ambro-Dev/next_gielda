@@ -16,6 +16,7 @@ export const GET = async (req: NextRequest) => {
     },
     select: {
       id: true,
+      mapImage: true,
       category: {
         select: {
           id: true,

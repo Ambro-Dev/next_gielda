@@ -13,9 +13,18 @@ import {
   FormControl,
   FormDescription,
 } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { MapPin, Navigation, Clock } from "lucide-react";
 import React from "react";
 
 type LatLng = { lat: number; lng: number };
+
+type DirectionsData = {
+  distance: { text: string; value: number };
+  duration: { text: string; value: number };
+  start_address: string;
+  end_address: string;
+} | null;
 
 type NewTransportMapCardProps = {
   setStartDestination: (position: LatLng) => void;
@@ -24,6 +33,7 @@ type NewTransportMapCardProps = {
   setEndAddress?: (address: string) => void;
   startDestination?: LatLng;
   endDestination?: LatLng;
+  directionsData?: DirectionsData;
 };
 
 const formSchema = z.object({
@@ -44,6 +54,7 @@ const NewTransportMapCard = ({
   setEndAddress,
   startDestination,
   endDestination,
+  directionsData,
 }: NewTransportMapCardProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,63 +77,88 @@ const NewTransportMapCard = ({
   }, [form.watch("finish")]);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-6 space-y-6">
-      <h2 className="text-base font-semibold">Trasa transportu</h2>
-      <div className="grid lg:grid-cols-2 grid-cols-1 w-full gap-6">
-      <div className="flex items-center justify-center">
+    <section className="bg-card rounded-lg shadow-card-lg overflow-hidden animate-fade-in animate-stagger-3 hover:shadow-card-hover transition-shadow duration-300">
+      <div className="p-6 space-y-6">
+        <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+          <MapPin className="w-[18px] h-[18px] text-brand" />
+          Trasa transportu
+        </h2>
+
         <Form {...form}>
           <form className="space-y-6 w-full">
-            <FormField
-              control={form.control}
-              name="start"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Miejsce wysyłki</FormLabel>
-                  <FormControl>
-                    <TransportMapSelector
-                      setPlace={field.onChange}
-                      setAddress={setStartAddress}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Wybierz miejsce wysyłki (Forma wyszukiwania{" "}
-                    <b>ulica, miasto, kraj</b>)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="finish"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Miejsce odbioru</FormLabel>
-                  <FormControl>
-                    <TransportMapSelector
-                      setPlace={field.onChange}
-                      setAddress={setEndAddress}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Wybierz miejsce odbioru (Forma wyszukiwania{" "}
-                    <b>ulica, miasto, kraj</b>)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-6">
+              <FormField
+                control={form.control}
+                name="start"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Miejsce wysyłki</FormLabel>
+                    <FormControl>
+                      <TransportMapSelector
+                        setPlace={field.onChange}
+                        setAddress={setStartAddress}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Wybierz miejsce wysyłki (Forma wyszukiwania{" "}
+                      <b>ulica, miasto, kraj</b>)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="finish"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Miejsce odbioru</FormLabel>
+                    <FormControl>
+                      <TransportMapSelector
+                        setPlace={field.onChange}
+                        setAddress={setEndAddress}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Wybierz miejsce odbioru (Forma wyszukiwania{" "}
+                      <b>ulica, miasto, kraj</b>)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
+
+        {/* Route summary */}
+        {directionsData && (
+          <div className="flex items-center gap-4 text-sm bg-muted/50 rounded-md px-4 py-3 animate-fade-in">
+            <div className="flex items-center gap-1.5">
+              <Navigation className="w-4 h-4 text-brand" />
+              <span className="font-medium tabular-nums">
+                {directionsData.distance.text}
+              </span>
+            </div>
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="font-medium tabular-nums">
+                {directionsData.duration.text}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="w-full rounded-lg overflow-hidden min-h-[300px]">
+
+      {/* Map — bleeds to card edges */}
+      <div className="w-full min-h-[250px] sm:min-h-[350px] lg:min-h-[400px]">
         <MapWithDirections
           start={form.watch("start")}
           finish={form.watch("finish")}
         />
       </div>
-      </div>
-    </div>
+    </section>
   );
 };
 

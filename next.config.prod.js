@@ -36,6 +36,11 @@ const nextConfig = {
         hostname: "utfs.io",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "ufs.sh",
+        port: "",
+      },
     ],
     // Optimize images for production
     formats: ['image/webp', 'image/avif'],

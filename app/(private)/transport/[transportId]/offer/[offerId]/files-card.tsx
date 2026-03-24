@@ -1,7 +1,5 @@
 "use client";
 
-import "@uploadthing/react/styles.css";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadButton } from "@/utils/uploadthing";
 import React from "react";
@@ -39,7 +37,7 @@ const FilesCard = (props: Props) => {
   const params = useParams();
   const router = useRouter();
 
-  const saveFile = async (files: UploadthingFile[]) => {
+  const saveFile = async (files: { name: string; url: string; key: string; size: number }[]) => {
     if (
       files === undefined ||
       !params?.offerId ||
@@ -96,7 +94,7 @@ const FilesCard = (props: Props) => {
           }}
           onClientUploadComplete={(res) => {
             // Do something with the response
-            saveFile(res as UploadthingFile[]);
+            saveFile(res);
           }}
           onUploadError={(error: Error) => {
             // Do something with the error.

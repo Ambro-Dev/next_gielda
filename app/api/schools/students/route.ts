@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
         select: {
           id: true,
           username: true,
+          email: true,
           isBlocked: true,
         },
       },
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest) {
     return {
       id: student.user.id,
       username: student.user.username,
+      email: student.user.email,
       name_and_surname: `${student.name || ""} ${student.surname || ""}`,
       isBlocked: student.user.isBlocked,
     };

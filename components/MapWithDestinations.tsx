@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ReactMap, { Layer, Source, Marker } from "react-map-gl/mapbox";
+import type { MapRef } from "react-map-gl/mapbox";
 import {
   MAPBOX_TOKEN,
   MAP_STYLE,
@@ -28,9 +29,40 @@ interface RouteGeoJSON {
 
 const MapWithDirections = ({ start, finish }: Props) => {
   const [routeData, setRouteData] = useState<RouteGeoJSON | null>(null);
+  const mapRef = useRef<MapRef | null>(null);
 
-  const centerLng = start && finish ? (start.lng + finish.lng) / 2 : 19.48;
-  const centerLat = start && finish ? (start.lat + finish.lat) / 2 : 52.07;
+  const onMapLoad = useCallback((e: { target: unknown }) => {
+    const map = e.target as MapRef;
+    mapRef.current = map;
+    applyPremiumEffects(map as any, {
+      terrain: true,
+      buildings: false,
+      fog: true,
+      sky: false,
+    });
+    if (start && finish) {
+      map.fitBounds(
+        [
+          [Math.min(start.lng, finish.lng), Math.min(start.lat, finish.lat)],
+          [Math.max(start.lng, finish.lng), Math.max(start.lat, finish.lat)],
+        ],
+        { padding: 50, duration: 0, pitch: 20 }
+      );
+    }
+  }, [start, finish]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !start || !finish) return;
+
+    map.fitBounds(
+      [
+        [Math.min(start.lng, finish.lng), Math.min(start.lat, finish.lat)],
+        [Math.max(start.lng, finish.lng), Math.max(start.lat, finish.lat)],
+      ],
+      { padding: 50, duration: 1000, pitch: 20 }
+    );
+  }, [start?.lat, start?.lng, finish?.lat, finish?.lng]);
 
   useEffect(() => {
     if (!start || !finish) {
@@ -62,23 +94,15 @@ const MapWithDirections = ({ start, finish }: Props) => {
     <ReactMap
       mapboxAccessToken={MAPBOX_TOKEN}
       initialViewState={{
-        longitude: centerLng,
-        latitude: centerLat,
-        zoom: start && finish ? 7 : 5,
+        longitude: 19.48,
+        latitude: 52.07,
+        zoom: 5,
         pitch: 20,
       }}
       style={{ width: "100%", height: "300px", borderRadius: "0.75rem" }}
       mapStyle={MAP_STYLE}
       interactive={false}
-      onLoad={(e) => {
-        const map = e.target as any;
-        applyPremiumEffects(map, {
-          terrain: true,
-          buildings: false,
-          fog: true,
-          sky: false,
-        });
-      }}
+      onLoad={onMapLoad}
     >
       {routeData && (
         <Source id="route" type="geojson" data={routeData}>

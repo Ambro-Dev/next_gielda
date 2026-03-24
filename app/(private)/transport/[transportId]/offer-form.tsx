@@ -89,7 +89,7 @@ const vatOptions = [
   { name: "23", label: "23%" },
 ];
 
-const OfferForm = ({ transport }: { transport: Transport }) => {
+const OfferForm = ({ transport, triggerClassName, triggerVariant = "dark", triggerSize = "lg" }: { transport: Transport; triggerClassName?: string; triggerVariant?: "default" | "brand" | "dark" | "outline" | "ghost" | "secondary" | "destructive" | "link"; triggerSize?: "default" | "sm" | "lg" | "icon" }) => {
   const [offerOpen, setOfferOpen] = React.useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -190,8 +190,8 @@ const OfferForm = ({ transport }: { transport: Transport }) => {
   return (
     <Dialog open={offerOpen} onOpenChange={setOfferOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" disabled={!transport.isAvailable}>
-          Złóż ofertę
+        <Button size={triggerSize} variant={triggerVariant} className={triggerClassName} disabled={!transport.isAvailable}>
+          Zloz oferte
         </Button>
       </DialogTrigger>
       <DialogContent className="space-y-4">

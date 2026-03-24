@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prismadb";
 import { Object } from "@prisma/client";
+import { generateMapImage } from "@/lib/generate-map-image";
 
 export const POST = async (req: NextRequest) => {
   const session = await auth();
@@ -129,6 +130,20 @@ export const POST = async (req: NextRequest) => {
     throw new Error("Błąd dodawania transportu");
   }
 
+  // Generate and store pre-built map image URL
+  const mapImage = generateMapImage({
+    transportId: transport.id,
+    directions: { start: directions.start, finish: directions.finish },
+    polyline,
+  });
+
+  if (mapImage) {
+    await prisma.transport.update({
+      where: { id: transport.id },
+      data: { mapImage },
+    });
+  }
+
   return NextResponse.json({
     message: "Transport został dodany",
     transportId: transport.id,
@@ -166,6 +181,7 @@ export const GET = async (req: NextRequest) => {
     },
     select: {
       id: true,
+      mapImage: true,
       sendDate: true,
       receiveDate: true,
       vehicle: {

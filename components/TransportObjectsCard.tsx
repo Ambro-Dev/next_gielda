@@ -39,6 +39,7 @@ import { ObjectsTable } from "@/components/ObjectsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Box } from "lucide-react";
 
 import dimensions from "@/assets/images/dimensions.png";
 import Image from "next/image";
@@ -159,11 +160,14 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-6 space-y-4">
+    <section className="space-y-4 animate-fade-in animate-stagger-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">Przedmioty do transportu</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            <Box className="w-[18px] h-[18px] text-brand" />
+            Przedmioty do transportu
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Dodaj wszystkie przedmioty podlegające pod transport.
           </p>
         </div>
@@ -327,7 +331,7 @@ const TransportObjectsCard = ({ edit, objects, setObjects }: Props) => {
       </div>
 
       <ObjectsTable data={objects} edit={edit} handleDelete={handleDelete} />
-    </div>
+    </section>
   );
 };
 

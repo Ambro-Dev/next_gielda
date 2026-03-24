@@ -26,10 +26,22 @@ import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Transport } from "../page";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrentTransportMap from "./CurrentMap";
 import { CategoryComboBox } from "@/components/CategoryComboBox";
-import { Loader2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import {
+  Loader2,
+  ArrowRight,
+  ArrowDown,
+  Clock,
+  Package,
+  CalendarClock,
+  MapPin,
+  Box,
+  AlertCircle,
+  Navigation,
+  Map,
+} from "lucide-react";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -212,6 +224,8 @@ export function EditTransportForm({
     },
   });
 
+  const descriptionValue = form.watch("description");
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const objectsWithoutId = objects.map(({ id, ...rest }) => rest);
 
@@ -270,7 +284,8 @@ export function EditTransportForm({
   };
 
   const alertBox = (
-    <div className="flex items-center gap-3 p-4 rounded-lg border border-red-200 bg-red-50 text-red-800 text-sm">
+    <div className="flex items-center gap-3 p-4 rounded-lg border border-destructive/20 bg-destructive/5 text-destructive text-sm animate-fade-in">
+      <AlertCircle className="shrink-0 w-5 h-5" />
       <span>{alert.error}</span>
     </div>
   );
@@ -279,19 +294,24 @@ export function EditTransportForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8"
+        className="space-y-10"
         id="transport-form"
       >
-        {/* Basic info section */}
-        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
-          <h2 className="text-base font-semibold">Podstawowe informacje</h2>
+        {/* Section 1: Basic Info — primary card */}
+        <section className="bg-card rounded-lg shadow-card p-6 space-y-6 animate-fade-in animate-stagger-1">
+          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            <Package className="w-[18px] h-[18px] text-brand" />
+            Podstawowe informacje
+          </h2>
           <div className="w-full grid sm:grid-cols-2 grid-cols-1 gap-6">
             <FormField
               control={form.control}
               name="category"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Kategoria*</FormLabel>
+                  <FormLabel>
+                    Kategoria <span className="text-brand">*</span>
+                  </FormLabel>
                   <FormControl>
                     <CategoryComboBox
                       data={categories}
@@ -311,7 +331,9 @@ export function EditTransportForm({
               name="vehicle"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Typ pojazdu transportowego*</FormLabel>
+                  <FormLabel>
+                    Typ pojazdu <span className="text-brand">*</span>
+                  </FormLabel>
                   <FormControl>
                     <ComboBox
                       data={vehicles}
@@ -333,122 +355,203 @@ export function EditTransportForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Opis*</FormLabel>
+                <FormLabel>
+                  Opis <span className="text-brand">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} className="leading-relaxed" />
                 </FormControl>
-                <FormDescription>
-                  Krótki opis, który pomoże przewoźnikowi w przedstawieniu jak
-                  najbardziej szczegółowej oferty.
+                <FormDescription className="flex justify-between">
+                  <span className="max-w-[65ch]">
+                    Krótki opis, który pomoże przewoźnikowi w przedstawieniu jak
+                    najbardziej szczegółowej oferty.
+                  </span>
+                  <span className="tabular-nums text-xs shrink-0 ml-4">
+                    {descriptionValue?.length || 0}
+                  </span>
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        </section>
 
-        {/* Dates section */}
-        <div className="border border-gray-200 rounded-lg p-6 space-y-6">
-          <h2 className="text-base font-semibold">Termin transportu</h2>
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FormField
-              control={form.control}
-              name="sendDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data wysyłki*</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      onChange={field.onChange}
-                      defaultValue={field.value}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Kiedy towar ma zostać odebrany
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="sendTime"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Godzina wysyłki*</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="time" />
-                  </FormControl>
-                  <FormDescription>
-                    Wybierz godzinę wysyłki towaru
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="receiveDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data dostawy*</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      onChange={field.onChange}
-                      defaultValue={field.value}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Kiedy towar ma zostać dostarczony
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="receiveTime"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Godzina dostawy*</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="time" />
-                  </FormControl>
-                  <FormDescription>
-                    Wybierz godzinę dostawy towaru
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Section 2: Dates — open, border-t */}
+        <section className="border-t border-border pt-8 space-y-6 animate-fade-in animate-stagger-2">
+          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            <CalendarClock className="w-[18px] h-[18px] text-brand" />
+            Termin transportu
+          </h2>
+
+          <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
+            {/* Send group */}
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="w-2 h-2 rounded-full bg-brand" />
+                Wysyłka
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-brand/[0.03] rounded-lg p-4 border border-brand/10">
+                <FormField
+                  control={form.control}
+                  name="sendDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Data <span className="text-brand">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          onChange={field.onChange}
+                          defaultValue={field.value}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Kiedy towar ma zostać odebrany
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sendTime"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Godzina <span className="text-brand">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            type="time"
+                            className="pl-9 [color-scheme:light]"
+                          />
+                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Godzina wysyłki towaru
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Arrow separator */}
+            <div className="hidden lg:flex items-center pt-12 text-muted-foreground">
+              <ArrowRight className="w-5 h-5" />
+            </div>
+            <div className="flex lg:hidden justify-center text-muted-foreground">
+              <ArrowDown className="w-5 h-5" />
+            </div>
+
+            {/* Receive group */}
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="w-2 h-2 rounded-full bg-navy" />
+                Dostawa
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-navy/[0.03] rounded-lg p-4 border border-navy/10">
+                <FormField
+                  control={form.control}
+                  name="receiveDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Data <span className="text-brand">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          onChange={field.onChange}
+                          defaultValue={field.value}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Kiedy towar ma zostać dostarczony
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="receiveTime"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Godzina <span className="text-brand">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            type="time"
+                            className="pl-9 [color-scheme:light]"
+                          />
+                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Godzina dostawy towaru
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </form>
 
-      {/* Map section */}
-      <Tabs defaultValue="current" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="current">Obecna trasa</TabsTrigger>
-          <TabsTrigger value="edit">Edytuj trasę</TabsTrigger>
-        </TabsList>
-        <TabsContent value="current" className="space-y-4">
+      {/* Current Route Summary */}
+      <section className="bg-card rounded-lg shadow-card overflow-hidden animate-fade-in animate-stagger-3">
+        <div className="p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+              <Map className="w-[18px] h-[18px] text-brand" />
+              Obecna trasa
+            </h2>
+            {directionsData && (
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Navigation className="w-3.5 h-3.5 text-brand" />
+                  <span className="font-medium tabular-nums">
+                    {directionsData.distance.text}
+                  </span>
+                </span>
+                <Separator orientation="vertical" className="h-4" />
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="font-medium tabular-nums">
+                    {directionsData.duration.text}
+                  </span>
+                </span>
+              </div>
+            )}
+          </div>
           <CurrentTransportMap transport={transport} />
-        </TabsContent>
-        <TabsContent value="edit" className="space-y-4">
-          <NewTransportMapCard
-            setEndDestination={setEndDestination}
-            setStartDestination={setStartDestination}
-            startDestination={startDestination}
-            endDestination={endDestination}
-            setStartAddress={(addr) => {
-              startAddressRef.current = addr;
-            }}
-            setEndAddress={(addr) => {
-              endAddressRef.current = addr;
-            }}
-          />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </section>
+
+      {/* Edit Route */}
+      <section className="animate-fade-in animate-stagger-4">
+        <NewTransportMapCard
+          setEndDestination={setEndDestination}
+          setStartDestination={setStartDestination}
+          startDestination={startDestination}
+          endDestination={endDestination}
+          setStartAddress={(addr) => {
+            startAddressRef.current = addr;
+          }}
+          setEndAddress={(addr) => {
+            endAddressRef.current = addr;
+          }}
+        />
+      </section>
 
       {alert.error !== "" && alertBox}
 
@@ -459,29 +562,56 @@ export function EditTransportForm({
         edit={true}
       />
 
-      {/* Submit */}
-      <div className="w-full flex justify-end items-center gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-        >
-          Anuluj
-        </Button>
-        <Button
-          type="button"
-          onClick={form.handleSubmit(onSubmit)}
-          disabled={form.formState.isSubmitting}
-        >
-          {form.formState.isSubmitting ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="animate-spin w-4 h-4" />
-              <span>Zapisywanie...</span>
-            </div>
-          ) : (
-            "Zapisz"
-          )}
-        </Button>
+      {/* Sticky submit bar */}
+      <div className="sticky bottom-0 z-10 bg-background/80 backdrop-blur-sm border-t border-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mt-10 animate-fade-in animate-stagger-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
+          {/* Left: contextual info */}
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            {directionsData && (
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" />
+                {directionsData.distance.text}
+              </span>
+            )}
+            {objects.length > 0 && (
+              <span className="flex items-center gap-1.5">
+                <Box className="w-3.5 h-3.5" />
+                {objects.length}{" "}
+                {objects.length === 1 ? "przedmiot" : "przedmiotów"}
+              </span>
+            )}
+          </div>
+
+          {/* Right: actions */}
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+            >
+              Anuluj
+            </Button>
+            <Button
+              type="button"
+              size="lg"
+              onClick={form.handleSubmit(onSubmit)}
+              className="sm:w-auto w-full active:scale-[0.98] transition-transform"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="animate-spin w-4 h-4" />
+                  <span>Zapisywanie...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Zapisz zmiany</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </Form>
   );

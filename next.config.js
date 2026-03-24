@@ -29,6 +29,11 @@ const nextConfig = {
         hostname: "utfs.io",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "ufs.sh",
+        port: "",
+      },
     ],
   },
   async headers() {

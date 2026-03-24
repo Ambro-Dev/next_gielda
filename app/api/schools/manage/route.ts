@@ -19,6 +19,8 @@ export const GET = async (req: NextRequest) => {
     select: {
       id: true,
       name: true,
+      createdAt: true,
+      isActive: true,
       _count: {
         select: {
           transports: true,
@@ -83,5 +85,13 @@ export const GET = async (req: NextRequest) => {
     },
   });
 
-  return NextResponse.json({ school, latestTransports });
+  const offersCount = await prisma.offer.count({
+    where: {
+      transport: {
+        schoolId: schoolId,
+      },
+    },
+  });
+
+  return NextResponse.json({ school, latestTransports, offersCount });
 };

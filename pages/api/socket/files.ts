@@ -24,12 +24,12 @@ export default async function handler(
           id: offerId,
         },
       },
-      fileKey: file.fileKey,
-      fileName: file.fileName,
-      fileUrl: file.fileUrl,
+      fileKey: file.key,
+      fileName: file.name,
+      fileUrl: file.url,
       name: file.name,
       size: file.size,
-      fileSize: file.fileSize,
+      fileSize: file.size,
       key: file.key,
       url: file.url,
       user: {
@@ -82,7 +82,7 @@ export default async function handler(
       : transportCreator.creator.id;
 
   const message = {
-    fileName: file.fileName,
+    fileName: file.name,
     createdAt: newFile.createdAt,
     sender: {
       id: user.id,

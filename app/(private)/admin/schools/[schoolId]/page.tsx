@@ -1,21 +1,8 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { RecentTransports } from "@/components/dashboard/recent-transports";
-
-import { Truck, Users } from "lucide-react";
 import { axiosInstance } from "@/lib/axios";
 import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
-import AddSchoolAdmin from "./add-school-admin";
 import { notFound } from "next/navigation";
-import React from "react";
-import AdminsCarousel from "./components/AdminsCarousel";
+import { Badge } from "@/components/ui/badge";
+import { SchoolPageClient } from "./components/SchoolPageClient";
 
 interface PageProps {
   params: Promise<{
@@ -27,6 +14,8 @@ type SchoolWithTransports = {
   school: {
     id: string;
     name: string;
+    createdAt: Date;
+    isActive: boolean;
     _count: {
       transports: number;
       students: number;
@@ -44,22 +33,12 @@ type SchoolWithTransports = {
     id: string;
     description: string;
     createdAt: Date;
-    vehicle: {
-      id: string;
-      name: string;
-    };
-    category: {
-      id: string;
-      name: string;
-    };
-    creator: {
-      id: string;
-      username: string;
-    };
-    _count: {
-      objects: number;
-    };
+    vehicle: { id: string; name: string };
+    category: { id: string; name: string };
+    creator: { id: string; username: string };
+    _count: { objects: number };
   }[];
+  offersCount: number;
 };
 
 const getSchool = async (schoolId: string): Promise<SchoolWithTransports> => {
@@ -81,99 +60,36 @@ export default async function SchoolPage({ params: paramsPromise }: PageProps) {
   const timeToExpire = GetExpireTimeLeft(data.school.accessExpires);
 
   return (
-    <div className="flex-wrap space-y-4 p-8 pt-6">
-      <div className="flex flex-col justify-center space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {data.school.name}
-        </h2>
-        {!timeToExpire.isExpired ? (
-          <p className="text-sm">
-            Dostęp dla szkoły wygaśnie za:{" "}
-            <span className="font-semibold">{timeToExpire.daysLeft}</span>
-            {timeToExpire.daysLeft === 1 ? " dzień" : " dni"}
-          </p>
-        ) : (
-          <p className="text-sm text-red-500">Dostęp dla szkoły wygasł</p>
-        )}
+    <div className="space-y-6 p-8 pt-6">
+      {/* Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-bold tracking-tight">
+              {data.school.name}
+            </h2>
+            <Badge variant={data.school.isActive ? "success" : "destructive"}>
+              {data.school.isActive ? "Aktywna" : "Nieaktywna"}
+            </Badge>
+          </div>
+          {!timeToExpire.isExpired ? (
+            <p className="text-sm text-muted-foreground">
+              Dostęp wygaśnie za{" "}
+              <span className="font-semibold text-foreground">
+                {timeToExpire.daysLeft}
+              </span>
+              {timeToExpire.daysLeft === 1 ? " dzień" : " dni"}
+            </p>
+          ) : (
+            <p className="text-sm font-medium text-red-500">
+              Dostęp dla szkoły wygasł
+            </p>
+          )}
+        </div>
       </div>
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Ogólne</TabsTrigger>
-          <TabsTrigger value="analytics" disabled>
-            Analityka
-          </TabsTrigger>
-          <TabsTrigger value="reports" disabled>
-            Raporty
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="col-span-2 gap-4">
-              <Card className="border border-gray-200 shadow-sm">
-                {data.school.administrators.length > 0 ? (
-                  <AdminsCarousel administrators={data.school.administrators} />
-                ) : (
-                  <div className="flex flex-row items-center justify-center w-full space-x-6 p-5">
-                    <p className="text-sm text-center text-muted-foreground">
-                      Jednostka nie posiada administratora, dodaj go.
-                      Administrator będzie miał możliwość zarządzania jednostką.
-                    </p>
-                    <AddSchoolAdmin schoolId={schoolId} />
-                  </div>
-                )}
-              </Card>
-              {data.school.administrators.length > 0 && (
-                <div className="w-full pt-2">
-                  <AddSchoolAdmin
-                    schoolId={schoolId}
-                    className="w-full"
-                    size="default"
-                    variant="secondary"
-                  />
-                </div>
-              )}
-            </div>
 
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Transporty
-                </CardTitle>
-                <Truck size={20} className="text-gray-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data.school._count.transports}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Konta uczniów
-                </CardTitle>
-                <Users size={20} className="text-gray-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data.school._count.students}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="col-span-2 border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle>Ostatnie transporty</CardTitle>
-                <CardDescription>Transporty ostatnio dodane</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentTransports transports={data.latestTransports} />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Tabs */}
+      <SchoolPageClient data={data} />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import TransportsMap from "@/components/dashboard/transports-map";
 import { Tags, Transport } from "@/app/(private)/transport/page";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Filter, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import noResults from "@/assets/animations/no-results.json";
 import noOffers from "@/assets/animations/no-offers.json";
@@ -237,69 +238,140 @@ const TransportsFilter = (props: Props) => {
         onRouteClear={handleRouteClear}
       />
 
-      {/* Horizontal filter bar */}
-      <div className="flex flex-wrap items-center gap-2 py-4 border-b border-gray-100">
-        <Filter size={16} className="text-muted-foreground" />
+      {/* Sticky filter bar */}
+      <div className="sticky top-20 z-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 bg-card border-t-2 border-t-primary border-b-2 border-b-border py-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filter icon with accent dot */}
+          <div className="relative mr-1">
+            <Filter size={15} className="text-muted-foreground" />
+            {hasActiveFilters && (
+              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
+            )}
+          </div>
 
-        <FilterDropdown
-          label="Kategoria"
-          items={categories}
-          selectedIds={selectedCategories}
-          onToggle={handleCategoryChange}
-        />
+          <FilterDropdown
+            label="Kategoria"
+            items={categories}
+            selectedIds={selectedCategories}
+            onToggle={handleCategoryChange}
+          />
 
-        <FilterDropdown
-          label="Typ pojazdu"
-          items={vehicles}
-          selectedIds={selectedVehicles}
-          onToggle={handleVehicleChange}
-        />
+          <FilterDropdown
+            label="Typ pojazdu"
+            items={vehicles}
+            selectedIds={selectedVehicles}
+            onToggle={handleVehicleChange}
+          />
 
-        <Button variant="brand" size="sm" onClick={handleSearch}>
-          Szukaj
-        </Button>
-
-        {hasActiveFilters && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={clearFilters}
-            className="text-gray-500 gap-1"
+            onClick={handleSearch}
+            className={cn(
+              "text-sm",
+              hasActiveFilters && "border-primary/50 text-primary"
+            )}
           >
-            <X size={14} />
-            Wyczyść filtry
+            Szukaj
           </Button>
-        )}
 
-        <span className="ml-auto text-sm text-muted-foreground">
-          {filteredTransports.length}{" "}
-          {filteredTransports.length === 1 ? "ogłoszenie" : "ogłoszeń"}
-        </span>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors ml-1"
+            >
+              <X size={12} />
+              Wyczyść filtry
+            </button>
+          )}
+
+          {/* Count */}
+          <div className="ml-auto text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground tabular-nums">
+              {filteredTransports.length}
+            </span>{" "}
+            {filteredTransports.length === 1
+              ? "ogłoszenie"
+              : filteredTransports.length > 1 && filteredTransports.length < 5
+                ? "ogłoszenia"
+                : "ogłoszeń"}
+          </div>
+        </div>
+
+        {/* Active filter pills */}
+        {(selectedCategories.length > 0 || selectedVehicles.length > 0) && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {selectedCategories.map((id) => {
+              const cat = categories.find((c) => c.id === id);
+              return cat ? (
+                <button
+                  key={id}
+                  onClick={() => handleCategoryChange(id)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/60 transition-colors"
+                >
+                  {cat.name}
+                  <X size={10} />
+                </button>
+              ) : null;
+            })}
+            {selectedVehicles.map((id) => {
+              const veh = vehicles.find((v) => v.id === id);
+              return veh ? (
+                <button
+                  key={id}
+                  onClick={() => handleVehicleChange(id)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/60 transition-colors"
+                >
+                  {veh.name}
+                  <X size={10} />
+                </button>
+              ) : null;
+            })}
+          </div>
+        )}
       </div>
 
       {/* Results */}
       <div className="pt-6">
         {transports.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
+          <div className="flex items-start gap-6 py-16">
             <Lottie
               animationData={noOffers}
-              className="w-48"
+              className="w-36 flex-shrink-0"
               loop={true}
             />
-            <p className="mt-4 text-muted-foreground">
-              Brak ogłoszeń do wyświetlenia
-            </p>
+            <div className="pt-4">
+              <p className="text-lg font-medium text-foreground tracking-tight">
+                Brak ogłoszeń
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Nie ma jeszcze żadnych ogłoszeń do wyświetlenia.
+              </p>
+            </div>
           </div>
         ) : filteredTransports.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
+          <div className="flex items-start gap-6 py-16">
             <Lottie
               animationData={noResults}
-              className="w-48"
+              className="w-36 flex-shrink-0"
               loop={true}
             />
-            <p className="mt-4 text-muted-foreground">
-              Brak ogłoszeń dla wybranych filtrów
-            </p>
+            <div className="pt-4">
+              <p className="text-lg font-medium text-foreground tracking-tight">
+                Brak wyników
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Spróbuj zmienić filtry lub poszukaj innej trasy.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+                className="mt-4"
+              >
+                Wyczyść filtry
+              </Button>
+            </div>
           </div>
         ) : (
           <TransportsMap transports={filteredTransports} />

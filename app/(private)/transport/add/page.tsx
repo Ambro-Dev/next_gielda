@@ -81,14 +81,40 @@ const AddTransportPage = async () => {
   }));
 
   return (
-    <div className="py-6 space-y-6 pb-10">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          Nowe ogłoszenie transportowe
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Wypełnij formularz, aby dodać nowe zlecenie transportowe.
+    <div className="py-6 space-y-8 pb-24">
+      <div className="space-y-1 animate-fade-in animate-stagger-1">
+        <p className="text-xs font-medium text-brand tracking-widest uppercase">
+          Nowe zlecenie
         </p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tighter text-foreground">
+          Dodaj transport
+        </h1>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-[65ch] mt-1">
+          Wypełnij formularz, aby dodać nowe zlecenie transportowe.
+          Pola oznaczone <span className="text-brand">*</span> są wymagane.
+        </p>
+
+        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-3">
+          <span className="flex items-center gap-1.5">
+            <span className="w-5 h-5 rounded-full bg-brand/10 text-brand font-semibold flex items-center justify-center text-[10px]">1</span>
+            Informacje
+          </span>
+          <span className="w-4 h-px bg-border" />
+          <span className="flex items-center gap-1.5">
+            <span className="w-5 h-5 rounded-full bg-brand/10 text-brand font-semibold flex items-center justify-center text-[10px]">2</span>
+            Terminy
+          </span>
+          <span className="w-4 h-px bg-border" />
+          <span className="flex items-center gap-1.5">
+            <span className="w-5 h-5 rounded-full bg-brand/10 text-brand font-semibold flex items-center justify-center text-[10px]">3</span>
+            Trasa
+          </span>
+          <span className="w-4 h-px bg-border" />
+          <span className="flex items-center gap-1.5">
+            <span className="w-5 h-5 rounded-full bg-brand/10 text-brand font-semibold flex items-center justify-center text-[10px]">4</span>
+            Ładunek
+          </span>
+        </div>
       </div>
       <AddTransportForm
         school={school}

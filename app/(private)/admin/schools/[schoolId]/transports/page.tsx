@@ -1,4 +1,3 @@
-import { RecentTransports } from "@/components/dashboard/recent-transports";
 import { axiosInstance } from "@/lib/axios";
 import React from "react";
 import { TransportsTable } from "./transports-table";
@@ -38,19 +37,23 @@ const getSchoolTransports = async (schoolId: string) => {
     );
     const data = response.data;
     return data.transports;
-  } catch (error) {}
+  } catch (error) {
+    return [];
+  }
 };
 
 const SchoolTransports = async (props: Props) => {
   const { schoolId } = await props.params;
-  const transportsData = await getSchoolTransports(schoolId);
+  const transportsData: Transport[] =
+    (await getSchoolTransports(schoolId)) ?? [];
 
-  const transports = await transportsData.map((transport: Transport) => {
+  const transports = transportsData.map((transport: Transport) => {
     const formatedDate = new Date(transport.createdAt).toLocaleDateString(
       "pl-PL"
     );
     return {
       id: transport.id,
+      description: transport.description ?? "",
       vehicle: transport.vehicle.name,
       category: transport.category.name,
       creator: transport.creator.username,
@@ -59,11 +62,35 @@ const SchoolTransports = async (props: Props) => {
     };
   });
 
+  const totalObjects = transportsData.reduce(
+    (sum, t) => sum + t._count.objects,
+    0
+  );
+
+  const lastTransportDate = transportsData.length
+    ? new Date(
+        Math.max(
+          ...transportsData.map((t) => new Date(t.createdAt).getTime())
+        )
+      ).toLocaleDateString("pl-PL")
+    : "—";
+
+  const categories = [
+    ...new Set(transportsData.map((t) => t.category.name)),
+  ];
+  const vehicles = [...new Set(transportsData.map((t) => t.vehicle.name))];
+
   return (
     <TransportsTable
       columns={columns}
       transports={transports}
       school={schoolId}
+      stats={{
+        total: transportsData.length,
+        totalObjects,
+        lastTransportDate,
+      }}
+      filterOptions={{ categories, vehicles }}
     />
   );
 };

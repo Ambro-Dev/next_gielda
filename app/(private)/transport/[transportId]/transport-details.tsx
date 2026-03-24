@@ -1,11 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ObjectsTable } from "@/components/ObjectsTable";
-import { GetExpireTimeLeft } from "@/app/lib/getExpireTimeLeft";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -26,11 +23,11 @@ import { toast } from "@/components/ui/use-toast";
 import { Transport } from "./page";
 import {
   Calendar,
-  Clock,
-  Navigation,
-  Truck,
   User,
-  ArrowDown,
+  Pencil,
+  Trash2,
+  Navigation,
+  Clock,
 } from "lucide-react";
 
 const formatDate = (date: Date) => {
@@ -60,16 +57,16 @@ const setTransportUnavailable = async (transportId: string, userId: string) => {
       });
     } else {
       toast({
-        title: "Błąd",
+        title: "Blad",
         description: data.error,
       });
     }
   } catch (error) {
     console.error(error);
     toast({
-      title: "Błąd",
+      title: "Blad",
       description:
-        "Wystąpił błąd podczas wykonywania tej operacji, spróbuj ponownie później.",
+        "Wystapil blad podczas wykonywania tej operacji, sprobuj ponownie pozniej.",
     });
   }
 };
@@ -95,6 +92,7 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
   const router = useRouter();
 
   const { data } = useSession();
+  const isOwner = data?.user.id === transport.creator.id;
 
   useEffect(() => {
     if (!transport.start_address) {
@@ -112,183 +110,186 @@ const TransportDetails = ({ transport }: { transport: Transport }) => {
   }, [transport]);
 
   return (
-    <div className="space-y-6">
-      {/* Status bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Badge variant="secondary">{transport.category.name}</Badge>
-        {transport.isAccepted ? (
-          <Badge className="bg-green-700 hover:bg-green-700">
-            Zaakceptowano
+    <div className="space-y-10">
+      {/* Header + Description */}
+      <div className="animate-fade-in animate-stagger-1">
+        {/* Title with inline vehicle badge */}
+        <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tighter text-foreground">
+          {startAddr ? startAddr.split(",")[0] : "..."}
+          <span className="text-brand mx-2">&rarr;</span>
+          {endAddr ? endAddr.split(",")[0] : "..."}
+          <Badge variant="secondary" className="ml-3 align-middle text-xs font-medium capitalize">
+            {transport.vehicle.name}
           </Badge>
-        ) : GetExpireTimeLeft(transport.sendDate).hoursLeft > 0 &&
-          transport.isAvailable ? (
-          <Badge variant="destructive">
-            Wygaśnie za:{" "}
-            {GetExpireTimeLeft(transport.sendDate).daysLeft > 0
-              ? `${GetExpireTimeLeft(transport.sendDate).daysLeft} dni`
-              : `${GetExpireTimeLeft(transport.sendDate).hoursLeft} godz.`}
-          </Badge>
-        ) : (
-          <Badge variant="destructive">Wygasło</Badge>
-        )}
+        </h1>
 
-        {/* Owner actions */}
-        {data?.user.id === transport.creator.id && (
-          <div className="flex items-center gap-2 ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/transport/${transport.id}/edit`)}
-              disabled={transport.isAccepted}
-            >
-              Edytuj
-            </Button>
-            {transport.isAvailable && (
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          Usuń
-                        </Button>
-                      </DialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        Oznacza ogłoszenie jako nieaktywne, znajdziesz je
-                        później w zakładce zakończone zlecenia
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      Czy na pewno chcesz usunąć ogłoszenie?
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      variant="destructive"
-                      className="flex-1"
-                      onClick={() =>
-                        setTransportUnavailable(
-                          transport.id,
-                          String(data?.user.id)
-                        ).then(() => {
-                          setDialogOpen(false);
-                          router.refresh();
-                        })
-                      }
-                    >
-                      Tak
-                    </Button>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="flex-1">
-                        Nie
-                      </Button>
-                    </DialogTrigger>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Quick info */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
-        <div className="flex items-center gap-1.5">
-          <User className="w-4 h-4 text-gray-400" />
-          <span className="font-medium">{transport.creator.username}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Truck className="w-4 h-4 text-gray-400" />
-          <span className="capitalize">{transport.vehicle.name}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Calendar className="w-4 h-4 text-gray-400" />
-          <span>{formatDate(transport.createdAt)}</span>
-        </div>
-        {transport.distance?.text && (
+        {/* Meta — separated */}
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Navigation className="w-4 h-4 text-gray-400" />
-            <span>{transport.distance.text}</span>
+            <User className="w-3.5 h-3.5" />
+            <span className="font-medium">{transport.creator.username}</span>
           </div>
-        )}
-        {transport.duration?.text && (
+          <span className="text-border">|</span>
           <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span>{transport.duration.text}</span>
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{formatDate(transport.createdAt)}</span>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Description */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Opis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-600 leading-relaxed">
+        {/* Description — editorial pull-quote */}
+        {transport.description && (
+          <p className="mt-5 text-base text-muted-foreground leading-relaxed max-w-[65ch] border-l-2 border-brand/30 pl-4">
             {transport.description}
           </p>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-      {/* Route + Objects grid */}
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Trasa</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-3 py-2">
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>Wysyłka: {formatDate(transport.sendDate)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                    <span className="text-[8px] font-bold text-white">A</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {startAddr || "Ładowanie..."}
-                  </span>
-                </div>
+      {/* Route Timeline */}
+      <div className="animate-fade-in animate-stagger-2">
+        <h2 className="text-lg font-semibold tracking-tight mb-5">Trasa</h2>
+        <div className="relative pl-10">
+          {/* Timeline line */}
+          <div className="absolute left-[13px] top-3 bottom-3 w-1 rounded-full bg-gradient-to-b from-brand to-navy" />
+
+          {/* Start point */}
+          <div className="relative pb-10 group/point">
+            <div className="absolute left-[-27px] top-1 w-7 h-7 rounded-full border-2 border-brand bg-background flex items-center justify-center ring-4 ring-brand/10 z-10">
+              <div className="w-2.5 h-2.5 rounded-full bg-brand" />
+            </div>
+            <div className="text-xs font-medium text-brand uppercase tracking-wider mb-1">
+              Wysylka
+            </div>
+            <div className="text-base font-semibold group-hover/point:text-brand transition-colors">
+              {startAddr || "Ladowanie..."}
+            </div>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
+              <Calendar className="w-3 h-3" />
+              <span>{formatDate(transport.sendDate)}</span>
+            </div>
+            {transport.sendTime && (
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Godzina: {transport.sendTime}
               </div>
+            )}
+          </div>
 
-              <ArrowDown className="w-5 h-5 text-gray-300" />
-
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>Dostawa: {formatDate(transport.receiveDate)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
-                    <span className="text-[8px] font-bold text-white">B</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {endAddr || "Ładowanie..."}
-                  </span>
-                </div>
+          {/* Transit stats between points */}
+          {(transport.distance?.text || transport.duration?.text) && (
+            <div className="relative pb-10 flex items-center gap-2 -ml-10 pl-10">
+              <div className="flex items-center gap-2">
+                {transport.distance?.text && (
+                  <Badge variant="secondary" className="text-xs gap-1 font-normal">
+                    <Navigation className="w-3 h-3" />
+                    {transport.distance.text}
+                  </Badge>
+                )}
+                {transport.duration?.text && (
+                  <Badge variant="secondary" className="text-xs gap-1 font-normal">
+                    <Clock className="w-3 h-3" />
+                    {transport.duration.text}
+                  </Badge>
+                )}
               </div>
+            </div>
+          )}
+
+          {/* End point */}
+          <div className="relative group/point">
+            <div className="absolute left-[-27px] top-1 w-7 h-7 rounded-full border-2 border-navy bg-background flex items-center justify-center ring-4 ring-navy/10 z-10">
+              <div className="w-2.5 h-2.5 rounded-full bg-navy" />
+            </div>
+            <div className="text-xs font-medium text-navy uppercase tracking-wider mb-1">
+              Dostawa
+            </div>
+            <div className="text-base font-semibold group-hover/point:text-navy transition-colors">
+              {endAddr || "Ladowanie..."}
+            </div>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
+              <Calendar className="w-3 h-3" />
+              <span>{formatDate(transport.receiveDate)}</span>
+            </div>
+            {transport.receiveTime && (
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Godzina: {transport.receiveTime}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Owner actions */}
+      {isOwner && (
+        <Card className="animate-fade-in animate-stagger-3">
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">
+              Zarzadzanie
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                size="sm"
+                onClick={() => router.push(`/transport/${transport.id}/edit`)}
+                disabled={transport.isAccepted}
+              >
+                <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                Edytuj
+              </Button>
+              {transport.isAvailable && (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive" className="flex-1" size="sm">
+                            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                            Usun
+                          </Button>
+                        </DialogTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          Oznacza ogloszenie jako nieaktywne, znajdziesz je
+                          pozniej w zakladce zakonczone zlecenia
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        Czy na pewno chcesz usunac ogloszenie?
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() =>
+                          setTransportUnavailable(
+                            transport.id,
+                            String(data?.user.id)
+                          ).then(() => {
+                            setDialogOpen(false);
+                            router.refresh();
+                          })
+                        }
+                      >
+                        Tak
+                      </Button>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="flex-1">
+                          Nie
+                        </Button>
+                      </DialogTrigger>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </CardContent>
         </Card>
-
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Przedmioty</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ObjectsTable data={transport.objects} edit={false} />
-          </CardContent>
-        </Card>
-      </div>
+      )}
     </div>
   );
 };

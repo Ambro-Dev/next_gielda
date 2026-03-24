@@ -47,19 +47,12 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 type Props = {};
 
 type UploadthingFile = {
-  id: string;
-  fileName: string;
   name: string;
-  fileSize: number;
   size: number;
-  fileKey: string;
   key: string;
-  fileUrl: string;
   url: string;
-  user: {
-    id: string;
-    username: string;
-  };
+  customId: string | null;
+  serverData: unknown;
 };
 
 const formSchema = z.object({
@@ -125,7 +118,7 @@ const Page = (props: Props) => {
 
   const saveFile = async (files: UploadthingFile[]) => {
     const file = files[0];
-    form.setValue("file", file.fileUrl);
+    form.setValue("file", file.url);
     setFile(file);
 
     if (!file)
@@ -254,7 +247,7 @@ const Page = (props: Props) => {
                           }}
                           onClientUploadComplete={(res) => {
                             // Do something with the response
-                            saveFile(res as UploadthingFile[]);
+                            saveFile(res);
                           }}
                           onUploadError={(error: Error) => {
                             // Do something with the error.
@@ -268,7 +261,7 @@ const Page = (props: Props) => {
                     ) : (
                       <div className="flex flex-col items-center justify-center rounded-md">
                         <Image
-                          src={file.fileUrl}
+                          src={file.url}
                           className="w-full h-full object-contain rounded-md"
                           alt="file"
                           width={500}

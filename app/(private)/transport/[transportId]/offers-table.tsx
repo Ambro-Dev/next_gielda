@@ -30,9 +30,9 @@ type Props = {
 
 export function OffersTable({ transportId, data, user, owner }: Props) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-lg border border-border">
     <Table>
-      <TableCaption>Lista złożonych ofert</TableCaption>
+      <TableCaption className="pb-4">Lista zlozonych ofert</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>Nazwa użytkownika</TableHead>
@@ -43,7 +43,7 @@ export function OffersTable({ transportId, data, user, owner }: Props) {
       </TableHeader>
       <TableBody>
         {data?.map((item) => (
-          <TableRow key={item.id}>
+          <TableRow key={item.id} className="hover:bg-muted/50 even:bg-muted/20 border-l-2 border-l-transparent hover:border-l-brand transition-colors">
             <TableCell className="font-medium">
               {item.creator.username}
             </TableCell>
@@ -54,31 +54,31 @@ export function OffersTable({ transportId, data, user, owner }: Props) {
                     Załadunek: {formatDate(item.loadDate)} -{" "}
                     {formatDate(item.unloadDate)}
                   </span>
-                  <span className="text-gray-500">
-                    Dostawa: w ciągu {item.unloadTime} dni
+                  <span className="text-muted-foreground">
+                    Dostawa: w ciagu {item.unloadTime} dni
                   </span>
                 </div>
               ) : (
-                <span className="text-gray-400">...</span>
+                <span className="text-muted-foreground/50">...</span>
               )}
             </TableCell>
             <TableCell className="text-right">
               {owner === user || item.creator.id === user ? (
                 <div>
-                  <span className="font-medium">
+                  <span className="text-lg font-bold">
                     {item.brutto} {item.currency}
                   </span>
-                  <span className="text-xs text-gray-500 ml-1">brutto</span>
+                  <span className="text-xs text-muted-foreground ml-1">brutto</span>
                 </div>
               ) : (
-                <span className="text-gray-400">...</span>
+                <span className="text-muted-foreground/50">...</span>
               )}
             </TableCell>
             <TableCell>
               {(owner === user || item.creator.id === user) && (
                 <Link href={`/transport/${transportId}/offer/${item.id}`}>
-                  <Button variant="outline" size="sm">
-                    Wyświetl
+                  <Button variant="brand" size="sm">
+                    Wyswietl
                   </Button>
                 </Link>
               )}

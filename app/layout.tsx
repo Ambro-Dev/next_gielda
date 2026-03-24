@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import TopBar from "@/components/TopBar";
 import "./globals.css";
 import type { Metadata } from "next";
@@ -38,9 +39,11 @@ export default async function RootLayout({
         <body className={`${barlow.variable} font-sans`}>
           <MessageProvider>
             <SocketProvider>
-              <NextSSRPlugin
-                routerConfig={extractRouterConfig(ourFileRouter)}
-              />
+              <Suspense fallback={null}>
+                <NextSSRPlugin
+                  routerConfig={extractRouterConfig(ourFileRouter)}
+                />
+              </Suspense>
               <main className="relative flex min-h-screen w-full flex-col bg-background">
                 <Toaster />
                 <TopBar />
