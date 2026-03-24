@@ -1,11 +1,10 @@
 "use client";
 
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import {
   Environment,
-  Lightformer,
   OrbitControls,
   ContactShadows,
   PerspectiveCamera,
@@ -15,46 +14,67 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 
+import {
+  LargeBoxy,
+  LargeFlat,
+  LargeLow,
+  LargeTanker,
+} from "@/components/models/large-truck";
+import {
+  MediumBoxy,
+  MediumLow,
+  MediumTanker,
+  MediumFlat,
+} from "@/components/models/medium-truck";
+import {
+  SmallBoxy,
+  SmallFlat,
+  SmallLow,
+} from "@/components/models/small-truck";
+import Bus from "@/components/models/bus";
+import { CarTrailerBox, CarTrailerLow } from "@/components/models/car-trailer";
+
+type VehicleModelComponent = ({
+  args,
+  ...props
+}: {
+  args: [number, number, number];
+}) => React.JSX.Element;
+
+const vehicleModelMap: Record<string, VehicleModelComponent> = {
+  large_box: LargeBoxy,
+  large_low: LargeLow,
+  large_tanker: LargeTanker,
+  large_flat: LargeFlat,
+  medium_box: MediumBoxy,
+  medium_low: MediumLow,
+  medium_tanker: MediumTanker,
+  medium_flat: MediumFlat,
+  small_box: SmallBoxy,
+  small_low: SmallLow,
+  small_flat: SmallFlat,
+  bus: Bus,
+  car_trailer_box: CarTrailerBox,
+  car_trailer_low: CarTrailerLow,
+};
+
 type Props = {
   className?: string;
   vehicleType: string;
   vehicleSize: [number, number, number];
-  VehicleModel: ({
-    args,
-    ...props
-  }: {
-    args: [number, number, number];
-  }) => React.JSX.Element;
 };
 
 export const VehicleVizualization = ({
   className,
   vehicleSize,
-  VehicleModel,
   vehicleType,
 }: Props) => {
-  const [autoRotate, setAutoRotate] = React.useState(false);
-  const [shadow, setShadow] = React.useState("#fff");
+  const [zoom, setZoom] = React.useState(4);
   const [position, setPosition] = React.useState<[number, number, number]>([
     0, 0, 0,
   ]);
-  const [zoom, setZoom] = React.useState(4);
 
-  const takeScreenshot = () => {
-    // Save the canvas as a *.png
-    const link = document.createElement("a");
-    link.setAttribute("download", "canvas.png");
-    // @ts-ignore
-    link.setAttribute(
-      "href",
-      // @ts-ignore
-      document
-        .querySelector("canvas")
-        .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream"),
-    );
-    link.click();
-  };
+  const VehicleModel = vehicleModelMap[vehicleType] || LargeBoxy;
 
   useEffect(() => {
     setPosition(
@@ -62,18 +82,14 @@ export const VehicleVizualization = ({
         ? [0, 0, -5]
         : vehicleType.includes("medium")
           ? [0, 0, -2]
-          : vehicleType.includes("small")
-            ? [0, 0, 0]
-            : [0, 0, 0],
+          : [0, 0, 0],
     );
     setZoom(
       vehicleType.includes("large")
         ? 2.8
         : vehicleType.includes("medium")
           ? 3.5
-          : vehicleType.includes("small")
-            ? 4
-            : 4,
+          : 4,
     );
   }, [vehicleType]);
 

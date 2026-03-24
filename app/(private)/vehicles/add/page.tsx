@@ -2,9 +2,18 @@
 
 import React, { useEffect } from "react";
 
+import dynamic from "next/dynamic";
 import TypeSelector from "@/components/vehicles/type-selector";
-import { VehicleVizualization } from "@/components/VehicleVisualization";
 import { SizeChanger } from "@/components/vehicles/size-changer";
+
+const VehicleVizualization = dynamic(
+  () => import("@/components/VehicleVisualization").then(mod => ({ default: mod.VehicleVizualization })),
+  { ssr: false, loading: () => (
+    <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-pulse">
+      <p className="text-lg font-medium">Ładowanie podglądu 3D...</p>
+    </div>
+  )}
+);
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,9 +42,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { toast } from "@/components/ui/use-toast";
-import { LargeBoxy } from "@/components/models/large-truck";
-import Vehicles from "@/lib/types/vehicles";
-import { VehicleNames } from "@/lib/types/vehicles";
+import Vehicles, { VehicleData, VehicleNames } from "@/lib/types/vehicles";
 import PlaceSelector from "@/components/vehicles/place-selector";
 import { useRouter } from "next/navigation";
 
@@ -81,22 +88,10 @@ const Page = (props: Props) => {
     );
   }
 
-  const [selectedVehicle, setSelectedVehicle] = React.useState<{
-    id: string;
-    name: string;
-    size: number[];
-    model: ({
-      args,
-      ...props
-    }: {
-      args: [number, number, number];
-    }) => React.JSX.Element;
-    icon: string;
-  }>({
+  const [selectedVehicle, setSelectedVehicle] = React.useState<VehicleData>({
     id: "default",
     name: "Domyślny",
     size: [2.5, 2.7, 13.6],
-    model: LargeBoxy,
     icon: "default",
   });
 
@@ -177,14 +172,6 @@ const Page = (props: Props) => {
         {selectedVehicle && selectedVehicle.id !== "default" ? (
           <VehicleVizualization
             vehicleSize={selectedVehicle?.size as [number, number, number]}
-            VehicleModel={
-              selectedVehicle?.model as ({
-                args,
-                ...props
-              }: {
-                args: [number, number, number];
-              }) => React.JSX.Element
-            }
             vehicleType={selectedVehicle?.id}
           />
         ) : (

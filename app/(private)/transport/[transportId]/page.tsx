@@ -1,5 +1,5 @@
 import React from "react";
-import TransportMap from "./transport-map";
+import TransportMapWrapper from "./transport-map-wrapper";
 import TransportDetails from "./transport-details";
 import TransportActions from "./transport-actions";
 import TransportOffers from "./contact-card";
@@ -106,7 +106,7 @@ const TransportInfo = async ({ params: paramsPromise }: PageParams) => {
     <div className="relative flex w-full flex-col gap-10 lg:gap-12 py-6">
       {/* Map with overlays */}
       <div className="relative rounded-xl sm:rounded-2xl overflow-hidden h-[45vh] lg:h-[55vh] min-h-[350px] max-h-[650px] -mx-4 sm:-mx-6 lg:mx-0 ring-1 ring-inset ring-black/5 animate-fade-in">
-        <TransportMap
+        <TransportMapWrapper
           start={transport.directions.start}
           finish={transport.directions.finish}
           encodedPolyline={transport.polyline}

@@ -1,11 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewTab } from "./OverviewTab";
-import { AnalyticsTab } from "./AnalyticsTab";
-import { ReportsTab } from "./ReportsTab";
 import { useCallback } from "react";
+
+const TabSkeleton = () => (
+  <div className="space-y-4 p-4">
+    <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+    <div className="h-64 bg-muted animate-pulse rounded" />
+  </div>
+);
+
+const AnalyticsTab = dynamic(
+  () => import("./AnalyticsTab").then(m => ({ default: m.AnalyticsTab })),
+  { loading: () => <TabSkeleton /> }
+);
+
+const ReportsTab = dynamic(
+  () => import("./ReportsTab").then(m => ({ default: m.ReportsTab })),
+  { loading: () => <TabSkeleton /> }
+);
 
 type SchoolData = {
   school: {

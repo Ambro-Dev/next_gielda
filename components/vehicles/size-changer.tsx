@@ -54,33 +54,11 @@ const formSchema = z.object({
     .default(2),
 });
 
+import { VehicleData } from "@/lib/types/vehicles";
+
 type Props = {
-  selectedVehicle: {
-    id: string;
-    name: string;
-    size: number[];
-    model: ({
-      args,
-      ...props
-    }: {
-      args: [number, number, number];
-    }) => React.JSX.Element;
-    icon: string;
-  };
-  setSelectedVehicle: React.Dispatch<
-    React.SetStateAction<{
-      id: string;
-      name: string;
-      size: number[];
-      model: ({
-        args,
-        ...props
-      }: {
-        args: [number, number, number];
-      }) => React.JSX.Element;
-      icon: string;
-    }>
-  >;
+  selectedVehicle: VehicleData;
+  setSelectedVehicle: React.Dispatch<React.SetStateAction<VehicleData>>;
 };
 
 export function SizeChanger({ selectedVehicle, setSelectedVehicle }: Props) {

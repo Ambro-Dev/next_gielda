@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Vehicle } from "@/lib/types/vehicles";
+import { Vehicle, VehicleData } from "@/lib/types/vehicles";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import {
@@ -14,20 +14,7 @@ import {
 type Props = {
   vehicles: Vehicle;
   selectedVehicleId?: string;
-  setSelectedVehicle: React.Dispatch<
-    React.SetStateAction<{
-      id: string;
-      name: string;
-      size: number[];
-      model: ({
-        args,
-        ...props
-      }: {
-        args: [number, number, number];
-      }) => React.JSX.Element;
-      icon: string;
-    }>
-  >;
+  setSelectedVehicle: React.Dispatch<React.SetStateAction<VehicleData>>;
 };
 
 const TypeSelector = ({

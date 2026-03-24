@@ -16,8 +16,7 @@ import React from "react";
 
 import { VehicleIcons } from "@/lib/types/vehicles";
 import VehicleMap from "./vehicle-map";
-import { VehicleVizualization } from "@/components/VehicleVisualization";
-import { VehicleModels } from "@/lib/types/vehicles";
+import Vehicle3D from "./vehicle-3d";
 import SendMessage from "./send-message";
 
 type Props = {
@@ -54,10 +53,6 @@ const Page = async (props: Props) => {
   const { id: vehicleId } = await props.params;
 
   const vehicle = await getVihicle(vehicleId);
-
-  const vehicleData = Object.values(VehicleModels).find(
-    (item) => item.id === vehicle.type
-  );
 
   return (
     <div className="py-6 space-y-4">
@@ -186,8 +181,7 @@ const Page = async (props: Props) => {
 
         {/* 3D Visualization */}
         <Card className="lg:col-span-2 lg:row-span-2 border border-gray-200 shadow-sm sm:max-h-[500px] max-h-[300px]">
-          <VehicleVizualization
-            VehicleModel={vehicleData!.model}
+          <Vehicle3D
             vehicleSize={[
               vehicle.type.includes("tanker")
                 ? vehicle.length

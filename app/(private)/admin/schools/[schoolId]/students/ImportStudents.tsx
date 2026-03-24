@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-import * as XLSX from "xlsx";
 import { Input } from "@/components/ui/input";
 import { ImportTable } from "./Import-table";
 import { importTableColumns } from "./import-table-columns";
@@ -149,6 +148,7 @@ const ImportStudents = (props: Props) => {
     if (!testFile(file)) {
       return;
     }
+    const XLSX = await import("xlsx");
     const reader = new FileReader();
     reader.onload = async (event) => {
       if (!event.target) return;

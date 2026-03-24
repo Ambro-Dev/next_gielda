@@ -21,12 +21,29 @@ import { ComboBox } from "@/components/ComboBox";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/DatePicker";
 import TransportObjectsCard from "@/components/TransportObjectsCard";
-import NewTransportMapCard from "@/components/NewTransportMapCard";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { axiosInstance } from "@/lib/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Transport } from "../page";
-import CurrentTransportMap from "./CurrentMap";
+
+const NewTransportMapCard = dynamic(
+  () => import("@/components/NewTransportMapCard"),
+  { ssr: false, loading: () => (
+    <div className="h-[400px] bg-muted/30 animate-pulse rounded-lg flex items-center justify-center">
+      <p className="text-muted-foreground">Ładowanie mapy...</p>
+    </div>
+  )}
+);
+
+const CurrentTransportMap = dynamic(
+  () => import("./CurrentMap"),
+  { ssr: false, loading: () => (
+    <div className="h-[300px] bg-muted/30 animate-pulse rounded-lg flex items-center justify-center">
+      <p className="text-muted-foreground">Ładowanie mapy...</p>
+    </div>
+  )}
+);
 import { CategoryComboBox } from "@/components/CategoryComboBox";
 import { Separator } from "@/components/ui/separator";
 import {
